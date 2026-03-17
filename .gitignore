@@ -1,0 +1,19 @@
+# Archivos de entorno y credenciales
+.env
+.env.local
+.env.*.local
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Configuraciones de Editores de Código
+.vscode/
+.idea/
+*.suo
+*.sln
+
+# Archivos de logs y bases de datos locales
+*.log
+*.sqlite
