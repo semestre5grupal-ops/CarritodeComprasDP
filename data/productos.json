@@ -4,27 +4,27 @@
     "nombre": "Laptop Gamer RTX 4060",
     "descripcion": "Laptop de alto rendimiento para gaming.",
     "precio": 1200.00,
-    "rutaImagen": "./assets/img/laptop.jpg"
+    "imagen": "https://via.placeholder.com/150"
   },
   {
     "id": 2,
     "nombre": "Monitor Curvo 27\"",
     "descripcion": "Monitor 144Hz ideal para eSports.",
     "precio": 250.00,
-    "rutaImagen": "./assets/img/monitor.jpg"
+    "imagen": "https://via.placeholder.com/150"
   },
   {
     "id": 3,
     "nombre": "Teclado Mecánico RGB",
     "descripcion": "Switches mecánicos rápidos y precisos.",
     "precio": 85.00,
-    "rutaImagen": "./assets/img/teclado.jpg"
+    "imagen": "https://via.placeholder.com/150"
   },
   {
     "id": 4,
     "nombre": "Mouse Inalámbrico Pro",
     "descripcion": "Precisión y baja latencia para competir.",
     "precio": 60.00,
-    "rutaImagen": "./assets/img/mouse.jpg"
+    "imagen": "https://via.placeholder.com/150"
   }
 ]
