@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <title>TechStore | Plataforma de Venta Académica</title>
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 
@@ -39,7 +41,8 @@
         <section id="intro" aria-labelledby="sec-intro">
             <div class="wrap">
                 <h2 id="sec-intro">Bienvenido a TechStore</h2>
-                <p>Explora nuestro catálogo de hardware de alta gama. Este sistema utiliza <strong>HTML5 semántico</strong>, persistencia de datos y accesibilidad avanzada.</p>
+                <p>Explora nuestro catálogo de hardware de alta gama. Este sistema utiliza <strong>HTML5
+                        semántico</strong>, persistencia de datos y accesibilidad avanzada.</p>
             </div>
         </section>
 
@@ -68,36 +71,36 @@
 
         <section id="registro" class="wrap" aria-labelledby="tit-registro">
             <h2 id="tit-registro">Registro de Participación y Envío</h2>
-            
-            <!-- Mentoría: Volvemos a colocar 'novalidate' cumpliendo estrictamente con el archivo practicas.txt del ingeniero. 
-                 Esto apagará las engorrosas ventanitas de alerta nativas del navegador para que el equipo de JavaScript pueda tomar el control total
-                 y activar nuestros elegantes contenedores ocultos <span role="alert"> que acabamos de instalar en este Sprint. -->
-            <form id="f-registro" novalidate aria-describedby="ayuda-general">
+
+            <!-- Mentoría: Siguiendo el consejo del ingeniero, USAMOS las validaciones nativas de HTML. 
+                 Quitamos definitivamente 'novalidate'. El navegador bloqueará los errores básicos (como faltas en el requerimiento, 
+                 patrones de regex rotos o correos mal escritos). JavaScript entrará después SOLO para lo que HTML no pueda hacer. -->
+            <form id="f-registro" aria-describedby="ayuda-general">
                 <p id="ayuda-general">Completa los campos obligatorios para procesar tu compra. Navega con Tab.</p>
 
                 <fieldset>
                     <legend>Datos Personales</legend>
-                    
+
                     <label for="nombre">Nombre completo</label>
-                    <!-- Añadimos 'pattern' para obligar a que solo sean letras y espacios -->
-                    <input id="nombre" name="nombre" type="text" required minlength="2" 
-                           pattern="^[A-Za-zÁ-É-Í-Ó-Úá-é-í-ó-úñÑ\s]+$"
-                           autocomplete="name" aria-describedby="hint-nombre error-nombre">
+                    <input id="nombre" name="nombre" type="text" required minlength="2"
+                        pattern="^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$" placeholder="Ej. Ana García"
+                        title="Por favor, ingrese únicamente letras y espacios." autocomplete="name"
+                        aria-describedby="hint-nombre error-nombre">
                     <small id="hint-nombre">Solo letras. Mínimo 2 caracteres.</small>
                     <span id="error-nombre" class="error" role="alert" hidden></span>
 
                     <label for="email">Correo Institucional</label>
-                    <input id="email" name="email" type="email" required 
-                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                           autocomplete="email" aria-describedby="hint-email error-email">
+                    <input id="email" name="email" type="email" required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="usuario@ejemplo.edu.ec"
+                        title="Debe ingresar un correo con dominio válido (ej. usuario@ejemplo.edu.ec)"
+                        autocomplete="email" aria-describedby="hint-email error-email">
                     <small id="hint-email">Formato: usuario@ejemplo.edu.ec</small>
                     <span id="error-email" class="error" role="alert" hidden></span>
 
                     <label for="telefono">Teléfono (Ecuador)</label>
-                    <input id="telefono" name="telefono" type="tel" required 
-                           pattern="[0-9]{10}" inputmode="tel" placeholder="0987654321" 
-                           title="Ingrese exactamente 10 dígitos numéricos" 
-                           aria-describedby="ayuda-telefono error-telefono">
+                    <input id="telefono" name="telefono" type="tel" required pattern="[0-9]{10}" inputmode="tel"
+                        placeholder="0987654321" title="Ingrese exactamente 10 dígitos numéricos"
+                        aria-describedby="ayuda-telefono error-telefono">
                     <p id="ayuda-telefono">Formato: 10 dígitos (ej. 0912345678)</p>
                     <span id="error-telefono" class="error" role="alert" hidden></span>
                 </fieldset>
