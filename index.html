@@ -82,10 +82,12 @@
                     <legend>Datos Personales</legend>
 
                     <label for="nombre">Nombre completo</label>
-                    <input id="nombre" name="nombre" type="text" required minlength="2"
-                        pattern="^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$" placeholder="Ej. Ana García"
-                        title="Por favor, ingrese únicamente letras y espacios." autocomplete="name"
-                        aria-describedby="hint-nombre error-nombre">
+                    <input id="nombre" name="nombre" type="text" required minlength="2" 
+                           pattern="^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$"
+                           oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '')"
+                           placeholder="Ej. Ana García"
+                           title="Por favor, ingrese únicamente letras y espacios."
+                           autocomplete="name" aria-describedby="hint-nombre error-nombre">
                     <small id="hint-nombre">Solo letras. Mínimo 2 caracteres.</small>
                     <span id="error-nombre" class="error" role="alert" hidden></span>
 
@@ -98,9 +100,11 @@
                     <span id="error-email" class="error" role="alert" hidden></span>
 
                     <label for="telefono">Teléfono (Ecuador)</label>
-                    <input id="telefono" name="telefono" type="tel" required pattern="[0-9]{10}" inputmode="tel"
-                        placeholder="0987654321" title="Ingrese exactamente 10 dígitos numéricos"
-                        aria-describedby="ayuda-telefono error-telefono">
+                    <input id="telefono" name="telefono" type="tel" required 
+                           pattern="[0-9]{10}" inputmode="tel" placeholder="0987654321" 
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                           title="Ingrese exactamente 10 dígitos numéricos" 
+                           aria-describedby="ayuda-telefono error-telefono">
                     <p id="ayuda-telefono">Formato: 10 dígitos (ej. 0912345678)</p>
                     <span id="error-telefono" class="error" role="alert" hidden></span>
                 </fieldset>
