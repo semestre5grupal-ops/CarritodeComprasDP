@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Reto 1: Carrito de compras funcional, accesible y adaptable.">
-    <title>TechStore | Plataforma de Venta Académica</title>
+    <meta name="description" content="ModaStore: Lo mejor de la moda inspirado en Pinto y Adidas.">
+    <title>ModaStore | Nueva Colección 2026</title>
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body>
-    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <a class="skip-link" href="#contenido-principal">Saltar al catálogo</a>
+
+    <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Actualizando tendencias...</p>
+    </div>
 
     <header>
         <div class="wrap header-inner">
-            <!-- Mentoría: El ingeniero enseñó que TODA página debe tener EXACTAMENTE un único <h1> principal. 
-                 Cambiamos el antiguo div por un <h1>. Esto le da sentido estructural a los lectores de pantalla y buscadores. -->
-            <h1 class="brand">TechStore</h1>
-            <nav aria-label="Navegación principal">
+            <h1 class="brand">ModaStore</h1>
+            
+            <nav aria-label="Menú de categorías">
                 <ul>
                     <li><a href="#" aria-current="page">Inicio</a></li>
                     <li><a href="#catalogo">Catálogo</a></li>
-                    <li><a href="#registro">Finalizar Compra</a></li>
+                    <li><a href="#carrito-panel">Mi Carrito</a></li>
                     <li>
-                        <button id="btn-carrito" aria-label="Ver carrito, 0 productos" aria-haspopup="dialog">
-                            🛒 <span id="cart-count" aria-hidden="true">0</span>
+                        <button id="btn-carrito" aria-label="Abrir carrito" disabled>
+                            🛒 <span id="cart-count">0</span>
                         </button>
                     </li>
                 </ul>
@@ -32,98 +34,64 @@
         </div>
     </header>
 
-    <main id="contenido">
-        <section aria-labelledby="t-resumen" class="visually-hidden" id="resumen-seccion">
-            <h2 id="t-resumen">Resumen de errores</h2>
-            <div id="form-summary" role="alert" aria-live="polite"></div>
+    <main id="contenido-principal">
+        <section id="error-summary" class="visually-hidden" role="alert" aria-live="assertive">
+            <h2>Hay problemas en tu pedido</h2>
+            <ul id="error-list"></ul>
         </section>
 
-        <section id="intro" aria-labelledby="sec-intro">
-            <div class="wrap">
-                <h2 id="sec-intro">Bienvenido a TechStore</h2>
-                <p>Explora nuestro catálogo.</p>
+        <section id="hero" class="wrap">
+            <div class="hero-content">
+                <h2>Vístete con Propósito</h2>
+                <p>Explora diseños que combinan comodidad y estilo deportivo.</p>
             </div>
         </section>
 
-        <section id="catalogo" class="wrap" aria-labelledby="sec-productos">
-            <h2 id="sec-productos">Nuestro Catálogo</h2>
-            <div id="product-grid" class="features" role="region" aria-live="polite">
-                <p>Cargando productos de la bodega...</p>
-            </div>
+        <section id="catalogo" class="wrap" aria-labelledby="titulo-catalogo">
+            <h2 id="titulo-catalogo">Prendas Destacadas</h2>
+            
+            <div id="product-grid" class="grid-container" role="region" aria-live="polite">
+                </div>
         </section>
 
-        <aside id="carrito-panel" aria-labelledby="tit-carrito" class="card">
+        <aside id="carrito-panel" class="card wrap" aria-labelledby="tit-carrito">
             <h2 id="tit-carrito">Tu Selección</h2>
-            <!-- Mentoría: Cambiamos un simple <div> por un <ul> con aria-live.
-                 Esto hace que un lector de pantalla anuncie si añadiste un nuevo producto,
-                 y enumera correctamente "producto 1 de 3" en lugar de leer texto de corrido. -->
             <ul id="items-carrito" aria-live="polite">
-                <!-- Se insertarán <li> dinámicamente desde JS -->
+                <li class="empty-msg">Tu carrito está esperando por tu estilo.</li>
             </ul>
-            <div class="cart-total">
-                <p>Total: <span id="precio-total">$0.00</span></p>
-                <button type="button" id="vaciar-cart">Vaciar Carrito</button>
+            <div class="cart-footer">
+                <p>Total Estimado: <span id="precio-total">$0.00</span></p>
+                <button type="button" id="vaciar-cart" class="btn-secondary" disabled>Vaciar Selección</button>
             </div>
         </aside>
 
-        <hr>
-
-        <section id="registro" class="wrap" aria-labelledby="tit-registro">
-            <h2 id="tit-registro">Registro de Participación y Envío</h2>
-
-            <!-- Mentoría: Siguiendo el consejo del ingeniero, USAMOS las validaciones nativas de HTML. 
-                 Quitamos definitivamente 'novalidate'. El navegador bloqueará los errores básicos (como faltas en el requerimiento, 
-                 patrones de regex rotos o correos mal escritos). JavaScript entrará después SOLO para lo que HTML no pueda hacer. -->
-            <form id="f-registro" aria-describedby="ayuda-general">
-                <p id="ayuda-general">Completa los campos obligatorios para procesar tu compra.</p>
-
+        <section id="registro" class="wrap">
+            <form id="f-pedido" aria-describedby="instrucciones-formulario">
+                <h2 id="tit-envio">Finalizar Compra</h2>
+                <p id="instrucciones-formulario">Ingresa tus datos para coordinar la entrega.</p>
+                
                 <fieldset>
-                    <legend>Datos Personales</legend>
+                    <legend>Información de Contacto</legend>
+                    
+                    <label for="usr-nombre">Nombre Completo</label>
+                    <input type="text" id="usr-nombre" name="nombre" required autocomplete="name"
+                           pattern="^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$" 
+                           aria-describedby="error-nombre">
+                    <span id="error-nombre" class="error-msg" hidden>Solo se permiten letras.</span>
 
-                    <label for="nombre">Nombre completo</label>
-                    <input id="nombre" name="nombre" type="text" required minlength="2" 
-                           pattern="^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$"
-                           oninput="this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '')"
-                           placeholder="Ej. Ana García"
-                           title="Por favor, ingrese únicamente letras y espacios."
-                           autocomplete="name" aria-describedby="hint-nombre error-nombre">
-                    <small id="hint-nombre">Solo letras. Mínimo 2 caracteres.</small>
-                    <span id="error-nombre" class="error" role="alert" hidden></span>
-
-                    <label for="email">Correo Institucional</label>
-                    <input id="email" name="email" type="email" required
-                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="usuario@ejemplo.edu.ec"
-                        title="Debe ingresar un correo con dominio válido (ej. usuario@ejemplo.edu.ec)"
-                        autocomplete="email" aria-describedby="hint-email error-email">
-                    <small id="hint-email">Formato: usuario@ejemplo.edu.ec</small>
-                    <span id="error-email" class="error" role="alert" hidden></span>
-
-                    <label for="telefono">Teléfono (Ecuador)</label>
-                    <input id="telefono" name="telefono" type="tel" required 
-                           pattern="[0-9]{10}" inputmode="tel" placeholder="0987654321" 
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                           title="Ingrese exactamente 10 dígitos numéricos" 
-                           aria-describedby="ayuda-telefono error-telefono">
-                    <p id="ayuda-telefono">Formato: 10 dígitos (ej. 0912345678)</p>
-                    <span id="error-telefono" class="error" role="alert" hidden></span>
+                    <label for="usr-email">Correo Electrónico</label>
+                    <input type="email" id="usr-email" name="email" required autocomplete="email">
                 </fieldset>
 
-                <fieldset>
-                    <legend>Preferencia de Pago (Persistencia)</legend>
-                    <label><input type="radio" name="pago" value="efectivo" checked> Efectivo</label>
-                    <label><input type="radio" name="pago" value="tarjeta"> Tarjeta de Crédito</label>
-                </fieldset>
-
-                <button type="submit" class="btn-primary">Confirmar Pedido</button>
+                <button type="submit" id="btn-finalizar" class="btn-primary" disabled>Confirmar Pedido</button>
             </form>
         </section>
     </main>
 
     <footer class="wrap">
-        <p>&copy; 2026. Curso de Desarrollo de Plataformas</p>
+        <p>&copy; 2026 ModaStore. Desarrollado bajo estándares del curso.</p>
     </footer>
 
     <script src="js/app.js" type="module"></script>
 </body>
-
 </html>
