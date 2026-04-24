@@ -3,121 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Reto 1: Carrito de compras funcional, accesible y adaptable.">
-    <title>TechStore | Plataforma de Venta Académica</title>
+    <meta name="description" content="Tienda de ropa deportiva.">
+    <title>Shop Sport | Ropa deportiva </title>
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 
-    <header>
-        <div class="wrap header-inner">
-            <!-- Mentoría: El ingeniero enseñó que TODA página debe tener EXACTAMENTE un único <h1> principal. 
-                 Cambiamos el antiguo div por un <h1>. Esto le da sentido estructural a los lectores de pantalla y buscadores. -->
-            <h1 class="brand">TechStore</h1>
+    <header class="site-header">
+        <div class="topbar wrap-wide" aria-label="Aviso superior de la tienda">
+            <p>4 prendas esenciales · envío gratis desde $60</p>
+            <div class="topbar-links" aria-label="Redes sociales">
+                <a href="#" aria-label="Instagram">IG</a>
+                <a href="#" aria-label="Facebook">FB</a>
+                <a href="#" aria-label="TikTok">TT</a>
+            </div>
+        </div>
+
+        <div class="nav-bar wrap-wide">
+            <h1 class="brand">Shop<span>sport</span></h1>
             <nav aria-label="Navegación principal">
                 <ul>
-                    <li><a href="#" aria-current="page">Inicio</a></li>
+                    <li><a href="#hero" aria-current="page">Inicio</a></li>
+                    <li><a href="#coleccion">Colección</a></li>
                     <li><a href="#catalogo">Catálogo</a></li>
-                    <li><a href="#registro">Finalizar Compra</a></li>
-                    <li>
-                        <button id="btn-carrito" aria-label="Ver carrito, 0 productos" aria-haspopup="dialog">
-                            🛒 <span id="cart-count" aria-hidden="true">0</span>
-                        </button>
-                    </li>
+                    <li><a href="#contacto">Contacto</a></li>
                 </ul>
             </nav>
+            <div class="nav-actions" aria-label="Acciones rápidas">
+                <a href="#catalogo" class="nav-pill">Buscar productos</a>
+                <button type="button" class="nav-pill">Mi cuenta</button>
+            </div>
         </div>
     </header>
 
-    <main id="contenido">
-        <section aria-labelledby="t-resumen" class="visually-hidden" id="resumen-seccion">
-            <h2 id="t-resumen">Resumen de errores</h2>
-            <div id="form-summary" role="alert" aria-live="polite"></div>
-        </section>
+    <main id="contenido" aria-label="Contenido principal">
+        <section id="hero" class="hero wrap-wide" aria-labelledby="hero-title" aria-describedby="hero-summary">
+            <div class="hero-copy">
+                <p class="eyebrow">Nueva colección rendimiento</p>
+                <h2 id="hero-title">Empieza por lo esencial.</h2>
+                <p id="hero-summary">Ropa deportiva minimalista para entrenar, descansar y moverte con comodidad. Prendas limpias, ordenadas y pensadas para el uso diario.</p>
+                <div class="hero-actions">
+                    <a href="#catalogo" class="btn btn-primary">Ver catálogo</a>
+                    <a href="#coleccion" class="btn btn-secondary">Descubrir colección</a>
+                </div>
+                
+            </div>
 
-        <section id="intro" aria-labelledby="sec-intro">
-            <div class="wrap">
-                <h2 id="sec-intro">Bienvenido a TechStore</h2>
-                <p>Explora nuestro catálogo de hardware de alta gama. Este sistema utiliza <strong>HTML5 semántico</strong>, persistencia de datos y accesibilidad avanzada.</p>
+            <div class="hero-visual" aria-label="Vista conceptual de colecciones deportivas">
+                <article class="hero-card hero-card-light">
+                    <span>Mujer</span>
+                    <strong>Movimiento limpio</strong>
+                    <p>Leggings, tops y capas suaves para entrenar con comodidad.</p>
+                </article>
+                <article class="hero-card hero-card-dark">
+                    <span>Hombre</span>
+                    <strong>Rendimiento diario</strong>
+                    <p>Sets versátiles para gimnasio, running y uso urbano.</p>
+                </article>
             </div>
         </section>
 
-        <section id="catalogo" class="wrap" aria-labelledby="sec-productos">
-            <h2 id="sec-productos">Nuestro Catálogo</h2>
-            <div id="product-grid" class="features" role="region" aria-live="polite">
-                <p>Cargando productos de la bodega...</p>
+        <section class="benefits wrap-wide" role="list" aria-label="Ventajas principales">
+            <article role="listitem">
+                <span>01</span>
+                <h3>Envíos a todo Ecuador</h3>
+                <p>Procesos simples, seguimiento claro y entregas rápidas.</p>
+            </article>
+            <article role="listitem">
+                <span>02</span>
+                <h3>Cambios sin complicaciones</h3>
+                <p>Compra con tranquilidad y ajusta tu talla si lo necesitas.</p>
+            </article>
+            <article role="listitem">
+                <span>03</span>
+                <h3>Telas técnicas</h3>
+                <p>Materiales suaves, transpirables y resistentes al uso constante.</p>
+            </article>
+            <article role="listitem">
+                <span>04</span>
+                <h3>Atención por WhatsApp</h3>
+                <p>Resolvemos dudas de tallas, colores y disponibilidad.</p>
+            </article>
+        </section>
+
+        <section id="coleccion" class="collection-banner wrap-wide" aria-labelledby="sec-coleccion">
+            <div class="collection-copy">
+                <p class="eyebrow">shop sport essentials</p>
+                <h2 id="sec-coleccion">La primera capa define todo.</h2>
+                <p>Una selección básica, sobria y funcional para construir looks deportivos sin ruido visual.</p>
+            </div>
+            <div class="collection-switch" aria-label="Categorías destacadas">
+                <button type="button" class="collection-chip">MUJER</button>
+                <button type="button" class="collection-chip">HOMBRE</button>
+                <button type="button" class="collection-chip">KIDS</button>
+                <button type="button" class="collection-chip">ACCESORIOS</button>
             </div>
         </section>
 
-        <aside id="carrito-panel" aria-labelledby="tit-carrito" class="card">
-            <h2 id="tit-carrito">Tu Selección</h2>
-            <!-- Mentoría: Cambiamos un simple <div> por un <ul> con aria-live.
-                 Esto hace que un lector de pantalla anuncie si añadiste un nuevo producto,
-                 y enumera correctamente "producto 1 de 3" en lugar de leer texto de corrido. -->
-            <ul id="items-carrito" aria-live="polite">
-                <!-- Se insertarán <li> dinámicamente desde JS -->
-            </ul>
-            <div class="cart-total">
-                <p>Total: <span id="precio-total">$0.00</span></p>
-                <button type="button" id="vaciar-cart">Vaciar Carrito</button>
+        <section id="catalogo" class="catalog-section wrap-wide" aria-labelledby="sec-productos" aria-live="polite">
+            <div class="section-heading">
+                <h2 id="sec-productos">Nuestro catálogo</h2>
+                <p>Prendas deportivas seleccionadas para una tienda limpia, ordenada y fácil de navegar.</p>
             </div>
-        </aside>
+            <div id="product-grid" class="product-grid" role="list" aria-label="Listado de productos" aria-busy="true">
+                <p class="loading">Cargando productos...</p>
+            </div>
+        </section>
 
-        <hr>
+        <section class="materials wrap-wide" aria-labelledby="sec-materiales" aria-describedby="materiales-summary">
+            <div class="materials-copy">
+                <p class="eyebrow">tejidos técnicos</p>
+                <h2 id="sec-materiales">Fibras que se sienten diferentes.</h2>
+                <p id="materiales-summary">Cada prenda está pensada para acompañar el cuerpo con suavidad, ventilación y estructura mínima.</p>
+            </div>
+            <div class="materials-grid" role="list" aria-label="Materiales destacados">
+                <article role="listitem" aria-label="Material modal">
+                    <strong>Modal</strong>
+                    <p>Suave al tacto, cae bien y mantiene un look limpio.</p>
+                </article>
+                <article role="listitem" aria-label="Material algodón técnico">
+                    <strong>Algodón técnico</strong>
+                    <p>Cómodo, respirable y fácil de combinar en capas.</p>
+                </article>
+            </div>
+        </section>
 
-        <section id="registro" class="wrap" aria-labelledby="tit-registro">
-            <h2 id="tit-registro">Registro de Participación y Envío</h2>
-            
-            <!-- Mentoría: Volvemos a colocar 'novalidate' cumpliendo estrictamente con el archivo practicas.txt del ingeniero. 
-                 Esto apagará las engorrosas ventanitas de alerta nativas del navegador para que el equipo de JavaScript pueda tomar el control total
-                 y activar nuestros elegantes contenedores ocultos <span role="alert"> que acabamos de instalar en este Sprint. -->
-            <form id="f-registro" novalidate aria-describedby="ayuda-general">
-                <p id="ayuda-general">Completa los campos obligatorios para procesar tu compra. Navega con Tab.</p>
+        <section class="promo-banner wrap-wide" aria-labelledby="sec-oferta">
+            <div>
+                <p class="eyebrow">Oferta destacada</p>
+                <h2 id="sec-oferta">Lleva 3 y paga 2</h2>
+                <p>Aplica en básicos seleccionados de mujer, hombre y kids.</p>
+            </div>
+            <div class="promo-actions">
+                <a href="#catalogo" class="btn btn-dark">Niño</a>
+                <a href="#catalogo" class="btn btn-dark">Niña</a>
+            </div>
+        </section>
 
-                <fieldset>
-                    <legend>Datos Personales</legend>
-                    
-                    <label for="nombre">Nombre completo</label>
-                    <!-- Añadimos 'pattern' para obligar a que solo sean letras y espacios -->
-                    <input id="nombre" name="nombre" type="text" required minlength="2" 
-                           pattern="^[A-Za-zÁ-É-Í-Ó-Úá-é-í-ó-úñÑ\s]+$"
-                           autocomplete="name" aria-describedby="hint-nombre error-nombre">
-                    <small id="hint-nombre">Solo letras. Mínimo 2 caracteres.</small>
-                    <span id="error-nombre" class="error" role="alert" hidden></span>
+        <section class="story-grid wrap-wide" aria-label="Bloques editoriales destacados">
+            <article class="story-card story-card-left">
+                <p class="eyebrow">Florencia Davalos</p>
+                <h2>Aquí florecemos en movimiento.</h2>
+                <p>Una colección pensada para mujeres que quieren verse bien, entrenar cómodas y mantener un estilo limpio.</p>
+                <a href="#catalogo" class="btn btn-olive">Compra aquí</a>
+            </article>
+            <article class="story-card story-card-right">
+                <p class="eyebrow">Favoritos de todos</p>
+                <h2>Cuando algo funciona, se vuelve a elegir.</h2>
+                <p>Diseños simples, tonos neutros y prendas que se integran fácil al día a día.</p>
+                <a href="#catalogo" class="btn btn-dark">Compra aquí</a>
+            </article>
+        </section>
 
-                    <label for="email">Correo Institucional</label>
-                    <input id="email" name="email" type="email" required 
-                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                           autocomplete="email" aria-describedby="hint-email error-email">
-                    <small id="hint-email">Formato: usuario@ejemplo.edu.ec</small>
-                    <span id="error-email" class="error" role="alert" hidden></span>
+        <section class="trust-panel wrap-wide" aria-labelledby="sec-confianza" aria-describedby="confianza-summary">
+            <div class="trust-card">
+                <p class="eyebrow">Garantía</p>
+                <h2 id="sec-confianza">Compra segura y cambios claros</h2>
+                <p>Si tu talla no coincide, te ayudamos a resolverlo con un proceso simple y ordenado.</p>
+            </div>
+            <div class="trust-card trust-card-steps" id="confianza-summary">
+                <p class="eyebrow">Atención</p>
+                <h2>Consulta disponibilidad por WhatsApp</h2>
+                <p>Escríbenos para confirmar tallas, colores y tiempos de entrega.</p>
+            </div>
+        </section>
 
-                    <label for="telefono">Teléfono (Ecuador)</label>
-                    <input id="telefono" name="telefono" type="tel" required 
-                           pattern="[0-9]{10}" inputmode="tel" placeholder="0987654321" 
-                           title="Ingrese exactamente 10 dígitos numéricos" 
-                           aria-describedby="ayuda-telefono error-telefono">
-                    <p id="ayuda-telefono">Formato: 10 dígitos (ej. 0912345678)</p>
-                    <span id="error-telefono" class="error" role="alert" hidden></span>
-                </fieldset>
-
-                <fieldset>
-                    <legend>Preferencia de Pago (Persistencia)</legend>
-                    <label><input type="radio" name="pago" value="efectivo" checked> Efectivo</label>
-                    <label><input type="radio" name="pago" value="tarjeta"> Tarjeta de Crédito</label>
-                </fieldset>
-
-                <button type="submit" class="btn-primary">Confirmar Pedido</button>
-            </form>
+        <section class="bottom-notes wrap-wide" aria-label="Resumen de marca">
+            <article>
+                <strong>Certificado</strong>
+                <p>Algodón premium y materiales seleccionados.</p>
+            </article>
+            <article>
+                <strong>15% de descuento</strong>
+                <p>En tu primera compra online.</p>
+            </article>
+            <article>
+                <strong>Encuentra tu talla</strong>
+                <p>Guía rápida para elegir con más seguridad.</p>
+            </article>
         </section>
     </main>
 
-    <footer class="wrap">
-        <p>&copy; 2026. Curso de Desarrollo de Plataformas - Paúl Rosero</p>
+    <footer id="contacto" class="site-footer wrap-wide" aria-label="Pie de página">
+        <div>
+            <h2 class="brand brand-footer">Shop<span>sport</span></h2>
+            <p>Ropa deportiva minimalista para una tienda clara, ordenada y fácil de navegar.</p>
+        </div>
+        <div>
+            <h3>Nosotros</h3>
+            <ul>
+                <li><a href="#coleccion">Colección</a></li>
+                <li><a href="#catalogo">Catálogo</a></li>
+                <li><a href="#hero">Inicio</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3>Atención</h3>
+            <ul>
+                <li><a href="#">WhatsApp</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Facebook</a></li>
+            </ul>
+        </div>
     </footer>
 
     <script src="js/app.js" type="module"></script>
 </body>
-
 </html>

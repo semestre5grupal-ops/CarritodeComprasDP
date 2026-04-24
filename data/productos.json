@@ -1,30 +1,74 @@
 [
     {
         "id": 1,
-        "nombre": "Laptop Gamer RTX 4060",
-        "precio": 1200.00,
-        "imagen": "https://via.placeholder.com/150",
-        "descripcion": "Laptop de alto rendimiento para gaming."
+        "nombre": "Legging Seamless Fit",
+        "precio": 28.00,
+        "descripcion": "Legging de compresión suave con caída limpia para entrenar o salir.",
+        "categoria": "Mujer",
+        "talla": "XS - XL",
+        "destacado": "Básico",
+        "abreviatura": "LF",
+        "tone": "#e8d9cf",
+        "accent": "#b48c74"
     },
     {
         "id": 2,
-        "nombre": "Monitor Curvo 27\"",
-        "precio": 250.00,
-        "imagen": "https://via.placeholder.com/150",
-        "descripcion": "Monitor 144Hz ideal para eSports."
+        "nombre": "Top Training Core",
+        "precio": 22.00,
+        "descripcion": "Top ligero con soporte medio y acabado minimalista.",
+        "categoria": "Mujer",
+        "talla": "S - L",
+        "destacado": "Nuevo",
+        "abreviatura": "TC",
+        "tone": "#eef1f1",
+        "accent": "#89a7a6"
     },
     {
         "id": 3,
-        "nombre": "Teclado Mecánico RGB",
-        "precio": 85.00,
-        "imagen": "https://via.placeholder.com/150",
-        "descripcion": "Switches mecánicos rápidos y precisos."
+        "nombre": "Short Runner Pro",
+        "precio": 24.00,
+        "descripcion": "Short técnico con movimiento cómodo para running y gym.",
+        "categoria": "Hombre",
+        "talla": "S - XL",
+        "destacado": "Ligero",
+        "abreviatura": "RP",
+        "tone": "#d9e3ea",
+        "accent": "#5f7d91"
     },
     {
         "id": 4,
-        "nombre": "Mouse Inalámbrico Pro",
-        "precio": 60.00,
-        "imagen": "https://via.placeholder.com/150",
-        "descripcion": "Precisión y baja latencia para competir."
+        "nombre": "Camiseta Dry Move",
+        "precio": 19.00,
+        "descripcion": "Camiseta transpirable con caída recta y tacto suave.",
+        "categoria": "Hombre",
+        "talla": "M - XXL",
+        "destacado": "Dry Fit",
+        "abreviatura": "DM",
+        "tone": "#f2efe8",
+        "accent": "#b5a57c"
+    },
+    {
+        "id": 5,
+        "nombre": "Set Kids Active",
+        "precio": 34.00,
+        "descripcion": "Conjunto cómodo y resistente para juego y movimiento diario.",
+        "categoria": "Kids",
+        "talla": "4 - 12",
+        "destacado": "Pack",
+        "abreviatura": "KA",
+        "tone": "#f1d8d1",
+        "accent": "#dc8d82"
+    },
+    {
+        "id": 6,
+        "nombre": "Casaca Light Shell",
+        "precio": 45.00,
+        "descripcion": "Casaca liviana para capas intermedias y clima fresco.",
+        "categoria": "Unisex",
+        "talla": "S - XL",
+        "destacado": "Top",
+        "abreviatura": "LS",
+        "tone": "#dae2d8",
+        "accent": "#6f8572"
     }
 ]
