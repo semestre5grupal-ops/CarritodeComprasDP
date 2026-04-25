@@ -33,34 +33,6 @@ function desbloquearInterfaz() {
     document.getElementById("btn-submit").disabled = false;
 }
 
-async function cargarProductos() {
-    const grid = document.getElementById("product-grid");
-    
-    const response = await fetch("data/productos.json");
-    if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-    }
-    
-    const productos = await response.json();
-    grid.innerHTML = "";
-    
-    productos.forEach(producto => {
-        const article = document.createElement("article");
-        article.className = "product-card";
-        
-        // Se cambió alt text para que sea más descriptivo (Accesibilidad)
-        article.innerHTML = `
-            <img src="${producto.imagen}" alt="Fotografía de la prenda: ${producto.nombre}" loading="lazy" style="max-width: 100%;">
-            <h3>${producto.nombre}</h3>
-            <p>${producto.descripcion}</p>
-            <p class="precio"><strong>$${producto.precio.toFixed(2)}</strong></p>
-            <button type="button" data-id="${producto.id}" class="btn-primary" aria-label="Añadir ${producto.nombre} al carrito">
-                Añadir al carrito
-            </button>
-        `;
-        grid.appendChild(article);
-    });
-}
 
 /**
  * Función asíncrona para leer el JSON e imprimir los productos en el contenedor
