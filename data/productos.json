@@ -1,32 +1,4 @@
 [
-  {
-    "id": 1,
-    "nombre": "Laptop Gamer RTX 4060",
-    "descripcion": "Laptop de alto rendimiento para gaming.",
-    "precio": 1200.00,
-    "imagen": "https://via.placeholder.com/150"
-  },
-  {
-    "id": 2,
-    "nombre": "Monitor Curvo 27\"",
-    "descripcion": "Monitor 144Hz ideal para eSports.",
-    "precio": 250.00,
-    "imagen": "https://via.placeholder.com/150"
-  },
-  {
-    "id": 3,
-    "nombre": "Teclado Mecánico RGB",
-    "descripcion": "Switches mecánicos rápidos y precisos.",
-    "precio": 85.00,
-    "imagen": "https://via.placeholder.com/150"
-  },
-  {
-    "id": 4,
-    "nombre": "Mouse Inalámbrico Pro",
-    "descripcion": "Precisión y baja latencia para competir.",
-    "precio": 60.00,
-    "imagen": "https://via.placeholder.com/150"
-  },
     {
         "id": 1,
         "nombre": "Legging Seamless Fit",
@@ -79,7 +51,7 @@
         "id": 5,
         "nombre": "Set Kids Active",
         "precio": 34.00,
-        "descripcion": "Conjunto cómodo y resistente para juego y movimiento diario.",
+        "descripcion": "Resistente para juego y movimiento diario.",
         "categoria": "Kids",
         "talla": "4 - 12",
         "destacado": "Pack",

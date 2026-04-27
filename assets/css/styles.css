@@ -816,3 +816,222 @@ button:disabled {
     transform: none !important;
     opacity: 0.7;
 }
+
+/* ===== FILTROS PANEL ===== */
+.filters-panel {
+    margin: 1.2rem 0;
+    padding: 1.2rem;
+    background: var(--surface-soft);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    border-radius: 1rem;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    height: 100%;
+}
+
+.filter-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+}
+
+.filter-select {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    flex: 1;
+}
+
+.filter-select:hover {
+    border-color: var(--accent);
+}
+
+.filter-select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(97, 168, 184, 0.2);
+}
+
+.filters .btn {
+    align-self: stretch;
+}
+
+@media (max-width: 680px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+
+    .filters .btn {
+        align-self: stretch;
+    }
+}
+
+/* ===== CONTACT PAGE ===== */
+.contact-hero {
+    margin: 1.2rem 0;
+    padding: clamp(1.5rem, 3vw, 3rem);
+    background: linear-gradient(135deg, #fffdf8, #f2ebdf);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    border-radius: 1.5rem;
+}
+
+.contact-intro h1 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.05em;
+    margin-bottom: 0.8rem;
+}
+
+.contact-intro p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.contact-grid {
+    margin: 1.2rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.contact-card {
+    background: var(--surface);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    border-radius: 1.2rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 24px rgba(21, 33, 42, 0.05);
+}
+
+.contact-card h2 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+}
+
+.contact-card p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+}
+
+.faq-section {
+    margin: 1.2rem 0;
+}
+
+.faq-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.faq-item {
+    background: var(--surface-soft);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+.faq-item h3 {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+    color: var(--ink);
+}
+
+.faq-item p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.contact-form-section {
+    margin: 1.2rem 0;
+}
+
+.contact-form {
+    display: grid;
+    gap: 1.2rem;
+    max-width: 600px;
+    margin-top: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 0.7rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(97, 168, 184, 0.2);
+    border-color: var(--accent);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.contact-form .btn {
+    align-self: flex-start;
+}
+
+@media (max-width: 680px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-items {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-form {
+        max-width: 100%;
+    }
+}

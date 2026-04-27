@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo completo - Shop Sport">
+    <title>Catálogo | Shop Sport</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="nav-bar wrap-wide">
+            <h1 class="brand">Shop<span>sport</span></h1>
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="catalogo.html" aria-current="page">Catálogo</a></li>
+                    <li><a href="index.html#contacto">Más información</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions" aria-label="Acciones rápidas">
+                <a href="" class="nav-pill">Mi cuenta</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="contenido" class="wrap-wide" aria-label="Catálogo completo">
+        <section id="catalogo" class="catalog-section" aria-labelledby="sec-productos" aria-live="polite">
+            <div class="section-heading">
+                <h2 id="sec-productos">Nuestro catálogo</h2>
+                <p>Explora todas las prendas. Usa los filtros para personalizar tu búsqueda.</p>
+            </div>
+
+            <div class="filters-panel">
+                <form id="filters" class="filters" aria-label="Filtros de catálogo">
+                    <div class="filter-group">
+                        <label for="filter-category" class="filter-label">Categoría</label>
+                        <select id="filter-category" class="filter-select">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-size" class="filter-label">Talla</label>
+                        <select id="filter-size" class="filter-select">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-season" class="filter-label">Tipo</label>
+                        <select id="filter-season" class="filter-select">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="filter-reset" class="btn btn-secondary">Limpiar filtros</button>
+                </form>
+            </div>
+
+            <div id="product-grid" class="product-grid" role="list" aria-label="Listado de productos">
+                <p class="loading">Cargando productos...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer wrap-wide">
+        <div>
+            <h2 class="brand brand-footer">Shop<span>sport</span></h2>
+            <p>Ropa deportiva minimalista para una tienda clara y ordenada.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js" type="module"></script>
+</body>
+</html>
