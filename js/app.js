@@ -4,46 +4,43 @@ let carrito = [];
 let pendingDeleteId = null;
 let pendingDeleteBulkIds = null;
 
+// 1. Corregimos el punto de entrada para aprovechar tu lógica de carga
 document.addEventListener("DOMContentLoaded", () => {
-    cargarProductos();
+    inicializarSistema(); 
     initScrollTop();
     initCartDrawer();
+    initCartDelegation(); // Centralizamos la delegación de eventos del carrito
 });
-
 
 async function inicializarSistema() {
     const overlay = document.getElementById("loading-overlay");
     
     try {
-        // Simulamos un pequeño retardo si la carga es muy rápida (ej. desde LocalStorage)
-        // para garantizar que la Heurística 1 se cumpla visualmente.
         await new Promise(resolve => setTimeout(resolve, 800)); 
-        
         await cargarProductos();
-        
-        // 2. Habilitar la interfaz protegida
         desbloquearInterfaz();
-        
     } catch (error) {
         console.error("Error crítico de inicialización:", error);
-        document.getElementById("product-grid").innerHTML = 
-            `<p class="error" role="alert">Error al cargar la colección: ${error.message}</p>`;
+        const grid = document.getElementById("product-grid");
+        if (grid) {
+            grid.innerHTML = `<p class="error" role="alert">Error al cargar la colección: ${error.message}</p>`;
+        }
     } finally {
-        // 3. Ocultar la ventana de carga
-        overlay.classList.add("hidden");
+        if (overlay) overlay.classList.add("hidden");
     }
 }
 
+// 2. Protegemos contra posibles elementos nulos en el DOM
 function desbloquearInterfaz() {
-    document.getElementById("btn-carrito").disabled = false;
-    document.getElementById("vaciar-cart").disabled = false;
-    document.getElementById("btn-submit").disabled = false;
+    const btnCarrito = document.getElementById("btn-carrito");
+    const btnVaciar = document.getElementById("vaciar-cart");
+    const btnSubmit = document.getElementById("btn-submit");
+
+    if (btnCarrito) btnCarrito.disabled = false;
+    if (btnVaciar) btnVaciar.disabled = false;
+    if (btnSubmit) btnSubmit.disabled = false;
 }
 
-
-/**
- * Función para manejar el botón de scroll hacia arriba
- */
 function initScrollTop() {
     const btnScroll = document.getElementById("btn-scroll-top");
     if (!btnScroll) return;
@@ -61,16 +58,10 @@ function initScrollTop() {
     });
 
     btnScroll.addEventListener("click", () => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
     });
 }
 
-/**
- * Inicialización y Lógica del Carrito de Compras (Mobile First, Accesible)
- */
 function initCartDrawer() {
     const btnOpenCart = document.querySelector(".btn-cart");
     const btnCloseCart = document.getElementById("btn-close-cart");
@@ -83,89 +74,130 @@ function initCartDrawer() {
     const btnDialogCancel = document.getElementById("btn-dialog-cancel");
     const btnDialogAccept = document.getElementById("btn-dialog-accept");
 
-    // Abrir carrito
-    btnOpenCart.addEventListener("click", () => {
-        cartOverlay.classList.add("active");
-        cartOverlay.setAttribute("aria-hidden", "false");
-        cartDrawer.classList.add("open");
-        cartDrawer.setAttribute("aria-hidden", "false");
-        btnCloseCart.focus();
-    });
+    // Abrir/Cerrar carrito
+    if (btnOpenCart && cartOverlay && cartDrawer && btnCloseCart) {
+        btnOpenCart.addEventListener("click", () => {
+            cartOverlay.classList.add("active");
+            cartOverlay.setAttribute("aria-hidden", "false");
+            cartDrawer.classList.add("open");
+            cartDrawer.setAttribute("aria-hidden", "false");
+            btnCloseCart.focus();
+        });
 
-    // Funciones para cerrar
-    const closeCart = () => {
-        cartOverlay.classList.remove("active");
-        cartOverlay.setAttribute("aria-hidden", "true");
-        cartDrawer.classList.remove("open");
-        cartDrawer.setAttribute("aria-hidden", "true");
-        btnOpenCart.focus();
-    };
+        const closeCart = () => {
+            cartOverlay.classList.remove("active");
+            cartOverlay.setAttribute("aria-hidden", "true");
+            cartDrawer.classList.remove("open");
+            cartDrawer.setAttribute("aria-hidden", "true");
+            btnOpenCart.focus();
+        };
 
-    btnCloseCart.addEventListener("click", closeCart);
-    cartOverlay.addEventListener("click", closeCart);
-    
-    // Escuchar botón escape
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            if (dialogConfirm.open) {
-                dialogConfirm.close();
-            } else if (cartDrawer.classList.contains("open")) {
-                closeCart();
+        btnCloseCart.addEventListener("click", closeCart);
+        cartOverlay.addEventListener("click", closeCart);
+        
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                if (dialogConfirm && dialogConfirm.open) {
+                    dialogConfirm.close();
+                } else if (cartDrawer.classList.contains("open")) {
+                    closeCart();
+                }
             }
-        }
-    });
+        });
+    }
 
     // Agregar desde lista de productos usando event delegation
     document.body.addEventListener("click", (e) => {
         const btnAdd = e.target.closest("button[data-id]");
-        
-        // Verifica si es el bottom "Añadir" del main content
         if (btnAdd && btnAdd.classList.contains("btn-primary") && !btnAdd.closest("#cart-drawer") && !btnAdd.closest("#confirm-dialog")) {
             const prodId = parseInt(btnAdd.dataset.id);
             agregarAlCarrito(prodId);
-            
-            // Abramos el carrito visualmente para validar el feedback
-            btnOpenCart.click(); 
+            if (btnOpenCart) btnOpenCart.click(); 
         }
     });
 
-    // Logica de confirmacion dialog custom
-    btnDialogCancel.addEventListener("click", () => {
-        dialogConfirm.close();
-        pendingDeleteId = null;
-        pendingDeleteBulkIds = null;
-    });
-
-    btnDialogAccept.addEventListener("click", () => {
-        if (pendingDeleteId !== null) {
-            eliminarProductoDefinitivamente(pendingDeleteId);
+    // Lógica de confirmación dialog custom
+    if (btnDialogCancel && dialogConfirm) {
+        btnDialogCancel.addEventListener("click", () => {
+            dialogConfirm.close();
             pendingDeleteId = null;
-        } else if (pendingDeleteBulkIds !== null) {
-            carrito = carrito.filter(item => !pendingDeleteBulkIds.includes(item.id));
-            renderCart();
             pendingDeleteBulkIds = null;
-        }
-        dialogConfirm.close();
-    });
-
-    // Seleccion múltiple
-    selectAllCheckbox.addEventListener("change", (e) => {
-        const itemCheckboxes = document.querySelectorAll(".item-checkbox");
-        itemCheckboxes.forEach(checkbox => {
-            checkbox.checked = e.target.checked;
         });
-        evaluarEstadoBulkDelete();
+    }
+
+    if (btnDialogAccept && dialogConfirm) {
+        btnDialogAccept.addEventListener("click", () => {
+            if (pendingDeleteId !== null) {
+                eliminarProductoDefinitivamente(pendingDeleteId);
+                pendingDeleteId = null;
+            } else if (pendingDeleteBulkIds !== null) {
+                carrito = carrito.filter(item => !pendingDeleteBulkIds.includes(item.id));
+                renderCart();
+                pendingDeleteBulkIds = null;
+            }
+            dialogConfirm.close();
+        });
+    }
+
+    // Selección múltiple global
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener("change", (e) => {
+            const itemCheckboxes = document.querySelectorAll(".item-checkbox");
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+            evaluarEstadoBulkDelete();
+        });
+    }
+
+    // Borrado múltiple
+    if (btnDeleteBulk && dialogConfirm) {
+        btnDeleteBulk.addEventListener("click", () => {
+            const itemCheckboxes = document.querySelectorAll(".item-checkbox:checked");
+            const idsToRemove = Array.from(itemCheckboxes).map(cb => parseInt(cb.dataset.id));
+            
+            if (idsToRemove.length > 0) {
+                pendingDeleteBulkIds = idsToRemove;
+                document.getElementById("dialog-title").textContent = "¿Desea eliminar los productos seleccionados del carrito?";
+                dialogConfirm.showModal();
+            }
+        });
+    }
+}
+
+// 3. NUEVA: Delegación de eventos para optimizar el redibujado del carrito
+function initCartDelegation() {
+    const cartContainer = document.getElementById("cart-items-container");
+    if (!cartContainer) return;
+
+    // Controla clics de sumar, restar y eliminar
+    cartContainer.addEventListener("click", (e) => {
+        const btnInc = e.target.closest('.inc-btn');
+        const btnDec = e.target.closest('.dec-btn');
+        const btnRemove = e.target.closest('.btn-remove-item');
+
+        if (btnInc) {
+            modificarCantidad(parseInt(btnInc.dataset.id), 1);
+        } else if (btnDec) {
+            modificarCantidad(parseInt(btnDec.dataset.id), -1);
+        } else if (btnRemove) {
+            pendingDeleteId = parseInt(btnRemove.dataset.id);
+            document.getElementById("dialog-title").textContent = "¿Desea eliminar el producto del carrito?";
+            document.getElementById("confirm-dialog").showModal();
+        }
     });
 
-    // Borrado multiple
-    btnDeleteBulk.addEventListener("click", () => {
-        const itemCheckboxes = document.querySelectorAll(".item-checkbox:checked");
-        const idsToRemove = Array.from(itemCheckboxes).map(cb => parseInt(cb.dataset.id));
-        
-        if (idsToRemove.length > 0) {
-            pendingDeleteBulkIds = idsToRemove;
-            document.getElementById("dialog-title").textContent = "¿Desea eliminar los productos seleccionados del carrito?";
-            dialogConfirm.showModal();
+    // Controla el cambio de los checkboxes individuales
+    cartContainer.addEventListener("change", (e) => {
+        if (e.target.classList.contains("item-checkbox")) {
+            const itemCheckboxes = document.querySelectorAll(".item-checkbox");
+            const selectAllCheckbox = document.getElementById("select-all-cart");
+            
+            if (selectAllCheckbox) {
+                const allChecked = Array.from(itemCheckboxes).every(i => i.checked);
+                selectAllCheckbox.checked = allChecked;
+            }
+            evaluarEstadoBulkDelete();
         }
     });
 }
@@ -189,7 +221,6 @@ function modificarCantidad(id, delta) {
     if (!producto) return;
 
     if (producto.cantidad === 1 && delta === -1) {
-        // Pedir validacion antes de dejarlo en 0 
         pendingDeleteId = id;
         document.getElementById("dialog-title").textContent = "¿Desea eliminar el producto del carrito?";
         document.getElementById("confirm-dialog").showModal();
@@ -208,32 +239,25 @@ function evaluarEstadoBulkDelete() {
     const itemsChecked = document.querySelectorAll(".item-checkbox:checked");
     const btnDeleteBulk = document.getElementById("btn-delete-bulk");
     
-    if (itemsChecked.length > 0) {
-        btnDeleteBulk.classList.add("active");
-        btnDeleteBulk.disabled = false;
-    } else {
-        btnDeleteBulk.classList.remove("active");
-        btnDeleteBulk.disabled = true;
+    if (btnDeleteBulk) {
+        if (itemsChecked.length > 0) {
+            btnDeleteBulk.classList.add("active");
+            btnDeleteBulk.disabled = false;
+        } else {
+            btnDeleteBulk.classList.remove("active");
+            btnDeleteBulk.disabled = true;
+        }
     }
 }
 
-function initCheckboxListeners() {
-    const itemCheckboxes = document.querySelectorAll(".item-checkbox");
-    const selectAllCheckbox = document.getElementById("select-all-cart");
-    
-    itemCheckboxes.forEach(cb => {
-        cb.addEventListener("change", () => {
-            const allChecked = Array.from(itemCheckboxes).every(i => i.checked);
-            selectAllCheckbox.checked = allChecked;
-            evaluarEstadoBulkDelete();
-        });
-    });
-}
-
+// 4. Limpiamos la función renderCart de listeners redundantes
 function renderCart() {
     const container = document.getElementById("cart-items-container");
     const totalPriceEl = document.getElementById("cart-total-price");
+    const selectAllCheckbox = document.getElementById("select-all-cart");
     
+    if (!container) return;
+
     if (carrito.length === 0) {
         container.innerHTML = `
             <div class="cart-empty-msg">
@@ -241,12 +265,20 @@ function renderCart() {
                 <p>Tu carrito está vacío.</p>
             </div>
         `;
-        totalPriceEl.textContent = "$0.00";
-        document.getElementById("select-all-cart").checked = false;
+        if (totalPriceEl) totalPriceEl.textContent = "$0.00";
+        
+        // Mejoramos la UX deshabilitando el check maestro si no hay nada
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.disabled = true;
+        }
+        
         evaluarEstadoBulkDelete();
         actualizarBotonCabecera();
         return;
     }
+
+    if (selectAllCheckbox) selectAllCheckbox.disabled = false;
 
     let subtotal = 0;
     container.innerHTML = "";
@@ -257,7 +289,6 @@ function renderCart() {
         const article = document.createElement("article");
         article.className = "cart-item";
         
-        // Estructura semántica incluyendo imagen, detalles y basura
         const imgNode = item.imagen 
             ? `<img src="${item.imagen}" alt="${item.nombre}" class="cart-item-img">`
             : `<div class="cart-item-img" style="background:#eee"></div>`; 
@@ -286,27 +317,8 @@ function renderCart() {
         container.appendChild(article);
     });
 
-    totalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
+    if (totalPriceEl) totalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
 
-    // Reasignar eventos a botones inyectados
-    document.querySelectorAll(".dec-btn").forEach(btn => {
-        btn.addEventListener("click", () => modificarCantidad(parseInt(btn.dataset.id), -1));
-    });
-
-    document.querySelectorAll(".inc-btn").forEach(btn => {
-        btn.addEventListener("click", () => modificarCantidad(parseInt(btn.dataset.id), 1));
-    });
-
-    document.querySelectorAll(".btn-remove-item").forEach(btn => {
-        btn.addEventListener("click", () => {
-            // Confirmación también requerida para cesto de basura según lineamientos UX
-            pendingDeleteId = parseInt(btn.dataset.id);
-            document.getElementById("dialog-title").textContent = "¿Desea eliminar el producto del carrito?";
-            document.getElementById("confirm-dialog").showModal();
-        });
-    });
-
-    initCheckboxListeners();
     evaluarEstadoBulkDelete();
     actualizarBotonCabecera();
 }
@@ -322,12 +334,9 @@ function actualizarBotonCabecera() {
     }
 }
 
-
-/**
- * Función asíncrona para leer el JSON e imprimir los productos en el contenedor
- */
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
+    if (!grid) return;
     
     try {
         grid.setAttribute("aria-busy", "true");
@@ -338,10 +347,10 @@ async function cargarProductos() {
         }
         
         const productos = await response.json();
-        productosDisponibles = productos; // Guardar en estado global
+        productosDisponibles = productos;
         grid.innerHTML = "";
         
-        productos.forEach(producto => {
+        productos.slice(0, 4).forEach(producto => {
             const article = document.createElement("article");
             article.className = "product-card";
             article.setAttribute("role", "listitem");
