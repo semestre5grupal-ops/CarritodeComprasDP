@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tienda de ropa deportiva.">
-    <title>Shop Sport | Ropa deportiva </title>
+    <title>Shop Sport | Ropa deportiva</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/components/products.css">
+    <link rel="stylesheet" href="assets/css/components/cart.css">
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
@@ -31,8 +33,16 @@
                 </ul>
             </nav>
             <div class="nav-actions" aria-label="Acciones rápidas">
-                <a href="#catalogo" class="nav-pill">Buscar productos</a>
-                <button type="button" class="nav-pill">Mi cuenta</button>
+                <a href="#catalogo" class="nav-pill" aria-label="Buscar productos">Buscar</a>
+                <button type="button" class="nav-pill" aria-label="Mi cuenta">Mi cuenta</button>
+                <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos" aria-expanded="false">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span class="cart-badge" aria-hidden="true">0</span>
+                </button>
             </div>
         </div>
     </header>
@@ -207,6 +217,60 @@
             </ul>
         </div>
     </footer>
+
+    <button id="btn-scroll-top" class="btn-scroll-top" aria-label="Volver arriba" title="Volver arriba" aria-hidden="true" tabindex="-1">
+        <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Overlay y Drawer del carrito -->
+    <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
+    <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Tu carrito de compras">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button type="button" id="btn-close-cart" class="btn-close-cart" aria-label="Cerrar carrito">
+                <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <div class="cart-bulk-actions">
+            <label for="select-all-cart">
+                <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito">
+                Seleccionar todos
+            </label>
+            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk" aria-label="Eliminar productos seleccionados">
+                Eliminar items
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="cart-items-container">
+            <div class="cart-empty-msg">
+                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <p>Tu carrito está vacío.</p>
+            </div>
+            <!-- Aquí se inyectan los items desde JS -->
+        </div>
+
+        <div class="cart-footer">
+            <div class="cart-totals">
+                <span>Total estimado:</span>
+                <span id="cart-total-price">$0.00</span>
+            </div>
+            <button type="button" class="btn btn-primary w-100" aria-label="Proceder al pago">Completar pedido</button>
+        </div>
+    </aside>
+
+    <!-- Custom Modal de confirmación para eliminar producto -->
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="dialog-title">
+        <form method="dialog">
+            <h3 id="dialog-title">¿Desea eliminar el producto del carrito?</h3>
+            <div class="dialog-actions">
+                <button type="button" id="btn-dialog-cancel" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="btn-dialog-accept" class="btn btn-primary">Aceptar</button>
+            </div>
+        </form>
+    </dialog>
 
     <script src="js/app.js" type="module"></script>
 </body>

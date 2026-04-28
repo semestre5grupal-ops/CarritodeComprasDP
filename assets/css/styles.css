@@ -157,7 +157,7 @@ nav a:focus-visible,
 
 .nav-bar nav a[aria-current="page"] {
     color: var(--ink);
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .nav-actions {
@@ -173,6 +173,28 @@ nav a:focus-visible,
     padding: 0.7rem 1rem;
     border-radius: 999px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-cart {
+    padding: 0.5rem 0.8rem;
+    position: relative;
+}
+
+.cart-badge {
+    background-color: var(--ink);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 500;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.3rem;
 }
 
 .nav-pill,
@@ -473,106 +495,7 @@ main {
 }
 
 .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 1rem;
-}
-
-.product-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 1.3rem;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    box-shadow: 0 10px 24px rgba(21, 33, 42, 0.05);
-}
-
-.product-visual {
-    min-height: 168px;
-    border-radius: 1rem;
-    border: 1px solid rgba(21, 33, 42, 0.08);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 0.9rem;
-    background:
-        radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.75), transparent 26%),
-        linear-gradient(135deg, var(--tone), #ffffff 72%);
-    position: relative;
-    overflow: hidden;
-}
-
-.product-visual::after {
-    content: "";
-    position: absolute;
-    inset: auto -18% -28% auto;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--accent) 0%, rgba(255, 255, 255, 0) 72%);
-    opacity: 0.55;
-}
-
-.product-badge,
-.product-category {
-    display: inline-flex;
-    width: fit-content;
-    padding: 0.35rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-}
-
-.product-badge {
-    background: rgba(255, 255, 255, 0.86);
-    color: var(--ink);
-}
-
-.product-category {
-    background: rgba(21, 33, 42, 0.86);
-    color: #fff;
-    margin-left: auto;
-}
-
-.product-art {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    min-height: 88px;
-    font-size: 2.6rem;
-    font-weight: 800;
-    letter-spacing: -0.08em;
-    color: rgba(21, 33, 42, 0.15);
-}
-
-.product-card h3 {
-    font-size: 1rem;
-    line-height: 1.2;
-}
-
-.product-card p {
-    color: var(--muted);
-    line-height: 1.5;
-    font-size: 0.92rem;
-}
-
-.product-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.product-price {
-    font-size: 1rem;
-    font-weight: 700;
-}
-
-.product-card .btn-primary {
-    width: 100%;
+    /* Los estilos de las tarjetas y productos se mudaron modularmente a components/products.css */
 }
 
 .loading {
@@ -706,6 +629,45 @@ main {
     color: var(--muted);
 }
 
+/* Btn scroll top */
+.btn-scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--ink);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background-color 0.2s ease;
+}
+
+.btn-scroll-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.btn-scroll-top:hover,
+.btn-scroll-top:focus-visible {
+    background-color: var(--accent);
+}
+
+.btn-scroll-top:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
 @media (max-width: 980px) {
     .nav-bar,
     .topbar,
@@ -770,5 +732,16 @@ main {
     .trust-card,
     .story-card {
         padding: 1rem;
+    }
+
+    .btn-cart {
+        padding: 0.5rem 0.6rem;
+    }
+    
+    .btn-scroll-top {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 3rem;
+        height: 3rem;
     }
 }
