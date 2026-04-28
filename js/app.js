@@ -10,6 +10,37 @@ document.addEventListener("DOMContentLoaded", () => {
     initCartDrawer();
 });
 
+
+async function inicializarSistema() {
+    const overlay = document.getElementById("loading-overlay");
+    
+    try {
+        // Simulamos un pequeño retardo si la carga es muy rápida (ej. desde LocalStorage)
+        // para garantizar que la Heurística 1 se cumpla visualmente.
+        await new Promise(resolve => setTimeout(resolve, 800)); 
+        
+        await cargarProductos();
+        
+        // 2. Habilitar la interfaz protegida
+        desbloquearInterfaz();
+        
+    } catch (error) {
+        console.error("Error crítico de inicialización:", error);
+        document.getElementById("product-grid").innerHTML = 
+            `<p class="error" role="alert">Error al cargar la colección: ${error.message}</p>`;
+    } finally {
+        // 3. Ocultar la ventana de carga
+        overlay.classList.add("hidden");
+    }
+}
+
+function desbloquearInterfaz() {
+    document.getElementById("btn-carrito").disabled = false;
+    document.getElementById("vaciar-cart").disabled = false;
+    document.getElementById("btn-submit").disabled = false;
+}
+
+
 /**
  * Función para manejar el botón de scroll hacia arriba
  */
