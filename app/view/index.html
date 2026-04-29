@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tienda de ropa deportiva.">
+    <title>Shop Sport | Ropa deportiva</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/components/products.css">
+    <link rel="stylesheet" href="assets/css/components/cart.css">
+</head>
+<body>
+    <a class="skip-link" href="#contenido-principal">Saltar al catálogo</a>
+
+    <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Actualizando tendencias...</p>
+    </div>
+
+    <header class="site-header">
+
+        <div class="nav-bar wrap-wide">
+            <h1 class="brand">Shop<span>sport</span></h1>
+            <nav aria-label="Navegación principal">
+                <ul>
+                    <li><a href="#hero" aria-current="page">Inicio</a></li>
+                    <li><a href="catalog.html">Catálogo</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions" aria-label="Acciones rápidas">
+                <button type="button" class="nav-pill" aria-label="Mi cuenta">Mi cuenta</button>
+                <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos" aria-expanded="false">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span class="cart-badge" aria-hidden="true">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="contenido" aria-label="Contenido principal">
+        <section id="hero" class="hero wrap-wide" aria-labelledby="hero-title" aria-describedby="hero-summary">
+            <div class="hero-copy">
+                <p class="eyebrow">Nueva colección rendimiento</p>
+                <h2 id="hero-title">Empieza por lo esencial.</h2>
+                <p id="hero-summary">Ropa deportiva minimalista para entrenar, descansar y moverte con comodidad. Prendas limpias, ordenadas y pensadas para el uso diario.</p>
+                <div class="hero-actions">
+                    <a href="catalog.html" class="btn btn-primary">Ver catálogo</a>
+                    <a href="#coleccion" class="btn btn-secondary">Descubrir colección</a>
+                </div>
+                
+            </div>
+
+            <div class="hero-visual" aria-label="Vista conceptual de colecciones deportivas">
+                <article class="hero-card hero-card-light">
+                    <span>Mujer</span>
+                    <strong>Movimiento limpio</strong>
+                    <p>Leggings, tops y capas suaves para entrenar con comodidad.</p>
+                </article>
+                <article class="hero-card hero-card-dark">
+                    <span>Hombre</span>
+                    <strong>Rendimiento diario</strong>
+                    <p>Sets versátiles para gimnasio, running y uso urbano.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="benefits wrap-wide" role="list" aria-label="Ventajas principales">
+            <article role="listitem">
+                <span>01</span>
+                <h3>Envíos a todo Ecuador</h3>
+                <p>Procesos simples, seguimiento claro y entregas rápidas.</p>
+            </article>
+            <article role="listitem">
+                <span>02</span>
+                <h3>Cambios sin complicaciones</h3>
+                <p>Compra con tranquilidad y ajusta tu talla si lo necesitas.</p>
+            </article>
+            <article role="listitem">
+                <span>03</span>
+                <h3>Telas técnicas</h3>
+                <p>Materiales suaves, transpirables y resistentes al uso constante.</p>
+            </article>
+            <article role="listitem">
+                <span>04</span>
+                <h3>Atención por WhatsApp</h3>
+                <p>Resolvemos dudas de tallas, colores y disponibilidad.</p>
+            </article>
+        </section>
+
+        <section id="coleccion" class="collection-banner wrap-wide" aria-labelledby="sec-coleccion">
+            <div class="collection-copy">
+                <p class="eyebrow">shop sport essentials</p>
+                <h2 id="sec-coleccion">La primera capa define todo.</h2>
+                <p>Una selección básica, sobria y funcional para construir looks deportivos sin ruido visual.</p>
+            </div>
+            <div class="collection-switch" aria-label="Categorías destacadas">
+                <button type="button" class="collection-chip">MUJER</button>
+                <button type="button" class="collection-chip">HOMBRE</button>
+                <button type="button" class="collection-chip">KIDS</button>
+                <button type="button" class="collection-chip">ACCESORIOS</button>
+            </div>
+        </section>
+
+        <section id="catalogo" class="catalog-section wrap-wide" aria-labelledby="sec-productos" aria-live="polite">
+            <div class="section-heading">
+                <h2 id="sec-productos">Destacados</h2>
+                <p>Prendas deportivas seleccionadas para una tienda limpia, ordenada y fácil de navegar.</p>
+            </div>
+            <div id="product-grid" class="product-grid" role="list" aria-label="Listado de productos" aria-busy="true">
+                <p class="loading">Cargando productos...</p>
+            </div>
+        </section>
+
+        <section class="materials wrap-wide" aria-labelledby="sec-materiales" aria-describedby="materiales-summary">
+            <div class="materials-copy">
+                <p class="eyebrow">tejidos técnicos</p>
+                <h2 id="sec-materiales">Fibras que se sienten diferentes.</h2>
+                <p id="materiales-summary">Cada prenda está pensada para acompañar el cuerpo con suavidad, ventilación y estructura mínima.</p>
+            </div>
+            <div class="materials-grid" role="list" aria-label="Materiales destacados">
+                <article role="listitem" aria-label="Material modal">
+                    <strong>Modal</strong>
+                    <p>Suave al tacto, cae bien y mantiene un look limpio.</p>
+                </article>
+                <article role="listitem" aria-label="Material algodón técnico">
+                    <strong>Algodón técnico</strong>
+                    <p>Cómodo, respirable y fácil de combinar en capas.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="promo-banner wrap-wide" aria-labelledby="sec-oferta">
+            <div>
+                <p class="eyebrow">Oferta destacada</p>
+                <h2 id="sec-oferta">Lleva 3 y paga 2</h2>
+                <p>Aplica en básicos seleccionados de mujer, hombre y kids.</p>
+            </div>
+            <div class="promo-actions">
+                <a href="catalog.html" class="btn btn-dark">Niño</a>
+                <a href="catalog.html" class="btn btn-dark">Niña</a>
+            </div>
+        </section>
+
+        <section class="story-grid wrap-wide" aria-label="Bloques editoriales destacados">
+            <article class="story-card story-card-left">
+                <p class="eyebrow">Florencia Davalos</p>
+                <h2>Aquí florecemos en movimiento.</h2>
+                <p>Una colección pensada para mujeres que quieren verse bien, entrenar cómodas y mantener un estilo limpio.</p>
+                <a href="catalog.html" class="btn btn-olive">Compra aquí</a>
+            </article>
+            <article class="story-card story-card-right">
+                <p class="eyebrow">Favoritos de todos</p>
+                <h2>Cuando algo funciona, se vuelve a elegir.</h2>
+                <p>Diseños simples, tonos neutros y prendas que se integran fácil al día a día.</p>
+                <a href="catalog.html" class="btn btn-dark">Compra aquí</a>
+            </article>
+        </section>
+
+        <section class="trust-panel wrap-wide" aria-labelledby="sec-confianza" aria-describedby="confianza-summary">
+            <div class="trust-card">
+                <p class="eyebrow">Garantía</p>
+                <h2 id="sec-confianza">Compra segura y cambios claros</h2>
+                <p>Si tu talla no coincide, te ayudamos a resolverlo con un proceso simple y ordenado.</p>
+            </div>
+            <div class="trust-card trust-card-steps" id="confianza-summary">
+                <p class="eyebrow">Atención</p>
+                <h2>Consulta disponibilidad por WhatsApp</h2>
+                <p>Escríbenos para confirmar tallas, colores y tiempos de entrega.</p>
+            </div>
+        </section>
+
+        <section class="bottom-notes wrap-wide" aria-label="Resumen de marca">
+            <article>
+                <strong>Certificado</strong>
+                <p>Algodón premium y materiales seleccionados.</p>
+            </article>
+            <article>
+                <strong>15% de descuento</strong>
+                <p>En tu primera compra online.</p>
+            </article>
+            <article>
+                <strong>Encuentra tu talla</strong>
+                <p>Guía rápida para elegir con más seguridad.</p>
+            </article>
+        </section>
+    </main>
+
+    <footer id="contacto" class="site-footer wrap-wide" aria-label="Pie de página">
+        <div>
+            <h2 class="brand brand-footer">Shop<span>sport</span></h2>
+            <p>Ropa deportiva minimalista para una tienda clara, ordenada y fácil de navegar.</p>
+        </div>
+        <div>
+            <h3>Nosotros</h3>
+            <ul>
+                <li><a href="#coleccion">Colección</a></li>
+                <li><a href="catalog.html">Catálogo</a></li>
+                <li><a href="#hero">Inicio</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3>Atención</h3>
+            <ul>
+                <li><a href="#">WhatsApp</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Facebook</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <button id="btn-scroll-top" class="btn-scroll-top" aria-label="Volver arriba" title="Volver arriba" aria-hidden="true" tabindex="-1">
+        <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Overlay y Drawer del carrito -->
+    <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
+    <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Tu carrito de compras">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button type="button" id="btn-close-cart" class="btn-close-cart" aria-label="Cerrar carrito">
+                <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <div class="cart-bulk-actions">
+            <label for="select-all-cart">
+                <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito">
+                Seleccionar todos
+            </label>
+            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk" aria-label="Eliminar productos seleccionados">
+                Eliminar items
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="cart-items-container">
+            <div class="cart-empty-msg">
+                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <p>Tu carrito está vacío.</p>
+            </div>
+            <!-- Aquí se inyectan los items desde JS -->
+        </div>
+
+        <div class="cart-footer">
+            <div class="cart-totals">
+                <span>Total estimado:</span>
+                <span id="cart-total-price">$0.00</span>
+            </div>
+            <button type="button" class="btn btn-primary w-100" aria-label="Proceder al pago">Completar pedido</button>
+        </div>
+    </aside>
+
+    <!-- Custom Modal de confirmación para eliminar producto -->
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="dialog-title">
+        <form method="dialog">
+            <h3 id="dialog-title">¿Desea eliminar el producto del carrito?</h3>
+            <div class="dialog-actions">
+                <button type="button" id="btn-dialog-cancel" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="btn-dialog-accept" class="btn btn-primary">Aceptar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="js/app.js" type="module"></script>
+</body>
+</html>
