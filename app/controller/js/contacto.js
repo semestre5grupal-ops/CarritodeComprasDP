@@ -20,7 +20,7 @@ class ContactoModel {
      */
     sanitizarEntrada(texto) {
         if (!texto) return '';
-        
+
         return texto
             // 1. Eliminar caracteres peligrosos de SQLi (;, ', ", --, /*, */)
             .replace(/;/g, '')
@@ -73,6 +73,7 @@ class ContactoView {
             correo: document.getElementById('err-correo'),
             telefono: document.getElementById('err-telefono')
         };
+        this.btnSubmit = document.getElementById('btn-submit-contacto');
     }
 
     actualizarValor(campo, nuevoValor) {
@@ -98,6 +99,12 @@ class ContactoView {
     limpiarErrores() {
         Object.keys(this.errors).forEach(campo => this.mostrarError(campo, null));
     }
+
+    bloquearBoton(estado) {
+        if (this.btnSubmit) {
+            this.btnSubmit.disabled = estado;
+        }
+    }
 }
 
 // ==========================================
@@ -110,8 +117,19 @@ class ContactoController {
         this.init();
     }
 
+    debounce(func, wait) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
     init() {
         if (!this.view.form) return;
+
+        // Estado inicial del botón
+        this.evaluarEstadoGlobal();
 
         // 1. Bloqueo Preventivo (Keydown) - Solo para restringir tipos de caracteres
         this.view.inputs.nombre.addEventListener('keydown', (e) => {
@@ -125,9 +143,25 @@ class ContactoController {
             if (!/^\d$/.test(e.key)) e.preventDefault();
         });
 
-        // 2. Timing de Validación: Exclusivamente en Blur
+        // 2. Timing de Validación: Blur + Debounce en Input
+        const validadoresDebounced = {};
         Object.keys(this.view.inputs).forEach(campo => {
-            this.view.inputs[campo].addEventListener('blur', () => this.procesarYValidar(campo));
+            validadoresDebounced[campo] = this.debounce(() => {
+                this.procesarYValidar(campo);
+            }, 300);
+
+            const input = this.view.inputs[campo];
+            input.addEventListener('blur', () => {
+                input.dataset.tocado = 'true';
+                this.procesarYValidar(campo);
+            });
+
+            input.addEventListener('input', () => {
+                this.evaluarEstadoGlobal(); // Re-evaluar botón siempre
+                if (input.dataset.tocado === 'true') {
+                    validadoresDebounced[campo]();
+                }
+            });
         });
 
         // 3. Validación Final en Submit
@@ -137,6 +171,8 @@ class ContactoController {
                 alert('¡Seguridad verificada! Formulario enviado correctamente.');
                 this.view.form.reset();
                 this.view.limpiarErrores();
+                Object.values(this.view.inputs).forEach(i => delete i.dataset.tocado);
+                this.evaluarEstadoGlobal();
             }
         });
     }
@@ -146,7 +182,7 @@ class ContactoController {
      */
     procesarYValidar(campo) {
         const input = this.view.inputs[campo];
-        
+
         // A. Sanitización (Blindaje Anti-Inyección)
         const valorLimpio = this.model.sanitizarEntrada(input.value);
         this.view.actualizarValor(campo, valorLimpio);
@@ -160,7 +196,24 @@ class ContactoController {
         }
 
         this.view.mostrarError(campo, mensajeError);
+        this.evaluarEstadoGlobal();
         return !mensajeError;
+    }
+
+    evaluarEstadoGlobal() {
+        let esValido = true;
+        Object.keys(this.view.inputs).forEach(campo => {
+            const input = this.view.inputs[campo];
+            const valorLimpio = this.model.sanitizarEntrada(input.value);
+            let mensajeError = null;
+            switch (campo) {
+                case 'nombre': mensajeError = this.model.validarNombre(valorLimpio); break;
+                case 'correo': mensajeError = this.model.validarCorreo(valorLimpio); break;
+                case 'telefono': mensajeError = this.model.validarTelefono(valorLimpio); break;
+            }
+            if (mensajeError) esValido = false;
+        });
+        this.view.bloquearBoton(!esValido);
     }
 
     validarTodoElFormulario() {
