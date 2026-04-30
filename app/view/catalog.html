@@ -135,7 +135,7 @@
     </style>
 </head>
 <body>
-    <a class="skip-link" href="#catalogo-productos">Saltar al catálogo</a>
+    <a class="skip-link" href="#contenido">Saltar al catálogo</a>
 
     <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
         <div class="spinner" aria-hidden="true"></div>
@@ -280,6 +280,20 @@
             </div>
         </div>
     </dialog>
+ 
+    <aside id="cookie-banner" class="cookie-banner" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-desc" aria-hidden="true">
+        <div class="cookie-content wrap-wide">
+            <h3 id="cookie-title">Políticas de Compra</h3>
+            <p id="cookie-desc">
+                Utilizamos cookies propias y almacenamiento local para mejorar tu experiencia, mantener tu carrito de compras activo y guardar tus preferencias. ¿Aceptas nuestras políticas de compra?
+            </p>
+            <div class="cookie-actions">
+                <button type="button" id="btn-accept-cookies" class="btn btn-primary" aria-label="Aceptar políticas de compra" disabled>Aceptar</button>
+                <button type="button" id="btn-reject-cookies" class="btn btn-secondary" aria-label="Rechazar políticas de compra">Rechazar</button>
+            </div>
+        </div>
+    </aside>
+
 
     <footer class="site-footer wrap-wide" aria-label="Pie de página">
         <div>
@@ -288,7 +302,7 @@
         </div>
     </footer>
 
-    <script src="js/app.js"></script>
-    <script src="js/catalog.js"></script>
+    <script src="../controller/js/app.js" type="module"></script>
+    <script src="../controller/js/catalog.js" type="module"></script>
 </body>
 </html>
