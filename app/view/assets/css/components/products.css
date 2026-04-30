@@ -158,3 +158,59 @@
     margin-top: 0.5rem;
     font-weight: 500;
 }
+
+/* ==========================================================================
+   Formulario de Contacto Accesible
+   ========================================================================== */
+.contact-section {
+    max-width: 600px;
+    margin: 0 auto 4rem auto;
+}
+
+.form-accesible .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+.form-accesible label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-accesible input {
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Foco visible claro (Accesibilidad AA) */
+.form-accesible input:focus {
+    outline: 3px solid #0056b3; /* Azul fuerte o el color primario de la marca */
+    outline-offset: 2px;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* Estilos para el mensaje de error oculto (ARIA) */
+.form-accesible .error-msg {
+    color: #d32f2f;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    display: none;
+    /* Se oculta visualmente */
+}
+
+/* Cuando JS quita el atributo 'hidden', se muestra */
+.form-accesible .error-msg:not([hidden]) {
+    display: block;
+}
+
+/* Estilo cuando el campo es inválido (controlado por JS) */
+.form-accesible input[aria-invalid="true"] {
+    border-color: #d32f2f;
+}

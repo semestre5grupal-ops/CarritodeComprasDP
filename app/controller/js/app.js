@@ -1,3 +1,5 @@
+import { initContacto } from './contacto.js';
+
 // Estado Global
 let productosDisponibles = [];
 let carrito = [];
@@ -10,6 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
     initScrollTop();
     initCartDrawer();
     initCartDelegation(); // Centralizamos la delegación de eventos del carrito
+
+    // Iniciar gestión de cookies y políticas
+    gestionCookies.init();
+
+    // Iniciar validación de contacto
+    initContacto();
 });
 
 async function inicializarSistema() {
@@ -29,6 +37,86 @@ async function inicializarSistema() {
         if (overlay) overlay.classList.add("hidden");
     }
 }
+
+// ======================================================================
+// MÓDULO DE PERSISTENCIA: COOKIES
+// ======================================================================
+// ======================================================================
+// MÓDULO DE PERSISTENCIA: COOKIES (VERSIÓN DEPURACIÓN Y LOCALHOST)
+// ======================================================================
+const gestionCookies = {
+    init() {
+        console.log("1. Iniciando módulo de cookies...");
+        const banner = document.getElementById('cookie-banner');
+        const btnAccept = document.getElementById('btn-accept-cookies');
+        const btnReject = document.getElementById('btn-reject-cookies');
+
+        if (!banner) {
+            console.error("❌ ERROR CRÍTICO: No se encuentra el <aside id='cookie-banner'> en tu HTML. Verifica que lo pegaste antes de </body>.");
+            return;
+        }
+        console.log("2. HTML del banner encontrado correctamente.");
+
+        if (this.obtenerCookie('terminosAceptados') === 'true') {
+            console.log("3. La cookie ya existe. Ocultando banner.");
+            banner.style.display = 'none'; // Forzado por JS
+            banner.setAttribute('aria-hidden', 'true');
+        } else {
+            console.log("3. No hay cookie. Mostrando banner de políticas.");
+            banner.style.display = 'flex'; // Forzamos visibilidad ignorando el CSS
+            banner.setAttribute('aria-hidden', 'false');
+
+            setTimeout(() => {
+                if (btnAccept) {
+                    btnAccept.disabled = false;
+                    btnAccept.style.cursor = 'pointer';
+                    console.log("4. Botón de aceptar habilitado.");
+                } else {
+                    console.error("❌ ERROR: No se encontró el botón con id='btn-accept-cookies'");
+                }
+            }, 600); 
+
+            if (btnAccept) {
+                btnAccept.addEventListener('click', () => {
+                    console.log("5. Clic detectado. Creando cookie...");
+                    this.crearCookie('terminosAceptados', 'true', 30);
+                    banner.style.display = 'none';
+                    banner.setAttribute('aria-hidden', 'true');
+                });
+            }
+
+            if (btnReject) {
+                btnReject.addEventListener('click', () => {
+                    banner.style.display = 'none';
+                    banner.setAttribute('aria-hidden', 'true');
+                });
+            }
+        }
+    },
+
+    crearCookie(nombre, valor, diasExpira) {
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + (diasExpira * 24 * 60 * 60 * 1000));
+        const expira = "expires=" + fecha.toUTCString();
+        // Ajuste clave: Quitamos SameSite=Lax para evitar bloqueos en 127.0.0.1 sin HTTPS
+        const stringCookie = `${nombre}=${valor};${expira};path=/`;
+        document.cookie = stringCookie;
+        console.log("6. Cookie inyectada en el navegador:", stringCookie);
+    },
+
+    obtenerCookie(nombre) {
+        const nombreBuscado = nombre + "=";
+        const cookiesActuales = document.cookie.split(';');
+        
+        for (let i = 0; i < cookiesActuales.length; i++) {
+            let c = cookiesActuales[i].trim();
+            if (c.indexOf(nombreBuscado) === 0) {
+                return c.substring(nombreBuscado.length, c.length);
+            }
+        }
+        return null;
+    }
+};
 
 // 2. Protegemos contra posibles elementos nulos en el DOM
 function desbloquearInterfaz() {
@@ -340,7 +428,7 @@ async function cargarProductos() {
     
     try {
         grid.setAttribute("aria-busy", "true");
-        const response = await fetch("data/productos.json");
+        const response = await fetch("../data/productos.json");
         
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
@@ -389,6 +477,8 @@ async function cargarProductos() {
     } catch (error) {
         console.error("Error al cargar los productos:", error);
         grid.setAttribute("aria-busy", "false");
+        // Eliminamos el role="list" para evitar conflicto de accesibilidad al inyectar un párrafo
+        grid.removeAttribute("role");
         grid.innerHTML = `<p class="error loading" role="alert">Hubo un problema al cargar los productos: ${error.message}</p>`;
     }
 }
