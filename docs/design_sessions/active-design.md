@@ -2,77 +2,70 @@
 
 ## Feature Name
 
-Accessible Regex-Based Form Validation
+Mobile-First Responsiveness Audit & Notification Refinement
 
 ---
 
 ## Problem Statement
 
-The application must provide clear, immediate, and accessible feedback when a user inputs invalid data into a form (e.g., the checkout form). Currently, without strict client-side validation and proper ARIA integration, users—especially those using screen readers—may submit invalid data or remain unaware of the exact input errors preventing submission.
+The main objective is to ensure that the web application's design is truly "mobile-first" and adapts fluidly without any layout errors across all screens. Additionally, notifications (such as "add to cart" alerts, validation error messages, etc.) must be reviewed and adapted so they render correctly and do not disrupt the user experience or usability on mobile devices.
 
 ---
 
 ## Scope
 
 **Included:**
-- Regex-based validation logic for form fields (e.g., name, email, credit card number if applicable).
-- Dynamic manipulation of the `aria-invalid` attribute on input fields based on validation state.
-- Dynamic rendering of visual error messages in the DOM immediately adjacent to the invalid input.
-- Linking the visual error message to the input field using the `aria-describedby` attribute for screen reader compatibility.
-- Disabling the "Enviar / Finalizar Compra" (Submit) button if any input contains uncorrected errors.
+- Audit of the presentation layer (CSS) to ensure the use of `@media (min-width: ...)` as the mobile-first standard.
+- Verification of at least 3 optimal breakpoints (Mobile, Tablet, Desktop) following the "Golden Rules".
+- Refinement of notification/toast design and positioning to prevent them from overflowing the screen on small devices, ensuring visibility and accessibility.
+- Adjustment of Flexbox and CSS Grid layouts to prevent horizontal scroll (overflow-x) across all device sizes.
+- Exhaustive UI component testing across defined resolutions.
 
 **Excluded:**
-- Backend submission logic (this is a frontend-only exercise).
-- Use of third-party validation libraries (must be pure Vanilla JS).
+- Modification of underlying business logic (shopping cart state, calculations) unless it directly affects the visual presentation.
+- Integration of external CSS libraries or frameworks (like Bootstrap or Tailwind), which are strictly forbidden by the project architecture.
 
 ---
 
 ## Implementation Details
 
-1. **Validation Logic (Behavioral Layer - `js/cart.js` or `js/app.js`):**
-   - Define a dictionary of strict Regular Expressions for each required input type (e.g., `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` for email).
-   - Create a validation orchestration function that accepts an input element and its value, tests it against the appropriate Regex, and returns a boolean result along with an error string.
+1. **Breakpoint Definition (Presentation Layer):**
+   - Establish the base structural design assuming mobile screens (e.g., `< 768px`). Do not use `@media` queries for the base design.
+   - Breakpoint 1 (Tablet): `@media (min-width: 768px)` to transition from single-column lists to multi-column grids.
+   - Breakpoint 2 (Desktop): `@media (min-width: 1024px)` or `1200px` to apply `max-width` and center main containers.
 
-2. **DOM Manipulation (View Layer - `js/view.js`):**
-   - Create a `renderInputError(inputElement, errorMessage, isValid)` function.
-   - **If `isValid` is `false`:**
-     - Set `inputElement.setAttribute('aria-invalid', 'true')`.
-     - Check if an error message element (e.g., `<span id="${inputElement.id}-error" class="error-msg">`) exists next to the input. If not, insert it.
-     - Set the text content of the error element to `errorMessage`.
-     - Set `inputElement.setAttribute('aria-describedby', `${inputElement.id}-error`)` to link the description for screen readers.
-     - Add an invalid CSS class to the input for visual styling (e.g., a red border).
-   - **If `isValid` is `true`:**
-     - Remove `aria-invalid` (or set it to `false`).
-     - Remove the `aria-describedby` attribute (or update it if it described something else initially).
-     - Hide or remove the error message element from the DOM.
-     - Remove the invalid CSS class.
+2. **Structural Refinement:**
+   - Confirm correct usage of the viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`.
+   - Replace any fixed width values in pixels (e.g., `width: 500px`) in main containers with relative units (`%`, `vw`, `rem`) and fluid functions.
 
-3. **Submit Button State Management:**
-   - Create a `checkFormValidity(formElement)` function.
-   - This function will iterate over all required inputs in the form.
-   - If *any* input has `aria-invalid="true"`, or is empty but required, set the submit button's `disabled` property to `true`.
-   - If all inputs are valid, remove the `disabled` attribute from the submit button.
+3. **Notifications and Toasts:**
+   - **Mobile:** Modify notification styles so that, instead of floating in a tiny corner, they occupy a more visible space (e.g., pinned to the bottom `bottom: 1rem` or top, with `max-width: 90%` or `width: calc(100% - 2rem)`).
+   - **Desktop:** Retain standard floating presentation (e.g., top-right or bottom-right corner).
+   - **Accessibility:** Maintain `role="alert"` or `role="status"` on notification containers for screen reader support.
+
+4. **Overflow Prevention:**
+   - Apply `word-break: break-word` or `overflow-wrap: break-word` to long texts inside notifications or product details.
+   - Adjust the cart summary layout for small screens (avoiding rigid `<table>` tags if they break, and favoring flexbox/grid stacked card layouts for each item).
 
 ---
 
 ## Test Plan
 
-1. **Regex Accuracy:** Type invalid strings (e.g., email without `@`, numbers in name field) and verify the regex catches them. Type valid strings and verify they pass.
-2. **Accessibility Verification:** Use browser dev tools (Accessibility tree) or a screen reader to confirm that when an input is invalid, it is announced as "invalid" and the specific error text is read out via `aria-describedby`.
-3. **Visual Feedback:** Confirm that error messages appear immediately in the DOM when validation fails and disappear when the user corrects the input.
-4. **Button Locking:** Confirm the "Finalizar Compra" button cannot be clicked (is fully disabled in HTML) while any field remains invalid, and becomes clickable the moment all fields pass validation.
+- **Extreme Mobile Test:** Emulate a 320px resolution (e.g., iPhone SE). Ensure zero horizontal scrolling and that notifications are legible.
+- **Tablet Transition Test:** Vary viewport from 767px to 769px. Validate that the single-column to multi-column grid transition occurs smoothly.
+- **Desktop Boundary Test:** Emulate Ultra-Wide screens (1920px+). Confirm that the main content does not expand infinitely and stays centered.
+- **Notification Event Audit:** Trigger actions like "Add to Cart" or form validation failures at each breakpoint to guarantee that popups/notifications do not overlap crucial buttons or hinder navigation.
 
 ---
 
 ## Risks / Edge Cases
 
-- **Validation Timing (UX Risk):** Validating on every keystroke (`input` event) from the beginning can be aggressive and annoying (e.g., telling the user the email is invalid while they are still typing it). 
-  - *Mitigation:* Validate on `blur` (when the input loses focus) the first time. Once an input is marked invalid, validate on `input` so the user sees the error disappear the exact moment they fix it.
-- **Form Initialization:** The submit button should likely be disabled by default when the form is first loaded if there are required fields, preventing premature submission.
+- **Cart Component:** Cart interfaces often include multiple columns (Image, Product, Price, Qty, Total). On mobile, this tabular structure collapses horizontally. It will likely need to be converted into a vertically stacked card layout.
+- **Multiple Notifications:** If multiple notifications stack at once on mobile, they might cover the entire screen and prevent the user from operating the interface (violating the "Operable" POUR rule).
 
 ---
 
 ## Open Questions
 
-- Which specific input fields (e.g., Nombre, Correo, Dirección, Tarjeta) are present in the checkout form that require Regex patterns?
-- Should we apply a debounce function to the validation logic if we decide to validate on the `input` event, or is performance negligible for these simple regex checks?
+- Do the current notifications use a specific CSS module or JavaScript file that we need to review in the codebase?
+- Are there specific UI elements that have previously shown responsiveness issues known by the team?
