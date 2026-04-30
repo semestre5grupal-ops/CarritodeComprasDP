@@ -6,9 +6,36 @@ let carrito = [];
 let pendingDeleteId = null;
 let pendingDeleteBulkIds = null;
 
+const CLAVE_CARRITO_STORAGE = 'sportstore_shopping_cart';
+
+function guardarCarritoEnStorage() {
+    try {
+        localStorage.setItem(CLAVE_CARRITO_STORAGE, JSON.stringify(carrito));
+    } catch (error) {
+        console.error("Error al guardar el carrito en localStorage:", error);
+    }
+}
+
+function cargarCarritoDeStorage() {
+    try {
+        const datosGuardados = localStorage.getItem(CLAVE_CARRITO_STORAGE);
+        if (datosGuardados) {
+            carrito = JSON.parse(datosGuardados);
+        } else {
+            carrito = [];
+        }
+    } catch (error) {
+        console.error("Error al analizar el carrito de localStorage:", error);
+        carrito = [];
+        localStorage.removeItem(CLAVE_CARRITO_STORAGE);
+    }
+}
+
 // 1. Corregimos el punto de entrada para aprovechar tu lógica de carga
 document.addEventListener("DOMContentLoaded", () => {
-    inicializarSistema(); 
+    cargarCarritoDeStorage();
+    renderCart(); // Aseguramos que el carrito se renderice si había datos
+    inicializarSistema();
     initScrollTop();
     initCartDrawer();
     initCartDelegation(); // Centralizamos la delegación de eventos del carrito
@@ -22,9 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function inicializarSistema() {
     const overlay = document.getElementById("loading-overlay");
-    
+
     try {
-        await new Promise(resolve => setTimeout(resolve, 800)); 
+        await new Promise(resolve => setTimeout(resolve, 800));
         await cargarProductos();
         desbloquearInterfaz();
     } catch (error) {
@@ -74,7 +101,7 @@ const gestionCookies = {
                 } else {
                     console.error("❌ ERROR: No se encontró el botón con id='btn-accept-cookies'");
                 }
-            }, 600); 
+            }, 600);
 
             if (btnAccept) {
                 btnAccept.addEventListener('click', () => {
@@ -107,7 +134,7 @@ const gestionCookies = {
     obtenerCookie(nombre) {
         const nombreBuscado = nombre + "=";
         const cookiesActuales = document.cookie.split(';');
-        
+
         for (let i = 0; i < cookiesActuales.length; i++) {
             let c = cookiesActuales[i].trim();
             if (c.indexOf(nombreBuscado) === 0) {
@@ -157,7 +184,7 @@ function initCartDrawer() {
     const cartDrawer = document.getElementById("cart-drawer");
     const selectAllCheckbox = document.getElementById("select-all-cart");
     const btnDeleteBulk = document.getElementById("btn-delete-bulk");
-    
+
     const dialogConfirm = document.getElementById("confirm-dialog");
     const btnDialogCancel = document.getElementById("btn-dialog-cancel");
     const btnDialogAccept = document.getElementById("btn-dialog-accept");
@@ -182,7 +209,7 @@ function initCartDrawer() {
 
         btnCloseCart.addEventListener("click", closeCart);
         cartOverlay.addEventListener("click", closeCart);
-        
+
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
                 if (dialogConfirm && dialogConfirm.open) {
@@ -200,7 +227,7 @@ function initCartDrawer() {
         if (btnAdd && btnAdd.classList.contains("btn-primary") && !btnAdd.closest("#cart-drawer") && !btnAdd.closest("#confirm-dialog")) {
             const prodId = parseInt(btnAdd.dataset.id);
             agregarAlCarrito(prodId);
-            if (btnOpenCart) btnOpenCart.click(); 
+            if (btnOpenCart) btnOpenCart.click();
         }
     });
 
@@ -220,6 +247,7 @@ function initCartDrawer() {
                 pendingDeleteId = null;
             } else if (pendingDeleteBulkIds !== null) {
                 carrito = carrito.filter(item => !pendingDeleteBulkIds.includes(item.id));
+                guardarCarritoEnStorage();
                 renderCart();
                 pendingDeleteBulkIds = null;
             }
@@ -243,7 +271,7 @@ function initCartDrawer() {
         btnDeleteBulk.addEventListener("click", () => {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox:checked");
             const idsToRemove = Array.from(itemCheckboxes).map(cb => parseInt(cb.dataset.id));
-            
+
             if (idsToRemove.length > 0) {
                 pendingDeleteBulkIds = idsToRemove;
                 document.getElementById("dialog-title").textContent = "¿Desea eliminar los productos seleccionados del carrito?";
@@ -280,7 +308,7 @@ function initCartDelegation() {
         if (e.target.classList.contains("item-checkbox")) {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox");
             const selectAllCheckbox = document.getElementById("select-all-cart");
-            
+
             if (selectAllCheckbox) {
                 const allChecked = Array.from(itemCheckboxes).every(i => i.checked);
                 selectAllCheckbox.checked = allChecked;
@@ -292,7 +320,7 @@ function initCartDelegation() {
 
 function agregarAlCarrito(idProducto) {
     const productoExistente = carrito.find(item => item.id === idProducto);
-    
+
     if (productoExistente) {
         productoExistente.cantidad++;
     } else {
@@ -301,6 +329,7 @@ function agregarAlCarrito(idProducto) {
             carrito.push({ ...productInfo, cantidad: 1 });
         }
     }
+    guardarCarritoEnStorage();
     renderCart();
 }
 
@@ -314,19 +343,21 @@ function modificarCantidad(id, delta) {
         document.getElementById("confirm-dialog").showModal();
     } else {
         producto.cantidad += delta;
+        guardarCarritoEnStorage();
         renderCart();
     }
 }
 
 function eliminarProductoDefinitivamente(id) {
     carrito = carrito.filter(item => item.id !== id);
+    guardarCarritoEnStorage();
     renderCart();
 }
 
 function evaluarEstadoBulkDelete() {
     const itemsChecked = document.querySelectorAll(".item-checkbox:checked");
     const btnDeleteBulk = document.getElementById("btn-delete-bulk");
-    
+
     if (btnDeleteBulk) {
         if (itemsChecked.length > 0) {
             btnDeleteBulk.classList.add("active");
@@ -343,7 +374,7 @@ function renderCart() {
     const container = document.getElementById("cart-items-container");
     const totalPriceEl = document.getElementById("cart-total-price");
     const selectAllCheckbox = document.getElementById("select-all-cart");
-    
+
     if (!container) return;
 
     if (carrito.length === 0) {
@@ -354,13 +385,13 @@ function renderCart() {
             </div>
         `;
         if (totalPriceEl) totalPriceEl.textContent = "$0.00";
-        
+
         // Mejoramos la UX deshabilitando el check maestro si no hay nada
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.disabled = true;
         }
-        
+
         evaluarEstadoBulkDelete();
         actualizarBotonCabecera();
         return;
@@ -373,13 +404,13 @@ function renderCart() {
 
     carrito.forEach(item => {
         subtotal += item.precio * item.cantidad;
-        
+
         const article = document.createElement("article");
         article.className = "cart-item";
-        
-        const imgNode = item.imagen 
+
+        const imgNode = item.imagen
             ? `<img src="${item.imagen}" alt="${item.nombre}" class="cart-item-img">`
-            : `<div class="cart-item-img" style="background:#eee"></div>`; 
+            : `<div class="cart-item-img" style="background:#eee"></div>`;
 
         article.innerHTML = `
             <input type="checkbox" class="item-checkbox cart-item-checkbox" data-id="${item.id}" aria-label="Seleccionar ${item.nombre}">
@@ -415,7 +446,7 @@ function actualizarBotonCabecera() {
     const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
     const cartBtn = document.querySelector(".btn-cart");
     const cartBadge = document.querySelector(".cart-badge");
-    
+
     if (cartBtn && cartBadge) {
         cartBadge.textContent = totalItems;
         cartBtn.setAttribute("aria-label", `Abrir carrito, ${totalItems} artículos`);
@@ -425,32 +456,32 @@ function actualizarBotonCabecera() {
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
-    
+
     try {
         grid.setAttribute("aria-busy", "true");
         const response = await fetch("../data/productos.json");
-        
+
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
         }
-        
+
         const productos = await response.json();
         productosDisponibles = productos;
         grid.innerHTML = "";
-        
+
         productos.slice(0, 4).forEach(producto => {
             const article = document.createElement("article");
             article.className = "product-card";
             article.setAttribute("role", "listitem");
             article.setAttribute("aria-labelledby", `producto-${producto.id}-nombre`);
             article.setAttribute("aria-describedby", `producto-${producto.id}-descripcion producto-${producto.id}-precio producto-${producto.id}-talla`);
-            
+
             article.innerHTML = `
                 <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
-                    ${producto.imagen ? 
-                        `<img src="${producto.imagen}" alt="${producto.nombre}" class="product-image" loading="lazy">` : 
-                        `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
-                    }
+                    ${producto.imagen ?
+                    `<img src="${producto.imagen}" alt="${producto.nombre}" class="product-image" loading="lazy">` :
+                    `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
+                }
                     <div class="product-tags">
                         <span class="product-badge">${producto.destacado}</span>
                         <span class="product-category">${producto.categoria}</span>
@@ -468,12 +499,12 @@ async function cargarProductos() {
                     </button>
                 </div>
             `;
-            
+
             grid.appendChild(article);
         });
 
         grid.setAttribute("aria-busy", "false");
-        
+
     } catch (error) {
         console.error("Error al cargar los productos:", error);
         grid.setAttribute("aria-busy", "false");
