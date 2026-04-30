@@ -2,64 +2,77 @@
 
 ## Feature Name
 
-Session Storage Temporal Persistence (Cart Last Update Timestamp)
+Accessible Regex-Based Form Validation
 
 ---
 
 ## Problem Statement
 
-To comply with the project's multi-tier persistence requirements (Rule 4), the application must utilize `sessionStorage` in addition to primary storage mechanisms. Specifically, the system needs to track the exact time of the most recent modification to the shopping cart and securely persist this timestamp during the active user session, subsequently displaying it to the user.
+The application must provide clear, immediate, and accessible feedback when a user inputs invalid data into a form (e.g., the checkout form). Currently, without strict client-side validation and proper ARIA integration, users—especially those using screen readers—may submit invalid data or remain unaware of the exact input errors preventing submission.
 
 ---
 
 ## Scope
 
 **Included:**
-- Extending the cart business logic (`cart.js` or equivalent) to record the current timestamp (`lastUpdate`) in `sessionStorage` upon any cart state mutation (add, remove, update quantity).
-- Modifying the view layer (`view.js` or equivalent) to retrieve, format, and display the timestamp at the bottom of the cart UI container.
-- Implementation of Accessible Rich Internet Applications (ARIA) attributes (e.g., `aria-live`) to ensure the time update is communicated to screen readers.
+- Regex-based validation logic for form fields (e.g., name, email, credit card number if applicable).
+- Dynamic manipulation of the `aria-invalid` attribute on input fields based on validation state.
+- Dynamic rendering of visual error messages in the DOM immediately adjacent to the invalid input.
+- Linking the visual error message to the input field using the `aria-describedby` attribute for screen reader compatibility.
+- Disabling the "Enviar / Finalizar Compra" (Submit) button if any input contains uncorrected errors.
 
 **Excluded:**
-- Altering the primary `localStorage` mechanics for the cart items array.
-- Complex date-time localization libraries (e.g., Moment.js); we will strictly use Vanilla JS Date APIs.
+- Backend submission logic (this is a frontend-only exercise).
+- Use of third-party validation libraries (must be pure Vanilla JS).
 
 ---
 
 ## Implementation Details
 
-1. **State Mutation Tracking:**
-   - Whenever the cart is updated, `sessionStorage.setItem('lastUpdate', new Date().toISOString())` will be invoked alongside the standard state updates.
-   - This keeps the data format standardized (ISO 8601).
+1. **Validation Logic (Behavioral Layer - `js/cart.js` or `js/app.js`):**
+   - Define a dictionary of strict Regular Expressions for each required input type (e.g., `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` for email).
+   - Create a validation orchestration function that accepts an input element and its value, tests it against the appropriate Regex, and returns a boolean result along with an error string.
 
-2. **View Layer Formatting:**
-   - During the cart rendering cycle, the view will read `sessionStorage.getItem('lastUpdate')`.
-   - If a value exists, it will be parsed into a local Date object.
-   - The time will be extracted and formatted to `HH:MM` (e.g., via `Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' })`).
+2. **DOM Manipulation (View Layer - `js/view.js`):**
+   - Create a `renderInputError(inputElement, errorMessage, isValid)` function.
+   - **If `isValid` is `false`:**
+     - Set `inputElement.setAttribute('aria-invalid', 'true')`.
+     - Check if an error message element (e.g., `<span id="${inputElement.id}-error" class="error-msg">`) exists next to the input. If not, insert it.
+     - Set the text content of the error element to `errorMessage`.
+     - Set `inputElement.setAttribute('aria-describedby', `${inputElement.id}-error`)` to link the description for screen readers.
+     - Add an invalid CSS class to the input for visual styling (e.g., a red border).
+   - **If `isValid` is `true`:**
+     - Remove `aria-invalid` (or set it to `false`).
+     - Remove the `aria-describedby` attribute (or update it if it described something else initially).
+     - Hide or remove the error message element from the DOM.
+     - Remove the invalid CSS class.
 
-3. **UI Integration:**
-   - A new semantic text element will be added to the cart footer: `<p id="cart-last-update" aria-live="polite" class="cart-timestamp">Última actualización: HH:MM</p>`.
-   - The CSS will be updated to style `.cart-timestamp` discretely (e.g., small, muted text).
+3. **Submit Button State Management:**
+   - Create a `checkFormValidity(formElement)` function.
+   - This function will iterate over all required inputs in the form.
+   - If *any* input has `aria-invalid="true"`, or is empty but required, set the submit button's `disabled` property to `true`.
+   - If all inputs are valid, remove the `disabled` attribute from the submit button.
 
 ---
 
 ## Test Plan
 
-1. **Storage Validation:** Modify the cart and verify via Developer Tools -> Application -> Session Storage that `lastUpdate` holds a valid ISO 8601 string.
-2. **UI Rendering:** Confirm that "Última actualización: HH:MM" appears at the bottom of the cart after a modification.
-3. **Reactivity:** Update cart quantities and verify the timestamp reflects the new time immediately.
-4. **Session Persistence:** Reload the page (F5) and verify the timestamp persists.
-5. **Session Isolation:** Open the application in a new tab or close/re-open the tab; verify the timestamp is cleared (as it's a new session).
+1. **Regex Accuracy:** Type invalid strings (e.g., email without `@`, numbers in name field) and verify the regex catches them. Type valid strings and verify they pass.
+2. **Accessibility Verification:** Use browser dev tools (Accessibility tree) or a screen reader to confirm that when an input is invalid, it is announced as "invalid" and the specific error text is read out via `aria-describedby`.
+3. **Visual Feedback:** Confirm that error messages appear immediately in the DOM when validation fails and disappear when the user corrects the input.
+4. **Button Locking:** Confirm the "Finalizar Compra" button cannot be clicked (is fully disabled in HTML) while any field remains invalid, and becomes clickable the moment all fields pass validation.
 
 ---
 
 ## Risks / Edge Cases
 
-- **Timezone Offset:** Saving as ISO string implies UTC time. The view must parse this back to local time correctly to prevent displaying incorrect hours.
-- **Empty State Handling:** On the user's very first visit in a session, `lastUpdate` will be `null`. The UI must gracefully handle this by either omitting the timestamp element entirely or displaying a fallback message.
+- **Validation Timing (UX Risk):** Validating on every keystroke (`input` event) from the beginning can be aggressive and annoying (e.g., telling the user the email is invalid while they are still typing it). 
+  - *Mitigation:* Validate on `blur` (when the input loses focus) the first time. Once an input is marked invalid, validate on `input` so the user sees the error disappear the exact moment they fix it.
+- **Form Initialization:** The submit button should likely be disabled by default when the form is first loaded if there are required fields, preventing premature submission.
 
 ---
 
 ## Open Questions
 
-- Should the timestamp display "Aún no actualizado" when the cart is initially loaded empty, or should the element remain hidden until the first interaction? (Recommendation: Hide until first interaction to keep the UI clean).
-- Are there specific CSS classes from the existing system we should use to render text "discretely" (e.g., `text-muted`, `small`), or should we create a new utility class?
+- Which specific input fields (e.g., Nombre, Correo, Dirección, Tarjeta) are present in the checkout form that require Regex patterns?
+- Should we apply a debounce function to the validation logic if we decide to validate on the `input` event, or is performance negligible for these simple regex checks?
