@@ -11,6 +11,7 @@ const CLAVE_CARRITO_STORAGE = 'sportstore_shopping_cart';
 function guardarCarritoEnStorage() {
     try {
         localStorage.setItem(CLAVE_CARRITO_STORAGE, JSON.stringify(carrito));
+        sessionStorage.setItem('lastUpdate', new Date().toISOString());
     } catch (error) {
         console.error("Error al guardar el carrito en localStorage:", error);
     }
@@ -394,6 +395,7 @@ function renderCart() {
 
         evaluarEstadoBulkDelete();
         actualizarBotonCabecera();
+        actualizarTimestampUI();
         return;
     }
 
@@ -440,6 +442,22 @@ function renderCart() {
 
     evaluarEstadoBulkDelete();
     actualizarBotonCabecera();
+    actualizarTimestampUI();
+}
+
+function actualizarTimestampUI() {
+    const lastUpdateEl = document.getElementById("cart-last-update");
+    if (lastUpdateEl) {
+        const lastUpdateStr = sessionStorage.getItem('lastUpdate');
+        if (lastUpdateStr) {
+            const date = new Date(lastUpdateStr);
+            const timeString = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            lastUpdateEl.textContent = `Última actualización: ${timeString}`;
+            lastUpdateEl.style.display = 'block';
+        } else {
+            lastUpdateEl.style.display = 'none';
+        }
+    }
 }
 
 function actualizarBotonCabecera() {
