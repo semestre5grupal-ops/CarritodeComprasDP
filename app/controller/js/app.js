@@ -38,11 +38,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof initCartDelegation === 'function') initCartDelegation();
     if (typeof gestionCookies !== 'undefined') gestionCookies.init();
 
+    initMobileMenu();
+
     // Iniciar PWA Listeners
     initNetworkListeners();
     // Iniciar validaciones de contacto
     initContacto();
 });
+
+function initMobileMenu() {
+    const toggleBtn = document.querySelector('.mobile-menu-toggle');
+    const primaryNav = document.getElementById('primary-navigation');
+
+    if (!toggleBtn || !primaryNav) return;
+
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = primaryNav.classList.toggle('is-open');
+        toggleBtn.setAttribute('aria-expanded', isOpen);
+    });
+}
 
 async function inicializarSistema() {
     const overlay = document.getElementById("loading-overlay");

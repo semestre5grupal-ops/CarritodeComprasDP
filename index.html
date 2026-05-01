@@ -34,10 +34,18 @@
 
 
     <header class="site-header">
-
         <div class="nav-bar wrap-wide">
             <h1 class="brand">Shop<span>sport</span></h1>
-            <nav aria-label="Navegación principal">
+            
+            <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú">
+                <svg class="hamburger-icon" aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <nav id="primary-navigation" class="primary-nav" aria-label="Navegación principal">
                 <ul>
                     <li><a href="#hero" aria-current="page">Inicio</a></li>
                     <li><a href="app/view/catalog.html">Catálogo</a></li>
@@ -45,7 +53,13 @@
                 </ul>
             </nav>
             <div class="nav-actions" aria-label="Acciones rápidas">
-                <button type="button" class="nav-pill" aria-label="Mi cuenta">Mi cuenta</button>
+                <button type="button" class="btn-user nav-pill" aria-label="Login">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="user-text">Login</span>
+                </button>
                 <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos"
                     aria-expanded="false">
                     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
