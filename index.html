@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tienda de ropa deportiva.">
     <title>Shop Sport | Ropa deportiva</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/components/products.css">
-    <link rel="stylesheet" href="assets/css/components/cart.css">
+    <link rel="stylesheet" href="app/view/assets/css/styles.css">
+    <link rel="stylesheet" href="app/view/assets/css/components/products.css">
+    <link rel="stylesheet" href="app/view/assets/css/components/cart.css">
 </head>
-<body>
-    <a class="skip-link" href="#contenido-principal">Saltar al catálogo</a>
 
-    <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
+<body>
+    <a class="skip-link" href="#contenido">Saltar al catálogo</a>
+
+    <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando tienda">
         <div class="spinner" aria-hidden="true"></div>
-        <p>Actualizando tendencias...</p>
+        <p>Cargando experiencia Shop Sport...</p>
     </div>
+
+
 
     <header class="site-header">
 
@@ -24,14 +28,16 @@
             <nav aria-label="Navegación principal">
                 <ul>
                     <li><a href="#hero" aria-current="page">Inicio</a></li>
-                    <li><a href="catalog.html">Catálogo</a></li>
+                    <li><a href="app/view/catalog.html">Catálogo</a></li>
                     <li><a href="#contacto">Contacto</a></li>
                 </ul>
             </nav>
             <div class="nav-actions" aria-label="Acciones rápidas">
                 <button type="button" class="nav-pill" aria-label="Mi cuenta">Mi cuenta</button>
-                <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos" aria-expanded="false">
-                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos"
+                    aria-expanded="false">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
@@ -47,12 +53,13 @@
             <div class="hero-copy">
                 <p class="eyebrow">Nueva colección rendimiento</p>
                 <h2 id="hero-title">Empieza por lo esencial.</h2>
-                <p id="hero-summary">Ropa deportiva minimalista para entrenar, descansar y moverte con comodidad. Prendas limpias, ordenadas y pensadas para el uso diario.</p>
+                <p id="hero-summary">Ropa deportiva minimalista para entrenar, descansar y moverte con comodidad.
+                    Prendas limpias, ordenadas y pensadas para el uso diario.</p>
                 <div class="hero-actions">
-                    <a href="catalog.html" class="btn btn-primary">Ver catálogo</a>
+                    <a href="app/view/catalog.html" class="btn btn-primary">Ver catálogo</a>
                     <a href="#coleccion" class="btn btn-secondary">Descubrir colección</a>
                 </div>
-                
+
             </div>
 
             <div class="hero-visual" aria-label="Vista conceptual de colecciones deportivas">
@@ -120,7 +127,8 @@
             <div class="materials-copy">
                 <p class="eyebrow">tejidos técnicos</p>
                 <h2 id="sec-materiales">Fibras que se sienten diferentes.</h2>
-                <p id="materiales-summary">Cada prenda está pensada para acompañar el cuerpo con suavidad, ventilación y estructura mínima.</p>
+                <p id="materiales-summary">Cada prenda está pensada para acompañar el cuerpo con suavidad, ventilación y
+                    estructura mínima.</p>
             </div>
             <div class="materials-grid" role="list" aria-label="Materiales destacados">
                 <article role="listitem" aria-label="Material modal">
@@ -141,8 +149,8 @@
                 <p>Aplica en básicos seleccionados de mujer, hombre y kids.</p>
             </div>
             <div class="promo-actions">
-                <a href="catalog.html" class="btn btn-dark">Niño</a>
-                <a href="catalog.html" class="btn btn-dark">Niña</a>
+                <a href="app/view/catalog.html" class="btn btn-dark">Niño</a>
+                <a href="app/view/catalog.html" class="btn btn-dark">Niña</a>
             </div>
         </section>
 
@@ -150,14 +158,15 @@
             <article class="story-card story-card-left">
                 <p class="eyebrow">Florencia Davalos</p>
                 <h2>Aquí florecemos en movimiento.</h2>
-                <p>Una colección pensada para mujeres que quieren verse bien, entrenar cómodas y mantener un estilo limpio.</p>
-                <a href="catalog.html" class="btn btn-olive">Compra aquí</a>
+                <p>Una colección pensada para mujeres que quieren verse bien, entrenar cómodas y mantener un estilo
+                    limpio.</p>
+                <a href="app/view/catalog.html" class="btn btn-olive">Compra aquí</a>
             </article>
             <article class="story-card story-card-right">
                 <p class="eyebrow">Favoritos de todos</p>
                 <h2>Cuando algo funciona, se vuelve a elegir.</h2>
                 <p>Diseños simples, tonos neutros y prendas que se integran fácil al día a día.</p>
-                <a href="catalog.html" class="btn btn-dark">Compra aquí</a>
+                <a href="app/view/catalog.html" class="btn btn-dark">Compra aquí</a>
             </article>
         </section>
 
@@ -190,6 +199,42 @@
         </section>
     </main>
 
+    <section class="contact-section wrap-wide" aria-labelledby="sec-formulario">
+        <div class="section-heading">
+            <h2 id="sec-formulario">Escríbenos</h2>
+            <p>Déjanos tus datos y te contactaremos por WhatsApp.</p>
+        </div>
+
+        <form id="form-contacto" class="form-accesible" novalidate>
+            <div class="form-group">
+                <label for="nombre">Nombre completo:</label>
+                <input type="text" id="nombre" name="nombre" required minlength="2" aria-describedby="err-nombre"
+                    autocomplete="name">
+                <span id="err-nombre" class="error-msg" role="alert" aria-live="polite" hidden>El nombre es obligatorio
+                    y debe tener al menos 2 caracteres.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo electrónico:</label>
+                <input type="email" id="correo" name="correo" required autocomplete="email"
+                    aria-describedby="err-correo">
+                <span id="err-correo" class="error-msg" role="alert" aria-live="polite" hidden>Revisa el formato (p.
+                    ej., usuario@dominio.com).</span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono (10 dígitos):</label>
+                <input type="tel" id="telefono" name="telefono" required pattern="^\d{10}$" inputmode="numeric"
+                    aria-describedby="err-telefono">
+                <span id="err-telefono" class="error-msg" role="alert" aria-live="polite" hidden>El teléfono debe
+                    contener exactamente 10 números.</span>
+            </div>
+
+            <button type="submit" id="btn-submit-contacto" class="btn btn-primary"
+                style="width: 100%; margin-top: 1rem;">Enviar mensaje</button>
+        </form>
+    </section>
+
     <footer id="contacto" class="site-footer wrap-wide" aria-label="Pie de página">
         <div>
             <h2 class="brand brand-footer">Shop<span>sport</span></h2>
@@ -199,7 +244,7 @@
             <h3>Nosotros</h3>
             <ul>
                 <li><a href="#coleccion">Colección</a></li>
-                <li><a href="catalog.html">Catálogo</a></li>
+                <li><a href="app/view/catalog.html">Catálogo</a></li>
                 <li><a href="#hero">Inicio</a></li>
             </ul>
         </div>
@@ -213,35 +258,48 @@
         </div>
     </footer>
 
-    <button id="btn-scroll-top" class="btn-scroll-top" aria-label="Volver arriba" title="Volver arriba" aria-hidden="true" tabindex="-1">
-        <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+    <button id="btn-scroll-top" class="btn-scroll-top" aria-label="Volver arriba" title="Volver arriba"
+        aria-hidden="true" tabindex="-1">
+        <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <polyline points="18 15 12 9 6 15"></polyline>
         </svg>
     </button>
 
     <!-- Overlay y Drawer del carrito -->
     <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
-    <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Tu carrito de compras">
+    <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog"
+        aria-label="Tu carrito de compras">
         <div class="cart-header">
             <h2>Tu Carrito</h2>
             <button type="button" id="btn-close-cart" class="btn-close-cart" aria-label="Cerrar carrito">
-                <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
         </div>
-        
+
         <div class="cart-bulk-actions">
             <label for="select-all-cart">
                 <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito">
                 Seleccionar todos
             </label>
-            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk" aria-label="Eliminar productos seleccionados">
+            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk"
+                aria-label="Eliminar productos seleccionados">
                 Eliminar items
             </button>
         </div>
 
         <div id="cart-items-container" class="cart-items-container">
             <div class="cart-empty-msg">
-                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
                 <p>Tu carrito está vacío.</p>
             </div>
             <!-- Aquí se inyectan los items desde JS -->
@@ -252,6 +310,8 @@
                 <span>Total estimado:</span>
                 <span id="cart-total-price">$0.00</span>
             </div>
+            <p id="cart-last-update" aria-live="polite" class="cart-item-cat"
+                style="display: none; text-align: center; margin-bottom: 0.8rem;"></p>
             <button type="button" class="btn btn-primary w-100" aria-label="Proceder al pago">Completar pedido</button>
         </div>
     </aside>
@@ -267,6 +327,24 @@
         </form>
     </dialog>
 
-    <script src="js/app.js" type="module"></script>
+    <aside id="cookie-banner" class="cookie-banner" role="dialog" aria-labelledby="cookie-title"
+        aria-describedby="cookie-desc" aria-hidden="true">
+        <div class="cookie-content wrap-wide">
+            <h3 id="cookie-title">Políticas de Compra</h3>
+            <p id="cookie-desc">
+                Utilizamos cookies propias y almacenamiento local para mejorar tu experiencia, mantener tu carrito de
+                compras activo y guardar tus preferencias. ¿Aceptas nuestras políticas de compra?
+            </p>
+            <div class="cookie-actions">
+                <button type="button" id="btn-accept-cookies" class="btn btn-primary"
+                    aria-label="Aceptar políticas de compra" disabled>Aceptar</button>
+                <button type="button" id="btn-reject-cookies" class="btn btn-secondary"
+                    aria-label="Rechazar políticas de compra">Rechazar</button>
+            </div>
+        </div>
+    </aside>
+
+    <script src="app/controller/js/app.js" type="module"></script>
 </body>
+
 </html>

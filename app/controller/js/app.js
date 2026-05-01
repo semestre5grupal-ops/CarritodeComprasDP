@@ -1,22 +1,58 @@
+import { initContacto } from './contacto.js';
+
 // Estado Global
 let productosDisponibles = [];
 let carrito = [];
 let pendingDeleteId = null;
 let pendingDeleteBulkIds = null;
 
+const CLAVE_CARRITO_STORAGE = 'sportstore_shopping_cart';
+
+function guardarCarritoEnStorage() {
+    try {
+        localStorage.setItem(CLAVE_CARRITO_STORAGE, JSON.stringify(carrito));
+        sessionStorage.setItem('lastUpdate', new Date().toISOString());
+    } catch (error) {
+        console.error("Error al guardar el carrito en localStorage:", error);
+    }
+}
+
+function cargarCarritoDeStorage() {
+    try {
+        const datosGuardados = localStorage.getItem(CLAVE_CARRITO_STORAGE);
+        if (datosGuardados) {
+            carrito = JSON.parse(datosGuardados);
+        } else {
+            carrito = [];
+        }
+    } catch (error) {
+        console.error("Error al analizar el carrito de localStorage:", error);
+        carrito = [];
+        localStorage.removeItem(CLAVE_CARRITO_STORAGE);
+    }
+}
+
 // 1. Corregimos el punto de entrada para aprovechar tu lógica de carga
 document.addEventListener("DOMContentLoaded", () => {
-    inicializarSistema(); 
+    cargarCarritoDeStorage();
+    renderCart(); // Aseguramos que el carrito se renderice si había datos
+    inicializarSistema();
     initScrollTop();
     initCartDrawer();
     initCartDelegation(); // Centralizamos la delegación de eventos del carrito
+
+    // Iniciar gestión de cookies y políticas
+    gestionCookies.init();
+
+    // Iniciar validación de contacto
+    initContacto();
 });
 
 async function inicializarSistema() {
     const overlay = document.getElementById("loading-overlay");
-    
+
     try {
-        await new Promise(resolve => setTimeout(resolve, 800)); 
+        await new Promise(resolve => setTimeout(resolve, 800));
         await cargarProductos();
         desbloquearInterfaz();
     } catch (error) {
@@ -29,6 +65,86 @@ async function inicializarSistema() {
         if (overlay) overlay.classList.add("hidden");
     }
 }
+
+// ======================================================================
+// MÓDULO DE PERSISTENCIA: COOKIES
+// ======================================================================
+// ======================================================================
+// MÓDULO DE PERSISTENCIA: COOKIES (VERSIÓN DEPURACIÓN Y LOCALHOST)
+// ======================================================================
+const gestionCookies = {
+    init() {
+        console.log("1. Iniciando módulo de cookies...");
+        const banner = document.getElementById('cookie-banner');
+        const btnAccept = document.getElementById('btn-accept-cookies');
+        const btnReject = document.getElementById('btn-reject-cookies');
+
+        if (!banner) {
+            console.error("❌ ERROR CRÍTICO: No se encuentra el <aside id='cookie-banner'> en tu HTML. Verifica que lo pegaste antes de </body>.");
+            return;
+        }
+        console.log("2. HTML del banner encontrado correctamente.");
+
+        if (this.obtenerCookie('terminosAceptados') === 'true') {
+            console.log("3. La cookie ya existe. Ocultando banner.");
+            banner.style.display = 'none'; // Forzado por JS
+            banner.setAttribute('aria-hidden', 'true');
+        } else {
+            console.log("3. No hay cookie. Mostrando banner de políticas.");
+            banner.style.display = 'flex'; // Forzamos visibilidad ignorando el CSS
+            banner.setAttribute('aria-hidden', 'false');
+
+            setTimeout(() => {
+                if (btnAccept) {
+                    btnAccept.disabled = false;
+                    btnAccept.style.cursor = 'pointer';
+                    console.log("4. Botón de aceptar habilitado.");
+                } else {
+                    console.error("❌ ERROR: No se encontró el botón con id='btn-accept-cookies'");
+                }
+            }, 600);
+
+            if (btnAccept) {
+                btnAccept.addEventListener('click', () => {
+                    console.log("5. Clic detectado. Creando cookie...");
+                    this.crearCookie('terminosAceptados', 'true', 30);
+                    banner.style.display = 'none';
+                    banner.setAttribute('aria-hidden', 'true');
+                });
+            }
+
+            if (btnReject) {
+                btnReject.addEventListener('click', () => {
+                    banner.style.display = 'none';
+                    banner.setAttribute('aria-hidden', 'true');
+                });
+            }
+        }
+    },
+
+    crearCookie(nombre, valor, diasExpira) {
+        const fecha = new Date();
+        fecha.setTime(fecha.getTime() + (diasExpira * 24 * 60 * 60 * 1000));
+        const expira = "expires=" + fecha.toUTCString();
+        // Ajuste clave: Quitamos SameSite=Lax para evitar bloqueos en 127.0.0.1 sin HTTPS
+        const stringCookie = `${nombre}=${valor};${expira};path=/`;
+        document.cookie = stringCookie;
+        console.log("6. Cookie inyectada en el navegador:", stringCookie);
+    },
+
+    obtenerCookie(nombre) {
+        const nombreBuscado = nombre + "=";
+        const cookiesActuales = document.cookie.split(';');
+
+        for (let i = 0; i < cookiesActuales.length; i++) {
+            let c = cookiesActuales[i].trim();
+            if (c.indexOf(nombreBuscado) === 0) {
+                return c.substring(nombreBuscado.length, c.length);
+            }
+        }
+        return null;
+    }
+};
 
 // 2. Protegemos contra posibles elementos nulos en el DOM
 function desbloquearInterfaz() {
@@ -69,7 +185,7 @@ function initCartDrawer() {
     const cartDrawer = document.getElementById("cart-drawer");
     const selectAllCheckbox = document.getElementById("select-all-cart");
     const btnDeleteBulk = document.getElementById("btn-delete-bulk");
-    
+
     const dialogConfirm = document.getElementById("confirm-dialog");
     const btnDialogCancel = document.getElementById("btn-dialog-cancel");
     const btnDialogAccept = document.getElementById("btn-dialog-accept");
@@ -94,7 +210,7 @@ function initCartDrawer() {
 
         btnCloseCart.addEventListener("click", closeCart);
         cartOverlay.addEventListener("click", closeCart);
-        
+
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
                 if (dialogConfirm && dialogConfirm.open) {
@@ -112,7 +228,7 @@ function initCartDrawer() {
         if (btnAdd && btnAdd.classList.contains("btn-primary") && !btnAdd.closest("#cart-drawer") && !btnAdd.closest("#confirm-dialog")) {
             const prodId = parseInt(btnAdd.dataset.id);
             agregarAlCarrito(prodId);
-            if (btnOpenCart) btnOpenCart.click(); 
+            if (btnOpenCart) btnOpenCart.click();
         }
     });
 
@@ -132,6 +248,7 @@ function initCartDrawer() {
                 pendingDeleteId = null;
             } else if (pendingDeleteBulkIds !== null) {
                 carrito = carrito.filter(item => !pendingDeleteBulkIds.includes(item.id));
+                guardarCarritoEnStorage();
                 renderCart();
                 pendingDeleteBulkIds = null;
             }
@@ -155,7 +272,7 @@ function initCartDrawer() {
         btnDeleteBulk.addEventListener("click", () => {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox:checked");
             const idsToRemove = Array.from(itemCheckboxes).map(cb => parseInt(cb.dataset.id));
-            
+
             if (idsToRemove.length > 0) {
                 pendingDeleteBulkIds = idsToRemove;
                 document.getElementById("dialog-title").textContent = "¿Desea eliminar los productos seleccionados del carrito?";
@@ -192,7 +309,7 @@ function initCartDelegation() {
         if (e.target.classList.contains("item-checkbox")) {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox");
             const selectAllCheckbox = document.getElementById("select-all-cart");
-            
+
             if (selectAllCheckbox) {
                 const allChecked = Array.from(itemCheckboxes).every(i => i.checked);
                 selectAllCheckbox.checked = allChecked;
@@ -204,7 +321,7 @@ function initCartDelegation() {
 
 function agregarAlCarrito(idProducto) {
     const productoExistente = carrito.find(item => item.id === idProducto);
-    
+
     if (productoExistente) {
         productoExistente.cantidad++;
     } else {
@@ -213,6 +330,7 @@ function agregarAlCarrito(idProducto) {
             carrito.push({ ...productInfo, cantidad: 1 });
         }
     }
+    guardarCarritoEnStorage();
     renderCart();
 }
 
@@ -226,19 +344,21 @@ function modificarCantidad(id, delta) {
         document.getElementById("confirm-dialog").showModal();
     } else {
         producto.cantidad += delta;
+        guardarCarritoEnStorage();
         renderCart();
     }
 }
 
 function eliminarProductoDefinitivamente(id) {
     carrito = carrito.filter(item => item.id !== id);
+    guardarCarritoEnStorage();
     renderCart();
 }
 
 function evaluarEstadoBulkDelete() {
     const itemsChecked = document.querySelectorAll(".item-checkbox:checked");
     const btnDeleteBulk = document.getElementById("btn-delete-bulk");
-    
+
     if (btnDeleteBulk) {
         if (itemsChecked.length > 0) {
             btnDeleteBulk.classList.add("active");
@@ -255,7 +375,7 @@ function renderCart() {
     const container = document.getElementById("cart-items-container");
     const totalPriceEl = document.getElementById("cart-total-price");
     const selectAllCheckbox = document.getElementById("select-all-cart");
-    
+
     if (!container) return;
 
     if (carrito.length === 0) {
@@ -266,15 +386,16 @@ function renderCart() {
             </div>
         `;
         if (totalPriceEl) totalPriceEl.textContent = "$0.00";
-        
+
         // Mejoramos la UX deshabilitando el check maestro si no hay nada
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.disabled = true;
         }
-        
+
         evaluarEstadoBulkDelete();
         actualizarBotonCabecera();
+        actualizarTimestampUI();
         return;
     }
 
@@ -285,13 +406,13 @@ function renderCart() {
 
     carrito.forEach(item => {
         subtotal += item.precio * item.cantidad;
-        
+
         const article = document.createElement("article");
         article.className = "cart-item";
-        
-        const imgNode = item.imagen 
-            ? `<img src="${item.imagen}" alt="${item.nombre}" class="cart-item-img">`
-            : `<div class="cart-item-img" style="background:#eee"></div>`; 
+
+        const imgNode = item.imagen
+            ? `<img src="${getProductoImagePath(item.imagen)}" alt="${item.nombre}" class="cart-item-img">`
+            : `<div class="cart-item-img" style="background:#eee"></div>`;
 
         article.innerHTML = `
             <input type="checkbox" class="item-checkbox cart-item-checkbox" data-id="${item.id}" aria-label="Seleccionar ${item.nombre}">
@@ -321,48 +442,75 @@ function renderCart() {
 
     evaluarEstadoBulkDelete();
     actualizarBotonCabecera();
+    actualizarTimestampUI();
+}
+
+function actualizarTimestampUI() {
+    const lastUpdateEl = document.getElementById("cart-last-update");
+    if (lastUpdateEl) {
+        const lastUpdateStr = sessionStorage.getItem('lastUpdate');
+        if (lastUpdateStr) {
+            const date = new Date(lastUpdateStr);
+            const timeString = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            lastUpdateEl.textContent = `Última actualización: ${timeString}`;
+            lastUpdateEl.style.display = 'block';
+        } else {
+            lastUpdateEl.style.display = 'none';
+        }
+    }
 }
 
 function actualizarBotonCabecera() {
     const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
     const cartBtn = document.querySelector(".btn-cart");
     const cartBadge = document.querySelector(".cart-badge");
-    
+
     if (cartBtn && cartBadge) {
         cartBadge.textContent = totalItems;
         cartBtn.setAttribute("aria-label", `Abrir carrito, ${totalItems} artículos`);
     }
 }
 
+function getProductosDataPath() {
+    const currentPath = location.pathname.replace(/\\/g, "/");
+    return currentPath.includes("/app/view/") ? "../data/productos.json" : "app/data/productos.json";
+}
+
+function getProductoImagePath(imagenPath) {
+    if (!imagenPath) return "";
+    const currentPath = location.pathname.replace(/\\/g, "/");
+    return currentPath.includes("/app/view/") ? imagenPath : `app/view/${imagenPath}`;
+}
+
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
-    
+
     try {
         grid.setAttribute("aria-busy", "true");
-        const response = await fetch("data/productos.json");
-        
+        const response = await fetch(getProductosDataPath());
+
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
         }
-        
+
         const productos = await response.json();
         productosDisponibles = productos;
         grid.innerHTML = "";
-        
+
         productos.slice(0, 4).forEach(producto => {
             const article = document.createElement("article");
             article.className = "product-card";
             article.setAttribute("role", "listitem");
             article.setAttribute("aria-labelledby", `producto-${producto.id}-nombre`);
             article.setAttribute("aria-describedby", `producto-${producto.id}-descripcion producto-${producto.id}-precio producto-${producto.id}-talla`);
-            
+
             article.innerHTML = `
                 <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
-                    ${producto.imagen ? 
-                        `<img src="${producto.imagen}" alt="${producto.nombre}" class="product-image" loading="lazy">` : 
-                        `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
-                    }
+                    ${producto.imagen ?
+                    `<img src="${getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">` :
+                    `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
+                }
                     <div class="product-tags">
                         <span class="product-badge">${producto.destacado}</span>
                         <span class="product-category">${producto.categoria}</span>
@@ -380,15 +528,17 @@ async function cargarProductos() {
                     </button>
                 </div>
             `;
-            
+
             grid.appendChild(article);
         });
 
         grid.setAttribute("aria-busy", "false");
-        
+
     } catch (error) {
         console.error("Error al cargar los productos:", error);
         grid.setAttribute("aria-busy", "false");
+        // Eliminamos el role="list" para evitar conflicto de accesibilidad al inyectar un párrafo
+        grid.removeAttribute("role");
         grid.innerHTML = `<p class="error loading" role="alert">Hubo un problema al cargar los productos: ${error.message}</p>`;
     }
 }

@@ -282,6 +282,7 @@
     border-radius: 1rem;
     padding: 1.5rem;
     width: min(90%, 400px);
+    overflow-wrap: break-word;
     background: var(--surface);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     color: var(--ink);
