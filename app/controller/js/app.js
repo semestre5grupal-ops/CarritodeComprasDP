@@ -411,7 +411,7 @@ function renderCart() {
         article.className = "cart-item";
 
         const imgNode = item.imagen
-            ? `<img src="${item.imagen}" alt="${item.nombre}" class="cart-item-img">`
+            ? `<img src="${getProductoImagePath(item.imagen)}" alt="${item.nombre}" class="cart-item-img">`
             : `<div class="cart-item-img" style="background:#eee"></div>`;
 
         article.innerHTML = `
@@ -471,13 +471,24 @@ function actualizarBotonCabecera() {
     }
 }
 
+function getProductosDataPath() {
+    const currentPath = location.pathname.replace(/\\/g, "/");
+    return currentPath.includes("/app/view/") ? "../data/productos.json" : "app/data/productos.json";
+}
+
+function getProductoImagePath(imagenPath) {
+    if (!imagenPath) return "";
+    const currentPath = location.pathname.replace(/\\/g, "/");
+    return currentPath.includes("/app/view/") ? imagenPath : `app/view/${imagenPath}`;
+}
+
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
 
     try {
         grid.setAttribute("aria-busy", "true");
-        const response = await fetch("../data/productos.json");
+        const response = await fetch(getProductosDataPath());
 
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
@@ -497,7 +508,7 @@ async function cargarProductos() {
             article.innerHTML = `
                 <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
                     ${producto.imagen ?
-                    `<img src="${producto.imagen}" alt="${producto.nombre}" class="product-image" loading="lazy">` :
+                    `<img src="${getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">` :
                     `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
                 }
                     <div class="product-tags">
