@@ -1,5 +1,8 @@
 // Catalog Page Script
 // Maneja la carga de productos con filtros para la página de catálogo
+// Integra estrategias de persistencia: localStorage, sessionStorage, IndexedDB, Cookies
+
+import { storage } from './storage.js';
 
 let catalogProductos = [];
 
@@ -19,7 +22,7 @@ async function cargarCatalogos() {
     
     try {
         grid.setAttribute("aria-busy", "true");
-        const response = await fetch("data/productos.json");
+        const response = await fetch("../data/productos.json");
         
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
@@ -28,6 +31,9 @@ async function cargarCatalogos() {
         const productos = await response.json();
         catalogProductos = productos;
         productosDisponibles = productos; // Para que el carrito funcione
+        
+        // Guardar catálogo en IndexedDB para caché offline
+        await storage.guardarProductosIndexedDB(productos);
         
         renderizarProductosFiltrados();
         grid.setAttribute("aria-busy", "false");
