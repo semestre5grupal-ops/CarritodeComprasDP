@@ -47,6 +47,9 @@ async function cargarCatalogos() {
         console.error("Error al cargar los productos:", error);
         grid.setAttribute("aria-busy", "false");
         grid.innerHTML = `<p class="error loading" role="alert">Hubo un problema al cargar los productos: ${error.message}</p>`;
+    } finally {
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) overlay.classList.add("hidden");
     }
 }
 

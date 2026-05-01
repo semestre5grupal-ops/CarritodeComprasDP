@@ -12,8 +12,9 @@
 class StorageManager {
     constructor() {
         this.dbName = 'ShopSportDB';
-        this.dbVersion = 1;
+        this.dbVersion = 2;
         this.storeName = 'productos';
+        this.syncStoreName = 'colaTareas';
         this.db = null;
         this.init();
     }
@@ -38,13 +39,19 @@ class StorageManager {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                
-                // Crear object store si no existe
+
+                // Crear object store de productos si no existe
                 if (!db.objectStoreNames.contains(this.storeName)) {
                     const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
                     store.createIndex('categoria', 'categoria', { unique: false });
                     store.createIndex('precio', 'precio', { unique: false });
                     console.log('✅ Object Store "productos" creado');
+                }
+
+                // Crear object store para cola de tareas offline si no existe
+                if (!db.objectStoreNames.contains(this.syncStoreName)) {
+                    db.createObjectStore(this.syncStoreName, { keyPath: 'id', autoIncrement: true });
+                    console.log(`✅ Object Store "${this.syncStoreName}" creado`);
                 }
             };
         });
@@ -221,6 +228,79 @@ class StorageManager {
     }
 
     // ====================================================================
+    // COLA DE TAREAS OFFLINE (IndexedDB)
+    // ====================================================================
+
+    async guardarTareaOffline(accion, payload) {
+        if (!this.db) {
+            console.warn('⚠️ IndexedDB no está disponible para guardar tarea offline');
+            return false;
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.syncStoreName], 'readwrite');
+            const store = transaction.objectStore(this.syncStoreName);
+
+            const nuevaTarea = {
+                accion: accion,
+                datos: payload,
+                timestamp: new Date().toISOString()
+            };
+
+            const request = store.add(nuevaTarea);
+
+            request.onsuccess = () => {
+                console.log(`📡 Tarea offline guardada: ${accion}`);
+                resolve(true);
+            };
+
+            request.onerror = () => {
+                console.error('Error al guardar tarea offline:', request.error);
+                reject(request.error);
+            };
+        });
+    }
+
+    async obtenerTareasPendientes() {
+        if (!this.db) return [];
+
+        return new Promise((resolve) => {
+            const transaction = this.db.transaction([this.syncStoreName], 'readonly');
+            const store = transaction.objectStore(this.syncStoreName);
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = () => {
+                console.error('Error al obtener tareas pendientes:', request.error);
+                resolve([]);
+            };
+        });
+    }
+
+    async eliminarTarea(idTarea) {
+        if (!this.db) return false;
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.syncStoreName], 'readwrite');
+            const store = transaction.objectStore(this.syncStoreName);
+            const request = store.delete(idTarea);
+
+            request.onsuccess = () => {
+                console.log(`🗑️ Tarea offline eliminada: ${idTarea}`);
+                resolve(true);
+            };
+
+            request.onerror = () => {
+                console.error('Error al eliminar tarea offline:', request.error);
+                reject(request.error);
+            };
+        });
+    }
+
+    // ====================================================================
     // ESTRATEGIA 4: Cookies (Preferencias - con expiración)
     // ====================================================================
     guardarCookie(nombre, valor, diasExpiracion = 365) {
@@ -228,7 +308,7 @@ class StorageManager {
             const fecha = new Date();
             fecha.setTime(fecha.getTime() + (diasExpiracion * 24 * 60 * 60 * 1000));
             const expires = 'expires=' + fecha.toUTCString();
-            
+
             document.cookie = `${nombre}=${valor}; ${expires}; path=/`;
             console.log(`🍪 Cookie '${nombre}' guardada (${diasExpiracion} días)`);
             return true;
@@ -242,7 +322,7 @@ class StorageManager {
         try {
             const nombreBuscado = nombre + '=';
             const cookies = document.cookie.split(';');
-            
+
             for (let i = 0; i < cookies.length; i++) {
                 let c = cookies[i].trim();
                 if (c.indexOf(nombreBuscado) === 0) {
@@ -295,7 +375,7 @@ class StorageManager {
     // ====================================================================
     // MÉTODOS UTILITARIOS
     // ====================================================================
-    
+
     /**
      * Obtener estadísticas de almacenamiento
      */
@@ -307,7 +387,7 @@ class StorageManager {
             },
             sessionStorage: {
                 lastUpdate: sessionStorage.getItem('lastUpdate') || 'N/A',
-                duracionSesion: sessionStorage.getItem('sessionStarted') ? 
+                duracionSesion: sessionStorage.getItem('sessionStarted') ?
                     Math.round((Date.now() - parseInt(sessionStorage.getItem('sessionStarted'))) / 1000) + 's' : 'N/A'
             },
             cookies: {
@@ -336,19 +416,19 @@ class StorageManager {
      */
     async sincronizarTodo(carrito, productos) {
         console.log('🔄 Sincronizando todas las estrategias de almacenamiento...');
-        
+
         // 1. localStorage - Carrito
         this.guardarCarritoLocalStorage(carrito);
-        
+
         // 2. sessionStorage - Timestamp
         this.guardarTimestampSesion();
-        
+
         // 3. IndexedDB - Catálogo
         await this.guardarProductosIndexedDB(productos);
-        
+
         // 4. Cookies - Preferencias
         this.guardarCookie('lastSync', new Date().toISOString(), 365);
-        
+
         console.log('✅ Sincronización completada');
     }
 
@@ -357,19 +437,19 @@ class StorageManager {
      */
     limpiarTodo() {
         console.warn('🚨 Limpiando TODAS las estrategias de almacenamiento...');
-        
+
         // localStorage
         this.limpiarCarritoLocalStorage();
-        
+
         // sessionStorage
         this.limpiarSessionStorage();
-        
+
         // Cookies
         document.cookie.split(';').forEach(c => {
             const nombre = c.split('=')[0].trim();
             if (nombre) this.eliminarCookie(nombre);
         });
-        
+
         // IndexedDB
         if (this.db) {
             const request = indexedDB.deleteDatabase(this.dbName);

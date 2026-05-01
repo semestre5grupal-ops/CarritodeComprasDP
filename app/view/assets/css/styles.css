@@ -845,6 +845,8 @@ main {
 #loading-overlay.hidden {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+    display: none !important;
 }
 
 .spinner {
@@ -933,4 +935,36 @@ button:disabled {
     outline-offset: 4px;
     box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2);
     border-color: transparent;
+}
+
+/* ==========================================================================
+   ALERTAS DE RED (PWA OFFLINE-FIRST)
+   ========================================================================== */
+.network-status {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+    font-weight: 700;
+    z-index: 99999;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.network-status.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.network-status.offline {
+    background: linear-gradient(135deg, #e53e3e 0%, #dd6b20 100%);
+}
+
+.network-status.online {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
 }

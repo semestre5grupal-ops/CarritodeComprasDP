@@ -180,12 +180,24 @@
 </head>
 
 <body>
+    <div id="network-status" class="network-status hidden" role="alert" aria-live="assertive"></div>
     <a class="skip-link" href="#contenido">Saltar al catálogo</a>
 
     <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
         <div class="spinner" aria-hidden="true"></div>
         <p>Cargando catálogo...</p>
     </div>
+
+    <script>
+        // Fallback de seguridad: Si el JS principal falla, ocultar overlay en 3s
+        setTimeout(function() {
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                console.warn('Fallback de seguridad activado para el overlay');
+                overlay.classList.add('hidden');
+            }
+        }, 3000);
+    </script>
 
     <header class="site-header">
         <div class="nav-bar wrap-wide">

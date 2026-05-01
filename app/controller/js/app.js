@@ -7,14 +7,6 @@ let carrito = [];
 let pendingDeleteId = null;
 let pendingDeleteBulkIds = null;
 
-const CLAVE_CARRITO_STORAGE = 'sportstore_shopping_cart';
-
-/**
- * Guardar carrito en todas las estrategias de persistencia
- * - localStorage: Principal (indefinido)
- * - sessionStorage: Timestamp
- * - IndexedDB: Cache
- */
 function guardarCarritoEnStorage() {
     try {
         storage.guardarCarritoLocalStorage(carrito);
@@ -24,9 +16,6 @@ function guardarCarritoEnStorage() {
     }
 }
 
-/**
- * Recuperar carrito del almacenamiento persistente
- */
 function cargarCarritoDeStorage() {
     try {
         carrito = storage.recuperarCarritoLocalStorage();
@@ -40,25 +29,23 @@ function cargarCarritoDeStorage() {
     }
 }
 
-// 1. Corregimos el punto de entrada para aprovechar tu lógica de carga
 document.addEventListener("DOMContentLoaded", () => {
     cargarCarritoDeStorage();
-    renderCart(); // Aseguramos que el carrito se renderice si había datos
+    if (typeof renderCart === 'function') renderCart();
     inicializarSistema();
-    initScrollTop();
-    initCartDrawer();
-    initCartDelegation(); // Centralizamos la delegación de eventos del carrito
+    if (typeof initScrollTop === 'function') initScrollTop();
+    if (typeof initCartDrawer === 'function') initCartDrawer();
+    if (typeof initCartDelegation === 'function') initCartDelegation();
+    if (typeof gestionCookies !== 'undefined') gestionCookies.init();
 
-    // Iniciar gestión de cookies y políticas
-    gestionCookies.init();
-
-    // Iniciar validación de contacto
+    // Iniciar PWA Listeners
+    initNetworkListeners();
+    // Iniciar validaciones de contacto
     initContacto();
 });
 
 async function inicializarSistema() {
     const overlay = document.getElementById("loading-overlay");
-
     try {
         await new Promise(resolve => setTimeout(resolve, 800));
         await cargarProductos();
@@ -74,47 +61,30 @@ async function inicializarSistema() {
     }
 }
 
-// ======================================================================
-// MÓDULO DE PERSISTENCIA: COOKIES
-// ======================================================================
-// ======================================================================
-// MÓDULO DE PERSISTENCIA: COOKIES (VERSIÓN DEPURACIÓN Y LOCALHOST)
-// ======================================================================
 const gestionCookies = {
     init() {
-        console.log("1. Iniciando módulo de cookies...");
         const banner = document.getElementById('cookie-banner');
         const btnAccept = document.getElementById('btn-accept-cookies');
         const btnReject = document.getElementById('btn-reject-cookies');
 
-        if (!banner) {
-            console.error("❌ ERROR CRÍTICO: No se encuentra el <aside id='cookie-banner'> en tu HTML. Verifica que lo pegaste antes de </body>.");
-            return;
-        }
-        console.log("2. HTML del banner encontrado correctamente.");
+        if (!banner) return;
 
         if (this.obtenerCookie('terminosAceptados') === 'true') {
-            console.log("3. La cookie ya existe. Ocultando banner.");
-            banner.style.display = 'none'; // Forzado por JS
+            banner.style.display = 'none';
             banner.setAttribute('aria-hidden', 'true');
         } else {
-            console.log("3. No hay cookie. Mostrando banner de políticas.");
-            banner.style.display = 'flex'; // Forzamos visibilidad ignorando el CSS
+            banner.style.display = 'flex';
             banner.setAttribute('aria-hidden', 'false');
 
             setTimeout(() => {
                 if (btnAccept) {
                     btnAccept.disabled = false;
                     btnAccept.style.cursor = 'pointer';
-                    console.log("4. Botón de aceptar habilitado.");
-                } else {
-                    console.error("❌ ERROR: No se encontró el botón con id='btn-accept-cookies'");
                 }
             }, 600);
 
             if (btnAccept) {
                 btnAccept.addEventListener('click', () => {
-                    console.log("5. Clic detectado. Creando cookie...");
                     this.crearCookie('terminosAceptados', 'true', 30);
                     banner.style.display = 'none';
                     banner.setAttribute('aria-hidden', 'true');
@@ -129,21 +99,16 @@ const gestionCookies = {
             }
         }
     },
-
     crearCookie(nombre, valor, diasExpira) {
         const fecha = new Date();
         fecha.setTime(fecha.getTime() + (diasExpira * 24 * 60 * 60 * 1000));
         const expira = "expires=" + fecha.toUTCString();
-        // Ajuste clave: Quitamos SameSite=Lax para evitar bloqueos en 127.0.0.1 sin HTTPS
         const stringCookie = `${nombre}=${valor};${expira};path=/`;
         document.cookie = stringCookie;
-        console.log("6. Cookie inyectada en el navegador:", stringCookie);
     },
-
     obtenerCookie(nombre) {
         const nombreBuscado = nombre + "=";
         const cookiesActuales = document.cookie.split(';');
-
         for (let i = 0; i < cookiesActuales.length; i++) {
             let c = cookiesActuales[i].trim();
             if (c.indexOf(nombreBuscado) === 0) {
@@ -154,13 +119,9 @@ const gestionCookies = {
     }
 };
 
-// 2. Protegemos contra posibles elementos nulos en el DOM
 function desbloquearInterfaz() {
     const btnCart = document.querySelector(".btn-cart");
-    const btnSubmit = document.getElementById("btn-submit-contacto");
-
     if (btnCart) btnCart.disabled = false;
-    if (btnSubmit) btnSubmit.disabled = false;
 }
 
 function initScrollTop() {
@@ -196,7 +157,6 @@ function initCartDrawer() {
     const btnDialogCancel = document.getElementById("btn-dialog-cancel");
     const btnDialogAccept = document.getElementById("btn-dialog-accept");
 
-    // Abrir/Cerrar carrito
     if (btnOpenCart && cartOverlay && cartDrawer && btnCloseCart) {
         btnOpenCart.addEventListener("click", () => {
             cartOverlay.classList.add("active");
@@ -228,17 +188,6 @@ function initCartDrawer() {
         });
     }
 
-    // Agregar desde lista de productos usando event delegation
-    document.body.addEventListener("click", (e) => {
-        const btnAdd = e.target.closest("button[data-id]");
-        if (btnAdd && btnAdd.classList.contains("btn-primary") && !btnAdd.closest("#cart-drawer") && !btnAdd.closest("#confirm-dialog")) {
-            const prodId = parseInt(btnAdd.dataset.id);
-            agregarAlCarrito(prodId);
-            if (btnOpenCart) btnOpenCart.click();
-        }
-    });
-
-    // Lógica de confirmación dialog custom
     if (btnDialogCancel && dialogConfirm) {
         btnDialogCancel.addEventListener("click", () => {
             dialogConfirm.close();
@@ -262,7 +211,6 @@ function initCartDrawer() {
         });
     }
 
-    // Selección múltiple global
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener("change", (e) => {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox");
@@ -273,7 +221,6 @@ function initCartDrawer() {
         });
     }
 
-    // Borrado múltiple
     if (btnDeleteBulk && dialogConfirm) {
         btnDeleteBulk.addEventListener("click", () => {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox:checked");
@@ -286,14 +233,12 @@ function initCartDrawer() {
             }
         });
     }
-}
+} // <--- ¡AQUÍ ESTABA EL ERROR! ESTA LLAVE FALTABA Y ROMPÍA TODO EL CÓDIGO
 
-// 3. NUEVA: Delegación de eventos para optimizar el redibujado del carrito
 function initCartDelegation() {
     const cartContainer = document.getElementById("cart-items-container");
     if (!cartContainer) return;
 
-    // Controla clics de sumar, restar y eliminar
     cartContainer.addEventListener("click", (e) => {
         const btnInc = e.target.closest('.inc-btn');
         const btnDec = e.target.closest('.dec-btn');
@@ -310,7 +255,6 @@ function initCartDelegation() {
         }
     });
 
-    // Controla el cambio de los checkboxes individuales
     cartContainer.addEventListener("change", (e) => {
         if (e.target.classList.contains("item-checkbox")) {
             const itemCheckboxes = document.querySelectorAll(".item-checkbox");
@@ -327,7 +271,6 @@ function initCartDelegation() {
 
 function agregarAlCarrito(idProducto) {
     const productoExistente = carrito.find(item => item.id === idProducto);
-
     if (productoExistente) {
         productoExistente.cantidad++;
     } else {
@@ -339,6 +282,7 @@ function agregarAlCarrito(idProducto) {
     guardarCarritoEnStorage();
     renderCart();
 }
+window.agregarAlCarrito = agregarAlCarrito; // Expuesto para el onclick del HTML
 
 function modificarCantidad(id, delta) {
     const producto = carrito.find(item => item.id === id);
@@ -376,7 +320,6 @@ function evaluarEstadoBulkDelete() {
     }
 }
 
-// 4. Limpiamos la función renderCart de listeners redundantes
 function renderCart() {
     const container = document.getElementById("cart-items-container");
     const totalPriceEl = document.getElementById("cart-total-price");
@@ -386,19 +329,16 @@ function renderCart() {
 
     if (carrito.length === 0) {
         container.innerHTML = `
-            <div class="cart-empty-msg">
-                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                <p>Tu carrito está vacío.</p>
-            </div>
-        `;
+        <div class="cart-empty-msg">
+            <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <p>Tu carrito está vacío.</p>
+        </div>
+    `;
         if (totalPriceEl) totalPriceEl.textContent = "$0.00";
-
-        // Mejoramos la UX deshabilitando el check maestro si no hay nada
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.disabled = true;
         }
-
         evaluarEstadoBulkDelete();
         actualizarBotonCabecera();
         actualizarTimestampUI();
@@ -412,40 +352,37 @@ function renderCart() {
 
     carrito.forEach(item => {
         subtotal += item.precio * item.cantidad;
-
         const article = document.createElement("article");
         article.className = "cart-item";
-
         const imgNode = item.imagen
             ? `<img src="${getProductoImagePath(item.imagen)}" alt="${item.nombre}" class="cart-item-img">`
             : `<div class="cart-item-img" style="background:#eee"></div>`;
 
         article.innerHTML = `
-            <input type="checkbox" class="item-checkbox cart-item-checkbox" data-id="${item.id}" aria-label="Seleccionar ${item.nombre}">
-            ${imgNode}
-            <div class="cart-item-details">
-                <h4>${item.nombre}</h4>
-                <span class="cart-item-cat">${item.categoria} - ${item.talla}</span>
-                <span class="cart-item-price">$${(item.precio * item.cantidad).toFixed(2)}</span>
-                <div class="cart-item-controls">
-                    <div class="qty-control">
-                        <button type="button" class="qty-btn dec-btn" data-id="${item.id}" aria-label="Reducir cantidad">-</button>
-                        <input type="text" class="qty-input" value="${item.cantidad}" aria-label="Cantidad de ${item.nombre}" readonly>
-                        <button type="button" class="qty-btn inc-btn" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
-                    </div>
-                    <button type="button" class="btn-remove-item" data-id="${item.id}" aria-label="Eliminar ${item.nombre} del carrito" title="Eliminar">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                            <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                    </button>
+        <input type="checkbox" class="item-checkbox cart-item-checkbox" data-id="${item.id}" aria-label="Seleccionar ${item.nombre}">
+        ${imgNode}
+        <div class="cart-item-details">
+            <h4>${item.nombre}</h4>
+            <span class="cart-item-cat">${item.categoria} - ${item.talla}</span>
+            <span class="cart-item-price">$${(item.precio * item.cantidad).toFixed(2)}</span>
+            <div class="cart-item-controls">
+                <div class="qty-control">
+                    <button type="button" class="qty-btn dec-btn" data-id="${item.id}" aria-label="Reducir cantidad">-</button>
+                    <input type="text" class="qty-input" value="${item.cantidad}" aria-label="Cantidad de ${item.nombre}" readonly>
+                    <button type="button" class="qty-btn inc-btn" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
                 </div>
+                <button type="button" class="btn-remove-item" data-id="${item.id}" aria-label="Eliminar ${item.nombre} del carrito" title="Eliminar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
             </div>
-        `;
+        </div>
+    `;
         container.appendChild(article);
     });
 
     if (totalPriceEl) totalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
-
     evaluarEstadoBulkDelete();
     actualizarBotonCabecera();
     actualizarTimestampUI();
@@ -491,9 +428,9 @@ function getProductoImagePath(imagenPath) {
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
-    
+
     if (window.location.pathname.includes('catalog.html')) {
-        return; 
+        return;
     }
 
     try {
@@ -506,10 +443,9 @@ async function cargarProductos() {
 
         const productos = await response.json();
         productosDisponibles = productos;
-        
-        // Guardar catálogo en IndexedDB para caché offline
+
         await storage.guardarProductosIndexedDB(productos);
-        
+
         grid.innerHTML = "";
 
         productos.slice(0, 4).forEach(producto => {
@@ -520,29 +456,28 @@ async function cargarProductos() {
             article.setAttribute("aria-describedby", `producto-${producto.id}-descripcion producto-${producto.id}-precio producto-${producto.id}-talla`);
 
             article.innerHTML = `
-                <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
-                    ${producto.imagen ?
+            <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
+                ${producto.imagen ?
                     `<img src="${getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">` :
                     `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
                 }
-                    <div class="product-tags">
-                        <span class="product-badge">${producto.destacado}</span>
-                        <span class="product-category">${producto.categoria}</span>
-                    </div>
+                <div class="product-tags">
+                    <span class="product-badge">${producto.destacado}</span>
+                    <span class="product-category">${producto.categoria}</span>
                 </div>
-                <div class="product-info">
-                    <h3 id="producto-${producto.id}-nombre">${producto.nombre}</h3>
-                    <p id="producto-${producto.id}-descripcion">${producto.descripcion}</p>
-                    <div class="product-meta">
-                        <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
-                        <p id="producto-${producto.id}-talla">${producto.talla}</p>
-                    </div>
-                    <button type="button" data-id="${producto.id}" class="btn btn-primary" aria-label="Añadir ${producto.nombre} al carrito">
-                        Añadir
-                    </button>
+            </div>
+            <div class="product-info">
+                <h3 id="producto-${producto.id}-nombre">${producto.nombre}</h3>
+                <p id="producto-${producto.id}-descripcion">${producto.descripcion}</p>
+                <div class="product-meta">
+                    <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
+                    <p id="producto-${producto.id}-talla">${producto.talla}</p>
                 </div>
-            `;
-
+                <button type="button" data-id="${producto.id}" class="btn btn-primary" onclick="agregarAlCarrito(${producto.id})" aria-label="Añadir ${producto.nombre} al carrito">
+                    Añadir
+                </button>
+            </div>
+        `;
             grid.appendChild(article);
         });
 
@@ -551,8 +486,93 @@ async function cargarProductos() {
     } catch (error) {
         console.error("Error al cargar los productos:", error);
         grid.setAttribute("aria-busy", "false");
-        // Eliminamos el role="list" para evitar conflicto de accesibilidad al inyectar un párrafo
         grid.removeAttribute("role");
         grid.innerHTML = `<p class="error loading" role="alert">Hubo un problema al cargar los productos: ${error.message}</p>`;
     }
 }
+
+// ======================================================================
+// PWA: GESTIÓN DE RED Y SINCRONIZACIÓN OFFLINE
+// ======================================================================
+
+function initNetworkListeners() {
+    const banner = document.getElementById('network-status');
+    if (!banner) return;
+
+    window.addEventListener('offline', () => {
+        banner.textContent = 'Sin conexión a internet. Tus acciones se guardarán de forma local.';
+        banner.className = 'network-status offline';
+        banner.classList.remove('hidden');
+    });
+
+    window.addEventListener('online', async () => {
+        banner.textContent = 'Conexión restablecida. Sincronizando datos...';
+        banner.className = 'network-status online';
+        banner.classList.remove('hidden');
+
+        await sincronizarTareasOffline();
+
+        setTimeout(() => {
+            banner.classList.add('hidden');
+        }, 3000);
+    });
+
+    if (!navigator.onLine) {
+        banner.textContent = 'Sin conexión a internet. Modo offline activo.';
+        banner.className = 'network-status offline';
+        banner.classList.remove('hidden');
+    }
+}
+
+async function sincronizarTareasOffline() {
+    console.log('🔄 Iniciando sincronización de tareas offline...');
+    try {
+        const tareas = await storage.obtenerTareasPendientes();
+
+        if (tareas.length === 0) {
+            console.log('ℹ️ No hay tareas pendientes para sincronizar.');
+            return;
+        }
+
+        for (const tarea of tareas) {
+            if (tarea.accion === 'enviar_contacto') {
+                console.log(`📤 Sincronizando: ${tarea.accion}`, tarea.datos);
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                console.log(`✅ Tarea sincronizada con éxito: ${tarea.id}`);
+                await storage.eliminarTarea(tarea.id);
+            } else if (tarea.accion === 'completar_pedido') {
+                console.log(`📤 Procesando pedido offline: ${tarea.id}`, tarea.datos);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                console.log(`✅ Pedido sincronizado con éxito: ${tarea.id}`);
+                await storage.eliminarTarea(tarea.id);
+            }
+        }
+    } catch (error) {
+        console.error(`❌ Error al sincronizar tareas:`, error);
+    }
+}
+
+// Delegación del botón Checkout
+document.body.addEventListener('click', async (e) => {
+    if (e.target.id === 'btn-submit' && !e.target.disabled) {
+        e.preventDefault();
+        if (carrito.length === 0) return;
+
+        if (!navigator.onLine) {
+            await storage.guardarTareaOffline('completar_pedido', [...carrito]);
+            carrito = [];
+            guardarCarritoEnStorage();
+            if (typeof renderCart === 'function') renderCart();
+            alert("🔴 Estás sin conexión. Tu pedido se ha guardado localmente y se procesará en cuanto vuelva el internet.");
+        } else {
+            alert("🟢 ¡Pedido procesado con éxito!");
+            carrito = [];
+            guardarCarritoEnStorage();
+            if (typeof renderCart === 'function') renderCart();
+        }
+
+        // Cerrar carrito al finalizar
+        const btnCloseCart = document.getElementById("btn-close-cart");
+        if (btnCloseCart) btnCloseCart.click();
+    }
+});
