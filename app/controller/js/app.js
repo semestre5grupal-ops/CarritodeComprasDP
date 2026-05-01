@@ -1,4 +1,5 @@
 import { initContacto } from './contacto.js';
+import { storage } from './storage.js';
 
 // Estado Global
 let productosDisponibles = [];
@@ -8,27 +9,34 @@ let pendingDeleteBulkIds = null;
 
 const CLAVE_CARRITO_STORAGE = 'sportstore_shopping_cart';
 
+/**
+ * Guardar carrito en todas las estrategias de persistencia
+ * - localStorage: Principal (indefinido)
+ * - sessionStorage: Timestamp
+ * - IndexedDB: Cache
+ */
 function guardarCarritoEnStorage() {
     try {
-        localStorage.setItem(CLAVE_CARRITO_STORAGE, JSON.stringify(carrito));
-        sessionStorage.setItem('lastUpdate', new Date().toISOString());
+        storage.guardarCarritoLocalStorage(carrito);
+        storage.guardarTimestampSesion();
     } catch (error) {
-        console.error("Error al guardar el carrito en localStorage:", error);
+        console.error("Error al guardar el carrito:", error);
     }
 }
 
+/**
+ * Recuperar carrito del almacenamiento persistente
+ */
 function cargarCarritoDeStorage() {
     try {
-        const datosGuardados = localStorage.getItem(CLAVE_CARRITO_STORAGE);
-        if (datosGuardados) {
-            carrito = JSON.parse(datosGuardados);
-        } else {
+        carrito = storage.recuperarCarritoLocalStorage();
+        if (!Array.isArray(carrito)) {
             carrito = [];
         }
     } catch (error) {
-        console.error("Error al analizar el carrito de localStorage:", error);
+        console.error("Error al recuperar el carrito:", error);
         carrito = [];
-        localStorage.removeItem(CLAVE_CARRITO_STORAGE);
+        storage.limpiarCarritoLocalStorage();
     }
 }
 
@@ -148,12 +156,10 @@ const gestionCookies = {
 
 // 2. Protegemos contra posibles elementos nulos en el DOM
 function desbloquearInterfaz() {
-    const btnCarrito = document.getElementById("btn-carrito");
-    const btnVaciar = document.getElementById("vaciar-cart");
-    const btnSubmit = document.getElementById("btn-submit");
+    const btnCart = document.querySelector(".btn-cart");
+    const btnSubmit = document.getElementById("btn-submit-contacto");
 
-    if (btnCarrito) btnCarrito.disabled = false;
-    if (btnVaciar) btnVaciar.disabled = false;
+    if (btnCart) btnCart.disabled = false;
     if (btnSubmit) btnSubmit.disabled = false;
 }
 
@@ -485,6 +491,10 @@ function getProductoImagePath(imagenPath) {
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
+    
+    if (window.location.pathname.includes('catalog.html')) {
+        return; 
+    }
 
     try {
         grid.setAttribute("aria-busy", "true");
@@ -496,6 +506,10 @@ async function cargarProductos() {
 
         const productos = await response.json();
         productosDisponibles = productos;
+        
+        // Guardar catálogo en IndexedDB para caché offline
+        await storage.guardarProductosIndexedDB(productos);
+        
         grid.innerHTML = "";
 
         productos.slice(0, 4).forEach(producto => {
