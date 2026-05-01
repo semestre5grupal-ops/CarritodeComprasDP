@@ -125,6 +125,12 @@ function sizesMatch(productTallas, selectedSizes) {
     return false;
 }
 
+function getProductoImagePath(imagenPath) {
+    if (!imagenPath) return "";
+    const currentPath = location.pathname.replace(/\\/g, "/");
+    return currentPath.includes("/app/view/") ? imagenPath : `app/view/${imagenPath}`;
+}
+
 // Renderizar productos filtrados
 function renderizarProductosFiltrados() {
     const grid = document.getElementById("product-grid");
@@ -168,7 +174,7 @@ function renderizarProductosFiltrados() {
         article.innerHTML = `
             <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
                 ${producto.imagen ? 
-                    `<img src="${producto.imagen}" alt="${producto.nombre}" class="product-image" loading="lazy">` : 
+                    `<img src="${getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">` : 
                     `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`
                 }
                 <div class="product-tags">
