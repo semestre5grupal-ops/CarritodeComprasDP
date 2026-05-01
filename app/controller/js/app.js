@@ -491,6 +491,10 @@ function getProductoImagePath(imagenPath) {
 async function cargarProductos() {
     const grid = document.getElementById("product-grid");
     if (!grid) return;
+    
+    if (window.location.pathname.includes('catalog.html')) {
+        return; 
+    }
 
     try {
         grid.setAttribute("aria-busy", "true");
