@@ -1,6 +1,6 @@
 # 🛍️ Shop Sport - Carrito de Compras
 
-**Tienda de ropa deportiva minimalista desarrollada con HTML5 semántico, CSS3 responsive y JavaScript vanilla ES6+**
+**Tienda de ropa deportiva minimalista desarrollada con HTML5 semántico, CSS3 responsive (mobile-first) y JavaScript vanilla ES6+ modular.**
 
 ---
 
@@ -30,9 +30,10 @@ Shop Sport es una aplicación frontend de comercio electrónico educativa que de
 
 1. **Clonar el repositorio**
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/TU_USUARIO/CarritodeComprasDP.git
 cd CarritodeComprasDP
 ```
+> Reemplaza `TU_USUARIO` con tu nombre de usuario de GitHub antes de compartir.
 
 2. **Abrir con Live Server** (VS Code)
    - Click derecho en `index.html`
@@ -47,30 +48,35 @@ cd CarritodeComprasDP
 
 ```
 CarritodeComprasDP/
-├── index.html                 # Página de inicio (semántica HTML5)
+├── index.html                 # Página de inicio (semántica HTML5 + Open Graph)
 ├── README.md                  # Este archivo
 │
 ├── app/
 │   ├── view/
-│   │   ├── catalog.html       # Página de catálogo con filtros
+│   │   ├── catalog.html       # Página de catálogo con filtros (semántica + fieldsets)
 │   │   └── assets/
 │   │       └── css/
-│   │           ├── styles.css           # Estilos globales, variables CSS
+│   │           ├── styles.css           # Estilos globales, variables CSS, breakpoints
 │   │           └── components/
-│   │               ├── products.css     # Estilo de tarjetas de producto
-│   │               └── cart.css         # Estilo del drawer del carrito
+│   │               ├── products.css     # Tarjetas de producto + formulario de contacto
+│   │               ├── cart.css         # Drawer del carrito + modales
+│   │               └── catalog.css      # Sidebar de filtros + layout del catálogo
 │   │
 │   ├── controller/
 │   │   └── js/
-│   │       ├── app.js         # Orquestador principal, gestión de eventos
-│   │       ├── catalog.js     # Lógica de catálogo y filtros
-│   │       └── contacto.js    # Validación de formulario (MVC)
+│   │       ├── app.js         # Orquestador: carrito, focus trap, PWA, menú
+│   │       ├── cart.js        # Modelo del carrito (CRUD + persistencia)
+│   │       ├── view.js        # Renderizado del carrito y alertas
+│   │       ├── catalog.js     # Lógica de catálogo y filtros (con fallback IndexedDB)
+│   │       ├── contacto.js    # Validación de formulario (arquitectura MVC)
+│   │       ├── repo.js        # Repositorio de datos (fetch + caché IndexedDB)
+│   │       └── storage.js     # 4 estrategias de persistencia
 │   │
 │   └── data/
-│       └── productos.json     # Catálogo de productos (datos estáticos)
+│       └── productos.json     # Catálogo de productos (20 productos)
 │
 └── docs/
-    └── Documentación técnica
+    └── Documentación técnica y de arquitectura
 
 ```
 
@@ -308,11 +314,11 @@ Memory (carrito[])
 - **Cobertura de casos**: Add, Update, Delete, Bulk Delete
 - **Error handling**: Try-catch en async operations
 
-### SEO
+### SEO y Metadatos
 - Meta description: ✅
-- Open Graph tags: ✅
+- Open Graph tags (`og:type`, `og:title`, `og:description`, `og:locale`): ✅
+- `theme-color` para PWA: ✅
 - Semantic HTML: ✅
-- Sitemap: Considerado para futuro
 
 ---
 
@@ -375,5 +381,6 @@ Para reportar bugs o sugerencias:
 
 ---
 
-**Última actualización**: Abril 2026  
-**Versión**: 1.0.0
+**Última actualización**: Mayo 2026  
+**Versión**: 2.0.0  
+**Accesibilidad**: WCAG 2.1 AA

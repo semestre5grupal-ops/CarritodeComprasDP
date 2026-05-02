@@ -462,25 +462,42 @@ main {
         linear-gradient(135deg, #0f3f56, #1b2730 75%);
 }
 
+/* ── Beneficios (usando ul/li semánticos) ── */
 .benefits {
     margin-top: 1.2rem;
+}
+
+.benefits-list {
+    list-style: none;
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.75rem;
+    padding: 0;
+    margin: 0;
 }
 
-.benefits article {
+.benefits-item {
     padding: 1rem;
     min-height: 160px;
+    background: var(--surface);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: 1rem;
 }
 
-.benefits span {
+.benefits-item span {
     color: var(--accent);
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
 }
 
-.benefits h3,
-.materials-grid strong,
-.bottom-notes strong,
+.benefits-item h3,
 .site-footer h3 {
     font-size: 0.95rem;
     text-transform: uppercase;
@@ -488,10 +505,15 @@ main {
     margin-bottom: 0.55rem;
 }
 
-.benefits p,
-.materials-grid p,
-.bottom-notes p {
+.benefits-item p {
     font-size: 0.92rem;
+    color: var(--muted);
+}
+
+/* Compatibilidad con article si se usa en otras partes */
+.benefits article {
+    padding: 1rem;
+    min-height: 160px;
 }
 
 .collection-banner,
@@ -524,13 +546,26 @@ main {
     justify-content: center;
     padding: 0.8rem 1rem;
     border-radius: 999px;
-    border: none;
+    border: 2px solid transparent;
     background: var(--ink);
     color: #fff;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-size: 0.72rem;
     cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+/* Estado activo del chip (aria-pressed="true") */
+.collection-chip[aria-pressed="true"],
+.collection-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.collection-chip:focus-visible {
+    outline: 3px solid var(--accent-3);
+    outline-offset: 3px;
 }
 
 .catalog-section,
@@ -567,8 +602,11 @@ main {
     padding: 1rem;
     display: grid;
     grid-template-columns: 1fr;
-    flex-direction: column;
     gap: 1rem;
+    margin-top: 1.2rem;
+    background: var(--surface);
+    border: 1px solid rgba(21, 33, 42, 0.08);
+    box-shadow: var(--shadow);
 }
 
 .materials-copy {
@@ -577,13 +615,17 @@ main {
     align-content: center;
 }
 
+/* Materiales como lista semántica */
 .materials-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.8rem;
 }
 
-.materials-grid article {
+.materials-item {
     border-radius: 1rem;
     padding: 1rem;
     min-height: 180px;
@@ -593,12 +635,36 @@ main {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.92)),
         linear-gradient(135deg, #d9c3ae, #f6f1ea);
+    border: 1px solid var(--line);
 }
 
-.materials-grid article:last-child {
+.materials-item:last-child {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.92)),
         linear-gradient(135deg, #d8d0c1, #f8f4ed);
+}
+
+.materials-item strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+}
+
+.materials-item p {
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+/* Compatibilidad con article */
+.materials-grid article {
+    border-radius: 1rem;
+    padding: 1rem;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .promo-banner {
@@ -659,8 +725,31 @@ main {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.75rem;
+    margin-top: 1.2rem;
 }
 
+/* Bottom notes con semántica article */
+.bottom-note-item {
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.bottom-note-item strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+.bottom-note-item p {
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+/* Compatibilidad con article */
 .bottom-notes article {
     padding: 1rem;
     border-radius: 1rem;
@@ -731,43 +820,22 @@ main {
 }
 
 
+/* === Estilos de estado válido para formularios (accesibilidad) === */
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.15);
+}
 
-    .nav-bar nav ul,
-    .topbar {
-        gap: 0.75rem;
-    }
+.form-accesible .success-indicator {
+    color: #2e7d32;
+    font-size: 0.82rem;
+    margin-top: 0.3rem;
+    display: none;
+}
 
-    .hero-stats,
-    .materials-grid,
-    .benefits,
-    .bottom-notes,
-    .site-footer {
-        grid-template-columns: 1fr;
-    }
-
-    .collection-banner,
-    .promo-banner {
-        align-items: flex-start;
-    }
-
-    .hero-copy,
-    .hero-visual,
-    .materials,
-    .trust-card,
-    .story-card {
-        padding: 1rem;
-    }
-
-    .btn-cart {
-        padding: 0.5rem 0.6rem;
-    }
-    
-    .btn-scroll-top {
-        bottom: 1.5rem;
-        right: 1.5rem;
-        width: 3rem;
-        height: 3rem;
-    }
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) ~ .success-indicator {
+    display: block;
+}
 
 /* ===== BREAKPOINTS MOBILE-FIRST ===== */
 
@@ -812,17 +880,9 @@ main {
 
 /* Desktop Breakpoint (min-width: 1024px) */
 @media (min-width: 1024px) {
-    .nav-bar,
-    .topbar,
-    .collection-banner,
-    .promo-banner,
-    .materials,
-    .story-grid,
-    .trust-panel,
-    .site-footer,
-    .hero {
-        grid-template-columns: auto; /* Fallback */
-        flex-direction: row;
+    /* Navegación */
+    .mobile-menu-toggle {
+        display: none;
     }
 
     .topbar,
@@ -832,25 +892,22 @@ main {
         flex-wrap: nowrap;
     }
 
-    .mobile-menu-toggle {
-        display: none;
-    }
-
     .brand {
         flex: none;
     }
 
-    .primary-nav, .nav-actions {
+    .primary-nav,
+    .nav-actions {
         display: flex;
         width: auto;
     }
-    
+
     .primary-nav {
         flex: 1;
         justify-content: center;
         order: 0;
     }
-    
+
     .primary-nav ul {
         flex-direction: row;
     }
@@ -863,43 +920,47 @@ main {
         padding-top: 0;
     }
 
+    /* Hero 2 columnas */
     .hero {
         grid-template-columns: 1.05fr 0.95fr;
         min-height: 520px;
     }
 
-    .benefits {
+    /* Beneficios 4 columnas */
+    .benefits-list {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    /* Collection / Promo banner: fila */
     .collection-banner,
     .promo-banner {
         align-items: center;
         flex-direction: row;
     }
 
+    /* Materiales 2 columnas */
     .materials {
         grid-template-columns: 0.9fr 1.1fr;
-        flex-direction: row;
     }
 
+    /* Stories 2 columnas */
     .story-grid {
         grid-template-columns: 1fr 1fr;
-        flex-direction: row;
     }
 
+    /* Trust panel 2 columnas */
     .trust-panel {
         grid-template-columns: 1fr 1fr;
-        flex-direction: row;
     }
 
+    /* Bottom notes 3 columnas */
     .bottom-notes {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    /* Footer 3 columnas */
     .site-footer {
         grid-template-columns: 1.3fr 0.7fr 0.7fr;
-        flex-direction: row;
     }
 }
 
