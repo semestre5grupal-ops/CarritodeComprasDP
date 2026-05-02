@@ -308,7 +308,9 @@ function agregarAlCarrito(idProducto) {
     if (productoExistente) {
         productoExistente.cantidad++;
     } else {
-        const productInfo = productosDisponibles.find(item => item.id === idProducto);
+        // Intenta primero con la lista interna; si está vacía, usa la global del catálogo
+        const productInfo = productosDisponibles.find(item => item.id === idProducto) 
+            || (window.catalogProducts && window.catalogProducts.find(item => item.id === idProducto));
         if (productInfo) {
             carrito.push({ ...productInfo, cantidad: 1 });
         }
