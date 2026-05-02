@@ -7,6 +7,26 @@ let carrito = [];
 let pendingDeleteId = null;
 let pendingDeleteBulkIds = null;
 
+// Función global para reemplazar el alert() feo del navegador
+window.mostrarAlerta = function(titulo, mensaje) {
+    const modal = document.getElementById('alert-dialog');
+    const titleEl = document.getElementById('alert-title');
+    const msgEl = document.getElementById('alert-message');
+    const btnAccept = document.getElementById('btn-alert-accept');
+
+    if (modal && titleEl && msgEl) {
+        titleEl.textContent = titulo;
+        msgEl.textContent = mensaje;
+        modal.showModal();
+        
+        // Cerrar modal al hacer clic en "Entendido"
+        btnAccept.onclick = () => modal.close();
+    } else {
+        // Fallback de seguridad por si algo falla
+        alert(titulo + "\\n\\n" + mensaje);
+    }
+};
+
 function guardarCarritoEnStorage() {
     try {
         storage.guardarCarritoLocalStorage(carrito);
@@ -567,9 +587,13 @@ async function sincronizarTareasOffline() {
 }
 
 // Delegación del botón Checkout
+// Delegación del botón Checkout
 document.body.addEventListener('click', async (e) => {
     if (e.target.id === 'btn-submit' && !e.target.disabled) {
         e.preventDefault();
+        
+        e.target.blur(); // <--- LA SOLUCIÓN MÁGICA: Suelta el foco del botón
+        
         if (carrito.length === 0) return;
 
         if (!navigator.onLine) {
@@ -577,14 +601,14 @@ document.body.addEventListener('click', async (e) => {
             carrito = [];
             guardarCarritoEnStorage();
             if (typeof renderCart === 'function') renderCart();
-            alert("🔴 Estás sin conexión. Tu pedido se ha guardado localmente y se procesará en cuanto vuelva el internet.");
+            window.mostrarAlerta("Modo Offline 📡", "Estás sin conexión. Tu pedido se ha guardado localmente y se procesará en cuanto vuelva el internet.");
         } else {
-            alert("🟢 ¡Pedido procesado con éxito!");
+            window.mostrarAlerta("¡Éxito! 🎉", "Pedido procesado con éxito.");
             carrito = [];
             guardarCarritoEnStorage();
             if (typeof renderCart === 'function') renderCart();
         }
-
+        
         // Cerrar carrito al finalizar
         const btnCloseCart = document.getElementById("btn-close-cart");
         if (btnCloseCart) btnCloseCart.click();
