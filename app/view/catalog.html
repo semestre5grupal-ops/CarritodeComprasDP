@@ -364,39 +364,61 @@
     </main>
 
     <!-- Carrito (mismo que en index.html) -->
+    <!-- Overlay y Drawer del carrito (versión progresiva unificada) -->
     <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
-    <div id="cart-drawer" class="cart-drawer" aria-hidden="true" role="dialog" aria-labelledby="cart-title">
+    <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog"
+        aria-label="Tu carrito de compras">
         <div class="cart-header">
-            <h2 id="cart-title">Mi carrito</h2>
-            <button type="button" id="btn-close-cart" class="btn-close" aria-label="Cerrar carrito">✕</button>
+            <h2>Tu Carrito</h2>
+            <button type="button" id="btn-close-cart" class="btn-close-cart" aria-label="Cerrar carrito">
+                <svg aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
-        <div id="cart-items-container" class="cart-items" role="list">
-            <!-- Los items se renderizarán aquí -->
+
+        <div class="cart-bulk-actions">
+            <label for="select-all-cart">
+                <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito">
+                Seleccionar todos
+            </label>
+            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk"
+                aria-label="Eliminar productos seleccionados">
+                Eliminar items
+            </button>
         </div>
-        <div class="cart-footer">
-            <div class="cart-select-all">
-                <label for="select-all-cart" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los items">
-                    <span>Seleccionar todos</span>
-                </label>
+
+        <div id="cart-items-container" class="cart-items-container">
+            <div class="cart-empty-msg">
+                <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <p>Tu carrito está vacío.</p>
             </div>
-            <button type="button" id="btn-delete-bulk" class="btn btn-danger">Eliminar seleccionados</button>
-            <div class="cart-summary">
-                <p class="cart-total">Total: <span id="cart-total">$0.00</span></p>
+            <!-- Aquí se inyectan los items desde JS -->
+        </div>
+
+        <div class="cart-footer">
+            <div class="cart-totals">
+                <span>Total estimado:</span>
+                <span id="cart-total-price">$0.00</span>
             </div>
             <p id="cart-last-update" aria-live="polite" class="cart-item-cat"
                 style="display: none; text-align: center; margin-bottom: 0.8rem;"></p>
-            <button type="button" id="btn-submit" class="btn btn-primary" aria-label="Proceder al pago">Ir al
-                pago</button>
-            <button type="button" id="vaciar-cart" class="btn btn-secondary" aria-label="Vaciar todo el carrito">Vaciar
-                carrito</button>
+            <button type="button" id="btn-submit" class="btn btn-primary w-100" aria-label="Proceder al pago">Completar
+                pedido</button>
         </div>
-    </div>
+    </aside>
 
-    <!-- Dialog de Confirmación -->
+    <!-- Diálogos de confirmación (igual que en index.html) -->
     <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="dialog-title">
         <form method="dialog">
-            <h3 id="dialog-title">¿Estás seguro?</h3>
+            <h3 id="dialog-title">¿Desea eliminar el producto del carrito?</h3>
             <div class="dialog-actions">
                 <button type="button" id="btn-dialog-cancel" class="btn btn-secondary">Cancelar</button>
                 <button type="button" id="btn-dialog-accept" class="btn btn-primary">Aceptar</button>
@@ -404,6 +426,15 @@
         </form>
     </dialog>
 
+    <dialog id="alert-dialog" class="confirm-dialog" aria-labelledby="alert-title">
+        <form method="dialog">
+            <h3 id="alert-title">Notificación</h3>
+            <p id="alert-message" style="margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.5; color: inherit; opacity: 0.9;"></p>
+            <div class="dialog-actions" style="justify-content: center;">
+                <button type="button" id="btn-alert-accept" class="btn btn-primary" style="width: 100%;">Entendido</button>
+            </div>
+        </form>
+    </dialog>
     <aside id="cookie-banner" class="cookie-banner" role="dialog" aria-labelledby="cookie-title"
         aria-describedby="cookie-desc" aria-hidden="true">
         <div class="cookie-content wrap-wide">

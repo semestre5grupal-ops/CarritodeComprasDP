@@ -14,6 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof initScrollTop === 'function') initScrollTop();
     if (typeof initCartDrawer === 'function') initCartDrawer();
     if (typeof initCartDelegation === 'function') initCartDelegation();
+    // Delegación de clic para los botones "Añadir" del catálogo
+    document.getElementById('product-grid').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-id]');
+        if (btn && btn.classList.contains('btn-primary')) {
+            const id = parseInt(btn.dataset.id, 10);
+            if (id && typeof window.agregarAlCarrito === 'function') {
+                window.agregarAlCarrito(id);
+            }
+        }
+    });
 });
 
 // Cargar todos los productos
@@ -31,6 +41,7 @@ async function cargarCatalogos() {
         
         const productos = await response.json();
         catalogProductos = productos;
+        window.catalogProducts = productos;   // ← compartir con app.js
         productosDisponibles = productos; // Para que el carrito funcione
 
         renderizarProductosFiltrados();
