@@ -232,4 +232,31 @@
 /* Estilo cuando el campo es inválido (controlado por JS) */
 .form-accesible input[aria-invalid="true"] {
     border-color: #d32f2f;
+    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.12);
 }
+
+/* Estilo cuando el campo es válido (controlado por JS con aria-invalid="false") */
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.15);
+}
+
+/* Indicador de éxito visible (aparece cuando el campo es válido) */
+.form-accesible .success-indicator {
+    color: #2e7d32;
+    font-size: 0.82rem;
+    margin-top: 0.3rem;
+    display: none;
+    font-weight: 500;
+}
+
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) ~ .success-indicator {
+    display: block;
+}
+
+/* Botón submit: estilo cuando está deshabilitado con aria-disabled */
+.form-accesible button[disabled],
+.form-accesible button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

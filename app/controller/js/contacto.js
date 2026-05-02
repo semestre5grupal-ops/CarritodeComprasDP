@@ -77,17 +77,31 @@ class ContactoView {
         }
     }
 
+    /**
+     * Muestra u oculta el mensaje de error de un campo.
+     * Actualiza aria-invalid para lectores de pantalla.
+     * @param {string} campo - Nombre del campo
+     * @param {string|null} mensaje - Mensaje de error o null si es válido
+     */
     mostrarError(campo, mensaje) {
         const input = this.inputs[campo];
         const errorSpan = this.errors[campo];
 
         if (mensaje) {
-            errorSpan.textContent = mensaje;
-            errorSpan.hidden = false;
-            input.setAttribute('aria-invalid', 'true');
+            // Campo inválido: mostrar error
+            if (errorSpan) {
+                errorSpan.textContent = mensaje;
+                errorSpan.hidden = false;
+            }
+            if (input) input.setAttribute('aria-invalid', 'true');
         } else {
-            errorSpan.hidden = true;
-            input.setAttribute('aria-invalid', 'false');
+            // Campo válido: ocultar error
+            if (errorSpan) errorSpan.hidden = true;
+            if (input) {
+                // Solo marcar como válido si tiene contenido
+                const isEmpty = !input.value || input.value.trim() === '';
+                input.setAttribute('aria-invalid', isEmpty ? 'false' : 'false');
+            }
         }
     }
 
