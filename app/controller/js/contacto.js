@@ -169,13 +169,13 @@ class ContactoController {
                     };
                     try {
                         await storage.guardarTareaOffline('enviar_contacto', datos);
-                        alert("🔴 Estás sin conexión. Tu mensaje se ha guardado de forma segura y se enviará automáticamente cuando vuelva el internet.");
+                        window.mostrarAlerta("Modo Offline 📡", "Estás sin conexión. Tu mensaje se ha guardado de forma segura y se enviará automáticamente cuando vuelva el internet.");
                         this.limpiarFormulario();
-                    } catch (err) {
+                    } catch(err) {
                         console.error(err);
                     }
                 } else {
-                    alert('🟢 ¡Formulario validado y enviado con éxito!');
+                    window.mostrarAlerta("¡Mensaje Enviado! 🟢", "Formulario validado y enviado con éxito.");
                     this.limpiarFormulario();
                 }
             }
