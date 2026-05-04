@@ -377,6 +377,10 @@ main {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
 }
+/* Separación para el formulario de contacto */
+#contacto-section {
+    padding-top: 2rem; 
+}
 
 .hero-stats article,
 .benefits article,
@@ -818,6 +822,7 @@ main {
     outline: 2px solid var(--accent);
     outline-offset: 4px;
 }
+
 
 
 /* === Estilos de estado válido para formularios (accesibilidad) === */
