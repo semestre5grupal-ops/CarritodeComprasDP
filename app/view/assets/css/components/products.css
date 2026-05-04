@@ -8,6 +8,12 @@
     gap: 1.5rem;
 }
 
+.product-grid li:only-child {
+    max-width: 680px;
+    margin: 0 auto;
+    justify-self: center;
+}
+
 .product-card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -259,4 +265,4 @@
 .form-accesible button[aria-disabled="true"] {
     opacity: 0.6;
     cursor: not-allowed;
-}
+}

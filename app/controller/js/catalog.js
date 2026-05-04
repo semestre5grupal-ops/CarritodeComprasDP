@@ -21,6 +21,7 @@ let catalogProductos = [];
 document.addEventListener('DOMContentLoaded', () => {
     cargarCatalogos();
     inicializarFiltros();
+    initFilterToggle();
 
     // Delegación de clic para los botones "Añadir" del catálogo
     const grid = document.getElementById('product-grid');
@@ -36,6 +37,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+function initFilterToggle() {
+    const sidebar = document.querySelector('.filters-sidebar');
+    const closeBtn = document.querySelector('.filter-toggle-btn');
+    const openBtn = document.getElementById('mobile-filter-open');
+    const backdrop = document.getElementById('mobile-filter-backdrop');
+
+    if (!sidebar || !closeBtn || !openBtn || !backdrop) return;
+
+    const updateState = (open) => {
+        sidebar.classList.toggle('expanded', open);
+        backdrop.classList.toggle('visible', open);
+        document.body.classList.toggle('mobile-filters-open', open);
+        openBtn.setAttribute('aria-expanded', String(open));
+        closeBtn.setAttribute('aria-expanded', String(open));
+    };
+
+    openBtn.addEventListener('click', () => {
+        updateState(true);
+    });
+
+    closeBtn.addEventListener('click', () => {
+        updateState(false);
+    });
+
+    backdrop.addEventListener('click', () => {
+        updateState(false);
+    });
+}
 
 // ====================================================================
 // CARGA DE PRODUCTOS — Con fallback a IndexedDB
