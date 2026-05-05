@@ -188,8 +188,12 @@
    Formulario de Contacto Accesible
    ========================================================================== */
 .contact-section {
-    max-width: 600px;
-    margin: 0 auto 4rem auto;
+    max-width: 640px;
+    margin: 6rem auto 5rem auto;
+    padding: 3rem 2.5rem;
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
 .form-accesible .form-group {

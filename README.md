@@ -1,386 +1,359 @@
-# 🛍️ Shop Sport - Carrito de Compras
+# 🛍️ Shop Sport — Carrito de Compras
 
-**Tienda de ropa deportiva minimalista desarrollada con HTML5 semántico, CSS3 responsive (mobile-first) y JavaScript vanilla ES6+ modular.**
-
+> **Tienda de ropa deportiva minimalista** desarrollada con HTML5 semántico, CSS3 responsive (Mobile-First) y JavaScript Vanilla ES6+ modular. Sin frameworks. Sin dependencias externas.
 ---
 
 ## 📋 Descripción del Proyecto
 
-Shop Sport es una aplicación frontend de comercio electrónico educativa que demuestra el dominio de tecnologías web modernas sin dependencias externas. El proyecto implementa un catálogo dinámico de productos, carrito de compras funcional y múltiples estrategias de persistencia de datos.
+**Shop Sport** es una aplicación frontend de comercio electrónico educativa que demuestra el dominio de tecnologías web modernas sin dependencias externas. Implementa un catálogo dinámico de 20 productos de ropa deportiva (Mujer, Hombre, Unisex), un carrito de compras completamente funcional y cuatro estrategias de persistencia de datos del lado del cliente.
 
-### Características Principales
+El proyecto fue desarrollado como parte del **Reto 1 — Desarrollo de Plataformas** (Semestre 5) y sigue principios estrictos de separación de responsabilidades (MVC), accesibilidad WCAG 2.2 AA y diseño Mobile-First.
 
-✅ **Catálogo dinámico** - Carga productos desde JSON local  
-✅ **Carrito de compras** - Añadir, eliminar, actualizar cantidad, selección múltiple  
-✅ **Persistencia integral** - localStorage, sessionStorage, IndexedDB, cookies  
-✅ **Accesibilidad WCAG** - ARIA labels, navegación por teclado, contraste adecuado  
-✅ **Responsive Design** - Mobile-first, 3 breakpoints óptimos (mobile, tablet, desktop)  
-✅ **Validación avanzada** - Regex para nombre, email, teléfono con feedback accesible  
-✅ **Componentes reutilizables** - Cards, modales, forms, botones con estilos coherentes  
+---
+
+## ✨ Características Principales
+
+| Característica | Detalle |
+|---|---|
+| 🗂️ **Catálogo dinámico** | 20 productos en 3 categorías cargados desde JSON local con filtros y búsqueda |
+| 🛒 **Carrito completo** | Añadir, eliminar, actualizar cantidad y selección múltiple (bulk delete) |
+| 💾 **Persistencia integral** | 4 mecanismos: localStorage, sessionStorage, IndexedDB y Cookies |
+| ♿ **Accesibilidad WCAG 2.2 AA** | ARIA labels, navegación por teclado, contraste 4.5:1, focus visible y focus trap |
+| 📱 **Responsive Mobile-First** | 3 breakpoints: mobile (320px), tablet (768px) y desktop (1024px+) |
+| ✅ **Validación avanzada** | Regex para nombre, email y teléfono con feedback accesible en tiempo real |
+| 🔒 **Sanitización** | Prevención de XSS e inyección SQL en inputs del formulario |
+| 🏗️ **Arquitectura modular** | ES6 Modules con patrón MVC estricto y separación total de capas |
+| 📡 **PWA Offline-First** | Listeners de red y notificaciones de conectividad |
+| 📬 **Contacto integrado** | Formulario con redirección a WhatsApp y correo (gabrielaguinaga30@gmail.com) |
 
 ---
 
 ## 🚀 Inicio Rápido
 
 ### Requisitos
-- Navegador moderno (Chrome, Firefox, Safari, Edge)
-- Servidor local o VS Code Live Server (no requiere backend)
+
+- Navegador moderno: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- Servidor local (requerido para ES6 Modules con `import`/`export`)
 
 ### Instalación
 
-1. **Clonar el repositorio**
+**1. Clonar el repositorio**
 ```bash
-git clone https://github.com/TU_USUARIO/CarritodeComprasDP.git
+git clone https://github.com/semestre5grupal-ops/CarritodeComprasDP.git
 cd CarritodeComprasDP
 ```
-> Reemplaza `TU_USUARIO` con tu nombre de usuario de GitHub antes de compartir.
 
-2. **Abrir con Live Server** (VS Code)
-   - Click derecho en `index.html`
-   - Seleccionar "Open with Live Server"
-   - Se abrirá en `http://localhost:5500`
+**2. Levantar servidor local**
 
-3. **O abrir directamente**
-   - Hacer doble click en `index.html`
-   - El sitio se ejecutará localmente
+Opción A — VS Code Live Server (recomendado):
+```
+Click derecho en index.html → "Open with Live Server"
+Acceso: http://localhost:5500
+```
 
-### Estructura de Carpetas
+Opción B — Python (sin instalación adicional):
+```bash
+python -m http.server 8080
+# Acceso: http://localhost:8080
+```
+
+Opción C — Node.js (npx):
+```bash
+npx serve .
+```
+
+> ⚠️ **No abrir `index.html` directamente** desde el explorador de archivos. Los módulos ES6 requieren un servidor HTTP para evitar errores CORS.
+
+---
+
+## 📁 Estructura del Proyecto
 
 ```
 CarritodeComprasDP/
-├── index.html                 # Página de inicio (semántica HTML5 + Open Graph)
-├── README.md                  # Este archivo
+│
+├── index.html                          # Entrada principal (HTML5 semántico + Open Graph + PWA meta)
+├── README.md                           # Este archivo
 │
 ├── app/
 │   ├── view/
-│   │   ├── catalog.html       # Página de catálogo con filtros (semántica + fieldsets)
+│   │   ├── catalog.html                # Página de catálogo con filtros y fieldsets accesibles
 │   │   └── assets/
 │   │       └── css/
-│   │           ├── styles.css           # Estilos globales, variables CSS, breakpoints
+│   │           ├── styles.css          # Estilos globales, variables CSS custom, breakpoints
 │   │           └── components/
-│   │               ├── products.css     # Tarjetas de producto + formulario de contacto
-│   │               ├── cart.css         # Drawer del carrito + modales
-│   │               └── catalog.css      # Sidebar de filtros + layout del catálogo
+│   │               ├── products.css    # Tarjetas de producto + formulario de contacto
+│   │               ├── cart.css        # Drawer del carrito + modales de confirmación
+│   │               └── catalog.css     # Sidebar de filtros + layout de catálogo
 │   │
 │   ├── controller/
 │   │   └── js/
-│   │       ├── app.js         # Orquestador: carrito, focus trap, PWA, menú
-│   │       ├── cart.js        # Modelo del carrito (CRUD + persistencia)
-│   │       ├── view.js        # Renderizado del carrito y alertas
-│   │       ├── catalog.js     # Lógica de catálogo y filtros (con fallback IndexedDB)
-│   │       ├── contacto.js    # Validación de formulario (arquitectura MVC)
-│   │       ├── repo.js        # Repositorio de datos (fetch + caché IndexedDB)
-│   │       └── storage.js     # 4 estrategias de persistencia
+│   │       ├── app.js                  # Orquestador: carrito, focus trap, PWA, menú mobile
+│   │       ├── cart.js                 # Modelo del carrito (CRUD + persistencia localStorage)
+│   │       ├── view.js                 # Renderizado DOM, alertas y modales
+│   │       ├── catalog.js              # Lógica de catálogo, filtros y caché IndexedDB
+│   │       ├── contacto.js             # Validación MVC + sanitización XSS/SQL
+│   │       ├── repo.js                 # Repositorio de datos (fetch async + caché IndexedDB)
+│   │       └── storage.js              # Fachada: 4 estrategias de persistencia
 │   │
 │   └── data/
-│       └── productos.json     # Catálogo de productos (20 productos)
+│       └── productos.json              # 20 productos con nombre, precio, talla, color, stock e imagen
 │
 └── docs/
-    └── Documentación técnica y de arquitectura
-
+    ├── architecture/                   # ADRs y visión arquitectónica
+    ├── design_sessions/                # Sesiones de diseño activas
+    ├── ai_development/                 # Agentes y workflows de desarrollo asistido por IA
+    ├── context/                        # Restricciones y contratos de diseño
+    ├── product-requirements.md         # Requisitos de producto
+    ├── technical-requirements.md       # Requisitos técnicos
+    └── golden-rules.md                 # Reglas de oro del proyecto
 ```
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Capa | Tecnología | Versión |
-|------|------------|---------|
-| **Estructura** | HTML5 Semántico | 5 |
-| **Presentación** | CSS3 + Grid/Flexbox | 3 |
-| **Comportamiento** | JavaScript ES6+ | Modules, Arrow Functions, Async/Await |
-| **Persistencia** | localStorage, sessionStorage, IndexedDB, Cookies | Nativas del navegador |
+| Capa | Tecnología | Características clave |
+|------|------------|----------------------|
+| **Estructura** | HTML5 Semántico | `<article>`, `<aside>`, `<nav>`, `<dialog>`, Open Graph, ARIA roles |
+| **Presentación** | CSS3 + Grid/Flexbox | Variables CSS custom, Media queries, Animaciones, Mobile-First |
+| **Comportamiento** | JavaScript ES6+ | Módulos, Arrow Functions, Async/Await, Destructuring, Optional Chaining |
+| **Persistencia** | Web Storage APIs | localStorage, sessionStorage, IndexedDB (ShopSportDB v2), Cookies |
+| **Datos** | JSON local | 20 productos: Mujer, Hombre, Unisex |
 
-### ⚠️ Restricciones Intencionales
-- ❌ **No** React, Vue, Angular
-- ❌ **No** Tailwind, Bootstrap
-- ❌ **No** jQuery
-- ❌ **No** Backend externo
+### ⚠️ Restricciones Intencionales (Stack Cerrado)
+
+```
+❌ React / Vue / Angular          ❌ Tailwind / Bootstrap / Foundation
+❌ jQuery / Lodash / Axios        ❌ Backend externo / APIs de terceros
+❌ Bundlers (Webpack / Vite)      ❌ Preprocesadores CSS (Sass / Less)
+```
 
 ---
 
-## 📱 Responsive Design
+## 📱 Responsive Design (Mobile-First)
 
-El diseño sigue **Mobile-First** con tres breakpoints óptimos:
-
-| Dispositivo | Ancho | Características |
-|-------------|-------|-----------------|
-| **Mobile** | 320px - 767px | Stack vertical, sidebar como overlay, touch-friendly |
-| **Tablet** | 768px - 1023px | Sidebar sticky, grid 2 columnas, navegación accesible |
-| **Desktop** | 1024px+ | Layout grid completo, hover effects, max-width 1200px |
-
-Tested en: iPhone 12, iPad Pro, Laptop 1920x1080
+| Dispositivo | Breakpoint | Características |
+|-------------|-----------|-----------------|
+| **Mobile** | `< 768px` | Layout vertical, sidebar como overlay deslizante, botones touch-friendly (44×44px) |
+| **Tablet** | `768px – 1023px` | Sidebar sticky lateral, grid de 2 columnas, navegación accesible |
+| **Desktop** | `≥ 1024px` | Layout completo en grid, hover effects, max-width 1200px centrado |
 
 ---
 
 ## 🛒 Funcionalidad del Carrito
 
-### Operaciones Disponibles
+### Operaciones disponibles
 
-```javascript
-// Añadir producto
-- Seleccionar talla (si aplica)
-- Especificar cantidad
-- Click en "Añadir al carrito"
-
-// Modificar cantidad
-- Usar controles +/- en el drawer
-- Actualiza total dinámicamente
-
-// Eliminar
-- Click en ícono de papelera
-- Diálogo de confirmación
-
-// Bulk delete
-- Checkbox "Seleccionar todos"
-- Eliminar múltiples productos
+```
+➕  Añadir producto     → Seleccionar talla (si aplica) + cantidad + "Añadir al carrito"
+✏️  Actualizar cantidad → Controles +/− en el drawer (recalcula total en tiempo real)
+🗑️  Eliminar producto   → Ícono de papelera + diálogo de confirmación accesible
+☑️  Bulk delete         → Checkbox "Seleccionar todos" + eliminar múltiple
 ```
 
-### Cálculo de Totales
-- Subtotal = Σ(precio × cantidad) por producto
-- Total = Σ subtotales
-- Se actualiza en tiempo real
-- Visible en drawer y checkout
+### Cálculo de totales
+
+```
+Subtotal por línea = precio × cantidad
+Total = Σ subtotales de todos los productos
+```
+
+El total se recalcula automáticamente ante cualquier cambio y se muestra en el drawer y en el checkout.
 
 ---
 
 ## 💾 Estrategias de Persistencia
 
-El proyecto implementa **4 mecanismos** de almacenamiento:
+El proyecto implementa **4 mecanismos de almacenamiento** del lado del cliente, gestionados por `storage.js`:
 
-### 1️⃣ **localStorage** (Principal)
-```javascript
-// Carrito completo (indefinido)
-localStorage.setItem('sportstore_shopping_cart', JSON.stringify(carrito))
-// Recuperación entre sesiones
 ```
-
-### 2️⃣ **sessionStorage** (Sesión)
-```javascript
-// Timestamp de última actualización
-sessionStorage.setItem('lastUpdate', new Date().toISOString())
-// Limpieza automática al cerrar pestaña
+Acción del Usuario
+       │
+       ▼
+ Estado en Memoria (carrito[])
+       │
+       ├──▶ localStorage    → Carrito completo (persiste indefinidamente)
+       ├──▶ sessionStorage  → Timestamp de última actualización (se limpia al cerrar tab)
+       ├──▶ IndexedDB       → Caché del catálogo en ShopSportDB v2
+       └──▶ Cookies         → Preferencias del usuario (expira en 1 año)
 ```
 
-### 3️⃣ **IndexedDB** (Catálogo)
-```javascript
-// Cachea producto para acceso rápido
-// Persiste entre sesiones
-// Recuperable incluso offline
-```
-
-### 4️⃣ **Cookies** (Preferencias)
-```javascript
-// Términos y políticas aceptadas
-document.cookie = 'terminosAceptados=true; path=/; max-age=31536000'
-// Expira en 1 año
-```
-
-**Arquitectura de sincronización:**
-```
-User Action
-    ↓
-Memory (carrito[])
-    ├→ localStorage (primario)
-    ├→ sessionStorage (temporal)
-    ├→ IndexedDB (cache)
-    └→ Cookies (preferences)
-```
+| Mecanismo | Clave / Store | Duración |
+|-----------|--------------|----------|
+| **localStorage** | `sportstore_shopping_cart` | Indefinida |
+| **sessionStorage** | `lastUpdate` ISO timestamp | Hasta cerrar pestaña |
+| **IndexedDB** | `ShopSportDB` → stores: `productos`, `colaTareas` | Indefinida |
+| **Cookies** | `terminosAceptados=true; max-age=31536000` | 1 año |
 
 ---
 
-## ♿ Accesibilidad (POUR)
+## ♿ Accesibilidad (POUR — WCAG 2.2 AA)
 
 ### Perceptible 👁️
-- Imágenes con `alt` text descriptivo
-- Contraste WCAG AA: ratio 4.5:1 (texto), 3:1 (elementos)
-- Paleta de colores: Dark text on light background
+- Todas las imágenes tienen atributo `alt` descriptivo
+- Contraste mínimo de 4.5:1 para texto y 3:1 para elementos gráficos
+- Paleta de colores compatible con daltonismo
 
 ### Operable ⌨️
-- Navegación completa por teclado
-- Focus visible (outline 3px turquesa)
-- Skip-link funcional al contenido
-- Botones con tamaño mínimo 44x44px
+- Navegación completa por teclado (Tab, Shift+Tab, Enter, Escape)
+- Focus visible con outline de 3px
+- Skip-link funcional al contenido principal
+- Botones con tamaño mínimo de 44×44px (touch-friendly)
+- Focus trap en modales y en el drawer del carrito
 
 ### Comprensible 📖
-- Etiquetas claramente asociadas a inputs
-- Mensajes de error accesibles (`aria-describedby`)
-- Jeraquía de encabezados coherente (h1→h2→h3)
-- Lenguaje simple y consistente
+- Etiquetas `<label>` asociadas a todos los inputs
+- Mensajes de error con `aria-describedby` y `role="alert"`
+- Jerarquía de encabezados coherente: `h1 → h2 → h3`
+- Idioma declarado en `<html lang="es">`
 
 ### Robusto 🔧
-- HTML5 válido
-- Roles ARIA correctos (`navigation`, `main`, `dialog`, `alert`)
-- Atributos `aria-live` para actualizaciones dinámicas
-- Compatible con lectores de pantalla (NVDA, JAWS, VoiceOver)
+- HTML5 válido (W3C)
+- Roles ARIA: `navigation`, `main`, `dialog`, `alert`, `listitem`
+- `aria-live="polite"` para actualizaciones dinámicas del carrito
+- Compatible con NVDA, JAWS y VoiceOver
 
 ---
 
-## 🎨 Componentes Reutilizables
+## 🏗️ Arquitectura de Módulos JavaScript
 
-### Product Card
-```html
-<article class="product-card" role="listitem">
-  <div class="product-visual">
-    <img class="product-image" src="..." alt="...">
-    <span class="product-badge">Nuevo</span>
-  </div>
-  <div class="product-info">
-    <h3>Nombre</h3>
-    <p>Precio: $XX.XX</p>
-  </div>
-</article>
 ```
-
-### Cart Drawer (Modal)
-```html
-<aside id="cart-drawer" role="dialog" aria-modal="true">
-  <!-- Header -->
-  <!-- Bulk actions -->
-  <!-- Items container (dinámico) -->
-  <!-- Footer con totales -->
-</aside>
-```
-
-### Form Field (Validado)
-```html
-<div class="form-group">
-  <label for="email">Email:</label>
-  <input type="email" id="email" aria-describedby="err-email" required>
-  <span id="err-email" role="alert" aria-live="polite" hidden>
-    Formato inválido
-  </span>
-</div>
+┌─────────────────────────────────────────────────────────┐
+│                        app.js                           │
+│              (Orquestador / Entry Point)                 │
+│   Init, eventos globales, menú mobile, PWA, cookies     │
+└────────────┬───────────────────┬────────────────────────┘
+             │                   │
+     ┌───────▼──────┐    ┌───────▼──────┐
+     │   cart.js    │    │   view.js    │
+     │  (Modelo)    │    │   (Vista)    │
+     │  CRUD lógica │    │  Renderizado │
+     │  Persistencia│    │  DOM + ARIA  │
+     └───────┬──────┘    └──────────────┘
+             │
+     ┌───────▼──────┐    ┌──────────────┐    ┌──────────────┐
+     │   repo.js    │    │  catalog.js  │    │ contacto.js  │
+     │ (Repositorio)│    │  (Catálogo)  │    │ (Formulario) │
+     │ fetch + IDB  │    │ Filtros + UI │    │ MVC + Regex  │
+     └───────┬──────┘    └──────────────┘    └──────────────┘
+             │
+     ┌───────▼──────┐
+     │  storage.js  │
+     │  (Fachada)   │
+     │ 4 mecanismos │
+     └──────────────┘
 ```
 
 ---
 
-## ✅ Validación Avanzada
+## ✅ Validación y Seguridad del Formulario
 
-### Expresiones Regulares Implementadas
+### Expresiones regulares implementadas
 
-| Campo | Regex | Ejemplo Válido |
-|-------|-------|---|
-| **Nombre** | `/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$/` | "María José García" |
-| **Email** | `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/` | "usuario@dominio.com" |
-| **Teléfono** | `/^09\d{8}$/` | "0987654321" (Ecuador) |
+| Campo | Regex | Ejemplo válido |
+|-------|-------|----------------|
+| **Nombre** | `/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$/` | `María José García` |
+| **Email** | `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/` | `usuario@dominio.com` |
+| **Teléfono** | `/^09\d{8}$/` | `0987654321` (formato Ecuador) |
 
-### Sanitización
-- Prevención de **SQL Injection**: Elimina `;`, `'`, `"`, `--`, `/*`, `*/`
-- Prevención de **XSS**: Escapa `<`, `>`
-- Mensajes de error accesibles con `aria-invalid`
+### Sanitización de entradas (XSS + SQL Injection)
 
----
-
-## 🗂️ Arquitectura MVC (Parcial)
-
-### Model Layer
-```javascript
-// contacto.js - ContactoModel
-- Regex validation
-- Sanitización de entrada
-- Lógica de negocio
-```
-
-### View Layer
-```javascript
-// contacto.js - ContactoView
-- Manipulación del DOM
-- Atributos ARIA
-- Mostrar/ocultar errores
-```
-
-### Controller Layer
-```javascript
-// contacto.js - ContactoController
-- Eventos de formulario
-- Orquestación Model-View
-- Persistencia
-```
+- Elimina: `;` `'` `"` `--` `/*` `*/`
+- Escapa: `<` → `&lt;` y `>` → `&gt;`
+- Errores mostrados con `aria-invalid="true"` y `role="alert"`
 
 ---
 
-## 📊 Métricas de Calidad
+## 📬 Medios de Contacto
 
-### Performance
-- **Load time**: < 2 segundos
-- **Images**: Optimizadas (WebP + fallback)
-- **CSS**: Crítico en `<head>`, deferido cuando aplica
-- **JS**: Modular (tree-shaking compatible)
+El footer incluye dos canales de contacto directos:
 
-### Code Quality
-- **Lines of Code**: ~2000 (sin comentarios)
-- **Funciones modularizadas**: 30+
-- **Cobertura de casos**: Add, Update, Delete, Bulk Delete
-- **Error handling**: Try-catch en async operations
-
-### SEO y Metadatos
-- Meta description: ✅
-- Open Graph tags (`og:type`, `og:title`, `og:description`, `og:locale`): ✅
-- `theme-color` para PWA: ✅
-- Semantic HTML: ✅
+| Canal | Enlace |
+|-------|--------|
+| **WhatsApp** | [+593 998 353 446](https://wa.me/593998353446) — abre chat directo |
+| **Correo** | [gabrielaguinaga30@gmail.com](https://mail.google.com/mail/?view=cm&to=gabrielaguinaga30@gmail.com) — abre Gmail con destinatario pre-completado |
 
 ---
 
 ## 🐛 Troubleshooting
 
-### "Productos no se cargan"
+**Los productos no se cargan**
 ```
-✓ Verificar que productos.json existe en app/data/
-✓ Revisar console (F12 → Console)
-✓ Comprobar que Live Server está activado
-```
-
-### "Carrito no persiste"
-```
-✓ Abrir DevTools → Application → localStorage
-✓ Buscar clave 'sportstore_shopping_cart'
-✓ Verificar que el navegador permite storage
-✓ Limpiar cache y cookies si es necesario
+✓ Abre el proyecto desde un servidor local (no doble click en .html)
+✓ Verifica que app/data/productos.json existe
+✓ Revisa la consola (F12 → Console) para errores de fetch o CORS
 ```
 
-### "Formulario no valida"
+**El carrito no persiste entre recargas**
 ```
-✓ Revisar console para errores de regex
-✓ Verificar que los campos tienen los IDs correctos
-✓ Asegurar que el HTML no está roto
+✓ DevTools → Application → localStorage → busca 'sportstore_shopping_cart'
+✓ Verifica que el navegador permite localStorage (no modo incógnito)
+```
+
+**Los íconos de contacto se ven sin color**
+```
+✓ Verifica que styles.css contiene .footer-contact-link--wa y .footer-contact-link--mail
+✓ Revisa que el HTML tiene las clases footer-contact-link--wa / --mail en los <a>
+```
+
+**Error de CORS con módulos JS**
+```
+✓ No abrir index.html directamente desde el sistema de archivos
+✓ Usar Live Server, Python HTTP Server o npx serve
 ```
 
 ---
 
-## 🚀 Mejoras Futuras
+## 🔮 Mejoras Futuras
 
-- [ ] Integración con API backend para órdenes reales
+- [ ] Service Worker para soporte offline completo (PWA)
+- [ ] Integración con API backend para gestión de órdenes
 - [ ] Sistema de autenticación de usuarios
-- [ ] Implementar Service Workers para offline support
-- [ ] Añadir más opciones de pago (PayPal, Stripe)
-- [ ] Analytics e integraciones Google
-- [ ] Multiidioma (ES, EN, PT)
+- [ ] Pasarelas de pago (PayPal, Stripe)
+- [ ] Soporte multiidioma (ES / EN / PT)
+- [ ] Tests unitarios con Vitest (sin bundler)
+
+---
+
+## 🌿 Ramas del Repositorio
+
+| Rama | Propósito |
+|------|-----------|
+| `main` | Producción estable |
+| `develop` | Integración de features |
+| `btn-eliminar-actualizar` | Feature: botones del carrito |
+| `Catálogo-de-productos` | Feature: catálogo con filtros |
+| `Modular-js` | Refactor: modularización JS |
+| `progresividad-carrito` | Feature: mejoras progresivas |
+| `carrito-localstorage` | Feature: persistencia del carrito |
+| `Unificar-lógica-de-carrito` | Refactor: unificación de lógica |
+| `Guardar-preferencias-con-Cookies-#26` | Feature: cookies de preferencias |
+| `Conexión-de-errores-con-Accesibilidad-#29` | Feature: mensajes de error ARIA |
+| `38-mobile-first` | Feature: diseño responsive |
+| `46-mobile-first-header` | Feature: header responsivo con ARIA |
+| `integracion-imagenes` | Feature: imágenes del catálogo |
+| `Interfaz-Inicio` | Feature: página de inicio |
 
 ---
 
 ## 📄 Licencia
 
-Proyecto educativo. Libre para uso personal y académico.
+Proyecto educativo de libre uso personal y académico.
+Desarrollado como parte del **Reto 1 — Desarrollo de Plataformas**, Semestre 5.
 
 ---
 
-## 👤 Autor
+## 👥 Autores
 
-Desarrollado como parte del **Reto 1 - Desarrollo de Plataformas**  
-Semestre 5 - Programa de Ingeniería
+Desarrollado por el equipo **semestre5grupal-ops**
+🔗 [github.com/semestre5grupal-ops/CarritodeComprasDP](https://github.com/semestre5grupal-ops/CarritodeComprasDP)
 
 ---
 
 ## 📞 Soporte
 
-Para reportar bugs o sugerencias:
-1. Abrir issue en el repositorio
-2. Detallar el paso a paso para reproducir
-3. Incluir screenshot/console output
+Para reportar bugs o sugerencias, abre un [Issue](https://github.com/semestre5grupal-ops/CarritodeComprasDP/issues) describiendo el problema paso a paso e incluyendo screenshot y output de consola (F12).
 
 ---
 
-**Última actualización**: Mayo 2026  
-**Versión**: 2.0.0  
-**Accesibilidad**: WCAG 2.1 AA
+**Versión:** 3.0.0 · **Última actualización:** Mayo 2026 · **Accesibilidad:** WCAG 2.2 AA

@@ -377,10 +377,6 @@ main {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
 }
-/* Separación para el formulario de contacto */
-#contacto-section {
-    padding-top: 2rem; 
-}
 
 .hero-stats article,
 .benefits article,
@@ -1110,4 +1106,111 @@ button:disabled {
 
 .network-status.online {
     background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+}
+
+
+.form-accesible .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.form-accesible label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-accesible input {
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-accesible input:focus {
+    outline: 3px solid #0056b3;
+    outline-offset: 2px;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.form-accesible .error-msg {
+    color: #d32f2f;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    display: none;
+}
+
+.form-accesible .error-msg:not([hidden]) {
+    display: block;
+}
+
+.form-accesible input[aria-invalid="true"] {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.12);
+}
+
+.form-accesible button[disabled],
+.form-accesible button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Footer — íconos de contacto con color
+   ========================================================================== */
+.footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.footer-contact-link:hover {
+    opacity: 0.75;
+}
+
+.footer-contact-link:focus-visible {
+    outline: 3px solid var(--accent, #0ea5e9);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* WhatsApp — verde */
+.footer-contact-link--wa {
+    color: #25D366;
+}
+
+.footer-contact-link--wa:hover {
+    color: #1ebe57;
+}
+
+/* Correo — azul */
+.footer-contact-link--mail {
+    color: #3b82f6;
+}
+
+.footer-contact-link--mail:hover {
+    color: #2563eb;
+}
+
+.footer-contact-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    display: block;
 }
