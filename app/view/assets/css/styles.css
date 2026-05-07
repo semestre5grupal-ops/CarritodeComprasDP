@@ -1155,8 +1155,17 @@ button:disabled {
 
 .form-accesible button[disabled],
 .form-accesible button[aria-disabled="true"] {
+    background-color: #bdc3c7 !important;
     opacity: 0.6;
     cursor: not-allowed;
+    color: #555;
+}
+
+.form-accesible button[aria-disabled="false"] {
+    background-color: var(--ink);
+    color: #fff;
+    cursor: pointer;
+    opacity: 1;
 }
 
 /* ==========================================================================
