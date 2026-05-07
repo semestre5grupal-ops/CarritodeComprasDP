@@ -68,13 +68,25 @@ export const repo = {
      * @returns {Promise<Array<Object>>} Lista de productos
      * @throws {Error} Si la respuesta HTTP no es exitosa
      */
+    aplicarStockPersistido(productos = []) {
+        const stockPersistido = storage.recuperarStockProductos();
+        if (!stockPersistido || !Array.isArray(stockPersistido)) {
+            return productos;
+        }
+
+        return productos.map(producto => {
+            const stockGuardado = stockPersistido.find(item => item.id === producto.id);
+            return stockGuardado ? { ...producto, stock: stockGuardado.stock } : producto;
+        });
+    },
+
     async obtenerProductos() {
         const response = await fetch(this.getProductosDataPath());
         if (!response.ok) {
             throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const productos = await response.json();
+        const productos = this.aplicarStockPersistido(await response.json());
         this.productosDisponibles = productos;
 
         // Cachear en IndexedDB para acceso offline (Estrategia 3)
@@ -85,5 +97,23 @@ export const repo = {
         }
 
         return productos;
+    },
+
+    async guardarStockActual() {
+        if (!Array.isArray(this.productosDisponibles)) return false;
+        return storage.guardarStockProductos(this.productosDisponibles);
+    },
+
+    actualizarStockPorCompra(cartItems = []) {
+        if (!Array.isArray(cartItems) || cartItems.length === 0) return;
+
+        cartItems.forEach(item => {
+            const producto = this.getProductoById(item.id);
+            if (producto) {
+                producto.stock = Math.max(0, producto.stock - item.cantidad);
+            }
+        });
+
+        this.guardarStockActual();
     }
 };

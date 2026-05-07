@@ -99,6 +99,11 @@ export function renderCart(cartItems) {
             ? `<img src="${repo.getProductoImagePath(item.imagen)}" alt="${item.nombre}" class="cart-item-img">`
             : `<div class="cart-item-img" style="background: var(--surface-soft);" aria-hidden="true"></div>`;
 
+        const incDisabled = item.cantidad >= item.stock ? 'disabled' : '';
+        const stockNotice = item.stock !== undefined
+            ? `<span class="cart-item-stock">${item.stock - item.cantidad} unidad${item.stock - item.cantidad === 1 ? '' : 'es'} disponibles</span>`
+            : '';
+
         article.innerHTML = `
             <input type="checkbox" class="item-checkbox cart-item-checkbox"
                 data-id="${item.id}"
@@ -110,6 +115,7 @@ export function renderCart(cartItems) {
                 <span class="cart-item-price" aria-label="Precio: $${(item.precio * item.cantidad).toFixed(2)}">
                     $${(item.precio * item.cantidad).toFixed(2)}
                 </span>
+                ${stockNotice}
                 <div class="cart-item-controls">
                     <div class="qty-control" role="group" aria-label="Cantidad de ${item.nombre}">
                         <button type="button" class="qty-btn dec-btn" data-id="${item.id}"
@@ -118,7 +124,7 @@ export function renderCart(cartItems) {
                             aria-label="Cantidad de ${item.nombre}"
                             aria-readonly="true" readonly
                             min="1" step="1">
-                        <button type="button" class="qty-btn inc-btn" data-id="${item.id}"
+                        <button type="button" class="qty-btn inc-btn" data-id="${item.id}" ${incDisabled}
                             aria-label="Aumentar cantidad de ${item.nombre}">+</button>
                     </div>
                     <button type="button" class="btn-remove-item" data-id="${item.id}"
