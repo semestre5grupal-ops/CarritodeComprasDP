@@ -112,6 +112,7 @@ class ContactoView {
     bloquearBoton(estado) {
         if (this.btnSubmit) {
             this.btnSubmit.disabled = estado;
+            this.btnSubmit.setAttribute('aria-disabled', estado.toString());
         }
     }
 }
