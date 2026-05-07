@@ -11,9 +11,16 @@
 
 import { storage } from './storage.js';
 import { repo } from './repo.js';
+import * as cart from './cart.js';
 
 /** @type {Array<Object>} Productos cargados del catálogo */
 let catalogProductos = [];
+
+function getStockDisponible(producto) {
+    const cartItem = cart.getCartItemById(producto.id);
+    const reservado = cartItem ? cartItem.cantidad : 0;
+    return Math.max(0, producto.stock - reservado);
+}
 
 // ====================================================================
 // INICIALIZACIÓN
@@ -99,15 +106,16 @@ async function cargarCatalogos() {
 
             if (productosCache && productosCache.length > 0) {
                 console.log(`📦 ${productosCache.length} productos recuperados desde IndexedDB (cache offline)`);
-                catalogProductos = productosCache;
-                repo.setProductosDisponibles(productosCache);
+                const productosPersistidos = repo.aplicarStockPersistido(productosCache);
+                catalogProductos = productosPersistidos;
+                repo.setProductosDisponibles(productosPersistidos);
                 renderizarProductosFiltrados();
                 grid.setAttribute('aria-busy', 'false');
 
                 // Mostrar aviso de modo offline
                 const filterInfo = document.getElementById('filter-count');
                 if (filterInfo) {
-                    filterInfo.textContent = `${productosCache.length} productos (modo offline — datos en caché)`;
+                    filterInfo.textContent = `${productosPersistidos.length} productos (modo offline — datos en caché)`;
                 }
             } else {
                 throw new Error('No hay datos en caché de IndexedDB');
@@ -347,6 +355,16 @@ function renderizarProductosFiltrados() {
             ? `<img src="${repo.getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">`
             : `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`;
 
+        const stockDisponible = getStockDisponible(producto);
+        const stockLabel = stockDisponible === 0
+            ? 'Agotado'
+            : stockDisponible === 1
+                ? 'Última unidad'
+                : `Disponibles: ${stockDisponible}`;
+        const lowStockHtml = stockDisponible > 0 && stockDisponible <= 5
+            ? `<span class="product-stock product-stock-low" aria-live="polite">Pocas unidades</span>`
+            : '';
+
         li.innerHTML = `
             <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
                 ${imgHtml}
@@ -362,10 +380,11 @@ function renderizarProductosFiltrados() {
                     <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
                     <div class="product-badges-meta">
                         <span id="producto-${producto.id}-talla" class="product-tag">${producto.talla}</span>
-                        <span class="product-tag">${producto.color}</span>
+                        <span class="product-tag">${stockLabel}</span>
+                        ${lowStockHtml}
                     </div>
                 </div>
-                <button type="button" data-id="${producto.id}" class="btn btn-primary"
+                <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
                     aria-label="Añadir ${producto.nombre} al carrito">
                     Añadir
                 </button>
@@ -375,3 +394,7 @@ function renderizarProductosFiltrados() {
         grid.appendChild(li);
     });
 }
+
+window.actualizarStockCatalogo = () => {
+    renderizarProductosFiltrados();
+};

@@ -26,8 +26,26 @@ window.mostrarAlerta = view.showAlert;
 
 // ── Función global para añadir al carrito (usada desde HTML) ─
 window.agregarAlCarrito = (id) => {
-    cart.addToCart(id);
+    const added = cart.addToCart(id);
+    if (!added) {
+        window.mostrarAlerta('Stock insuficiente', 'No se puede agregar más unidades de este producto.');
+        return;
+    }
+
     view.renderCart(cart.getCartItems());
+    window.actualizarStockCatalogo?.();
+    window.actualizarStockInicio?.();
+};
+
+window.actualizarStockInicio = () => {
+    const grid = document.getElementById('product-grid');
+    if (!grid || window.location.pathname.includes('catalog.html')) return;
+    if (!repo.productosDisponibles || repo.productosDisponibles.length === 0) return;
+
+    grid.innerHTML = repo.productosDisponibles
+        .slice(0, 4)
+        .map(producto => getProductoHtml(producto))
+        .join('');
 };
 
 // ====================================================================
@@ -348,6 +366,8 @@ function initCartDrawer() {
                 pendingDeleteBulkIds = null;
             }
             view.renderCart(cart.getCartItems());
+            window.actualizarStockCatalogo?.();
+            window.actualizarStockInicio?.();
             dialogConfirm.close();
         });
     }
@@ -395,8 +415,14 @@ function initCartDelegation() {
         const btnRemove = e.target.closest('.btn-remove-item');
 
         if (btnInc) {
-            cart.modifyQuantity(parseInt(btnInc.dataset.id, 10), 1);
+            const success = cart.modifyQuantity(parseInt(btnInc.dataset.id, 10), 1);
+            if (!success) {
+                window.mostrarAlerta('Stock insuficiente', 'No hay suficientes unidades disponibles para aumentar la cantidad.');
+                return;
+            }
             view.renderCart(cart.getCartItems());
+            window.actualizarStockCatalogo?.();
+            window.actualizarStockInicio?.();
         } else if (btnDec) {
             const id = parseInt(btnDec.dataset.id, 10);
             const item = cart.getCartItemById(id);
@@ -407,6 +433,8 @@ function initCartDelegation() {
             } else {
                 cart.modifyQuantity(id, -1);
                 view.renderCart(cart.getCartItems());
+                window.actualizarStockCatalogo?.();
+                window.actualizarStockInicio?.();
             }
         } else if (btnRemove) {
             pendingDeleteId = parseInt(btnRemove.dataset.id, 10);
@@ -442,6 +470,18 @@ function getProductoHtml(producto) {
         ? `<img src="${repo.getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">`
         : `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`;
 
+    const cartItem = cart.getCartItemById(producto.id);
+    const reservedQuantity = cartItem ? cartItem.cantidad : 0;
+    const stockDisponible = Math.max(0, producto.stock - reservedQuantity);
+    const lowStockLabel = stockDisponible > 0 && stockDisponible <= 5
+        ? `<span class="product-stock product-stock-low" aria-live="polite">Pocas unidades</span>`
+        : '';
+    const stockText = stockDisponible === 0
+        ? 'Agotado'
+        : stockDisponible === 1
+            ? 'Última unidad'
+            : `Disponibles: ${stockDisponible}`;
+
     return `
         <li class="product-card" role="article"
             aria-labelledby="producto-${producto.id}-nombre"
@@ -458,9 +498,13 @@ function getProductoHtml(producto) {
                 <p id="producto-${producto.id}-descripcion">${producto.descripcion}</p>
                 <div class="product-meta">
                     <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
-                    <p id="producto-${producto.id}-talla" class="product-tag">${producto.talla}</p>
+                    <div class="product-badges-meta">
+                        <span id="producto-${producto.id}-talla" class="product-tag">${producto.talla}</span>
+                        <span class="product-tag">${stockText}</span>
+                        ${lowStockLabel}
+                    </div>
                 </div>
-                <button type="button" data-id="${producto.id}" class="btn btn-primary"
+                <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
                     onclick="agregarAlCarrito(${producto.id})"
                     aria-label="Añadir ${producto.nombre} al carrito">
                     Añadir
@@ -583,12 +627,18 @@ document.body.addEventListener('click', async (e) => {
 
         if (!navigator.onLine) {
             await storage.guardarTareaOffline('completar_pedido', [...cartItems]);
+            repo.actualizarStockPorCompra(cartItems);
             cart.clearCart();
             view.renderCart(cart.getCartItems());
+            window.actualizarStockCatalogo?.();
+            window.actualizarStockInicio?.();
             window.mostrarAlerta('Modo Offline 📡', 'Estás sin conexión. Tu pedido se ha guardado localmente y se procesará cuando vuelva el internet.');
         } else {
+            repo.actualizarStockPorCompra(cartItems);
             cart.clearCart();
             view.renderCart(cart.getCartItems());
+            window.actualizarStockCatalogo?.();
+            window.actualizarStockInicio?.();
             window.mostrarAlerta('¡Éxito! 🎉', 'Pedido procesado con éxito. ¡Gracias por tu compra!');
         }
 

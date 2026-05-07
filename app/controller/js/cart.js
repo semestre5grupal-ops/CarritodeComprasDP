@@ -78,19 +78,27 @@ export function getTotalItems() {
  */
 export function addToCart(id) {
     const productoExistente = carrito.find(item => item.id === id);
+    const productInfo = repo.getProductoById(id) || repo.productosDisponibles.find(item => item.id === id);
+
+    if (!productInfo) {
+        return false;
+    }
+
+    const cantidadActual = productoExistente ? productoExistente.cantidad : 0;
+    const stockDisponible = Math.max(0, productInfo.stock - cantidadActual);
+
+    if (stockDisponible <= 0) {
+        return false;
+    }
 
     if (productoExistente) {
         productoExistente.cantidad += 1;
     } else {
-        const productInfo = repo.getProductoById(id) ||
-            repo.productosDisponibles.find(item => item.id === id);
-        if (productInfo) {
-            carrito.push({ ...productInfo, cantidad: 1 });
-        }
+        carrito.push({ ...productInfo, cantidad: 1 });
     }
 
     guardarCarritoEnStorage();
-    return carrito;
+    return true;
 }
 
 /**
@@ -106,6 +114,10 @@ export function modifyQuantity(id, delta) {
 
     if (producto.cantidad === 1 && delta === -1) {
         return false; // No puede bajar de 1
+    }
+
+    if (delta > 0 && producto.cantidad >= producto.stock) {
+        return false; // No hay más stock disponible
     }
 
     producto.cantidad += delta;

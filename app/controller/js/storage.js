@@ -86,6 +86,38 @@ class StorageManager {
         }
     }
 
+    guardarStockProductos(productos) {
+        try {
+            const stockMap = productos.map(producto => ({ id: producto.id, stock: producto.stock }));
+            localStorage.setItem('sportstore_product_stock', JSON.stringify(stockMap));
+            console.log('💾 Stock de productos guardado en localStorage');
+            return true;
+        } catch (error) {
+            console.error('Error al guardar el stock de productos:', error);
+            return false;
+        }
+    }
+
+    recuperarStockProductos() {
+        try {
+            const datosGuardados = localStorage.getItem('sportstore_product_stock');
+            if (datosGuardados) {
+                console.log('📦 Stock de productos recuperado de localStorage');
+                return JSON.parse(datosGuardados);
+            }
+            return null;
+        } catch (error) {
+            console.error('Error al recuperar el stock de productos:', error);
+            localStorage.removeItem('sportstore_product_stock');
+            return null;
+        }
+    }
+
+    limpiarStockProductos() {
+        localStorage.removeItem('sportstore_product_stock');
+        console.log('🗑️ Stock de productos limpiado de localStorage');
+    }
+
     limpiarCarritoLocalStorage() {
         localStorage.removeItem('sportstore_shopping_cart');
         console.log('🗑️ Carrito limpiado de localStorage');
