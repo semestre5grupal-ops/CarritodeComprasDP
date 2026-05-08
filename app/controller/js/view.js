@@ -114,7 +114,8 @@ export function renderCart(cartItems) {
 
     // ── Habilitar checkbox de selección ──
     if (selectAllCheckbox) {
-        selectAllCheckbox.disabled = false;
+        selectAllCheckbox.removeAttribute('disabled');
+        selectAllCheckbox.checked = false;
     }
 
     // ── Renderizar items ──
@@ -232,22 +233,34 @@ export function actualizarBotonCabecera(cartItems) {
 // ====================================================================
 
 /**
- * Habilita o deshabilita el botón de eliminación masiva
- * según si hay checkboxes marcados en el carrito.
+ * Actualiza el estado de los controles bulk del carrito.
+ * - Activa/desactiva el checkbox "Seleccionar todos"
+ * - Activa/desactiva el botón "Eliminar items"
  */
 export function evaluarEstadoBulkDelete() {
     const itemsChecked = document.querySelectorAll('.item-checkbox:checked');
     const btnDeleteBulk = document.getElementById('btn-delete-bulk');
+    const selectAllCheckbox = document.getElementById('select-all-cart');
+
+    if (selectAllCheckbox) {
+        const hasCartItems = document.querySelectorAll('.item-checkbox').length > 0;
+        if (hasCartItems) {
+            selectAllCheckbox.removeAttribute('disabled');
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.setAttribute('disabled', '');
+        }
+    }
 
     if (!btnDeleteBulk) return;
 
     if (itemsChecked.length > 0) {
         btnDeleteBulk.classList.add('active');
-        btnDeleteBulk.disabled = false;
+        btnDeleteBulk.removeAttribute('disabled');
         btnDeleteBulk.removeAttribute('aria-disabled');
     } else {
         btnDeleteBulk.classList.remove('active');
-        btnDeleteBulk.disabled = true;
+        btnDeleteBulk.setAttribute('disabled', '');
         btnDeleteBulk.setAttribute('aria-disabled', 'true');
     }
 }
