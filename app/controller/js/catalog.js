@@ -36,8 +36,7 @@ function buildCatalogSizeOptions(tallaRango) {
 }
 
 function getStockDisponible(producto) {
-    const cartItem = cart.getCartItemById(producto.id);
-    const reservado = cartItem ? cartItem.cantidad : 0;
+    const reservado = cart.getProductQuantityInCart(producto.id);
     return Math.max(0, producto.stock - reservado);
 }
 
@@ -49,19 +48,27 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarFiltros();
     initFilterToggle();
 
-    // Delegación de clic para los botones "Añadir" del catálogo
+    // Delegación de clic y teclado para las tarjetas del catálogo
     const grid = document.getElementById('product-grid');
     if (grid) {
         grid.addEventListener('click', (e) => {
-            const btn = e.target.closest('button[data-id]');
-            if (btn && btn.classList.contains('btn-primary')) {
-                const id = parseInt(btn.dataset.id, 10);
-                if (id && typeof window.agregarAlCarrito === 'function') {
-                    // Leer la talla seleccionada desde el <select> de la misma tarjeta
-                    const card = btn.closest('.product-card');
-                    const sizeSelect = card ? card.querySelector('.size-select') : null;
-                    const tallaSeleccionada = sizeSelect ? sizeSelect.value : undefined;
-                    window.agregarAlCarrito(id, tallaSeleccionada);
+            const card = e.target.closest('.product-card');
+            if (card) {
+                const id = parseInt(card.dataset.id, 10);
+                if (id && typeof window.abrirModalProducto === 'function') {
+                    window.abrirModalProducto(id);
+                }
+            }
+        });
+        grid.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.product-card');
+                if (card) {
+                    e.preventDefault();
+                    const id = parseInt(card.dataset.id, 10);
+                    if (id && typeof window.abrirModalProducto === 'function') {
+                        window.abrirModalProducto(id);
+                    }
                 }
             }
         });
@@ -369,7 +376,9 @@ function renderizarProductosFiltrados() {
     productosFiltrados.forEach(producto => {
         const li = document.createElement('li');
         li.className = 'product-card';
-        li.setAttribute('role', 'article');
+        li.setAttribute('role', 'button');
+        li.setAttribute('tabindex', '0');
+        li.dataset.id = producto.id;
         li.setAttribute('aria-labelledby', `producto-${producto.id}-nombre`);
         li.setAttribute('aria-describedby',
             `producto-${producto.id}-descripcion producto-${producto.id}-precio producto-${producto.id}-talla`);
@@ -402,24 +411,10 @@ function renderizarProductosFiltrados() {
                 <div class="product-meta">
                     <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
                     <div class="product-badges-meta">
-                        <span id="producto-${producto.id}-talla" class="product-tag">${producto.talla}</span>
                         <span class="product-tag">${stockLabel}</span>
                         ${lowStockHtml}
                     </div>
                 </div>
-                <div class="product-size-row">
-                    <label for="talla-cat-${producto.id}" class="size-label">Talla:</label>
-                    <select id="talla-cat-${producto.id}"
-                        class="size-select"
-                        aria-label="Seleccionar talla de ${producto.nombre}"
-                        ${stockDisponible === 0 ? 'disabled' : ''}>
-                        ${buildCatalogSizeOptions(producto.talla)}
-                    </select>
-                </div>
-                <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
-                    aria-label="Añadir ${producto.nombre} al carrito">
-                    Añadir
-                </button>
             </div>
         `;
 

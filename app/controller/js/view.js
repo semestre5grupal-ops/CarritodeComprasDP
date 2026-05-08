@@ -40,6 +40,39 @@ export function showAlert(titulo, mensaje) {
     }
 }
 
+/**
+ * Muestra una notificación temporal (Toast) de manera accesible.
+ * @param {string} mensaje - Mensaje a mostrar
+ */
+export function showToast(mensaje) {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container';
+        toastContainer.setAttribute('aria-live', 'polite');
+        toastContainer.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = mensaje;
+    toast.setAttribute('role', 'status');
+    
+    toastContainer.appendChild(toast);
+    
+    // Forzar reflow para que la transición de CSS se aplique
+    toast.offsetHeight;
+    toast.classList.add('show');
+    
+    // Ocultar y eliminar después de 4.5 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 4500);
+}
+
 // ====================================================================
 // RENDERIZADO DEL CARRITO
 // ====================================================================
@@ -106,7 +139,7 @@ export function renderCart(cartItems) {
 
         article.innerHTML = `
             <input type="checkbox" class="item-checkbox cart-item-checkbox"
-                data-id="${item.id}"
+                data-id="${item.cartId || item.id}"
                 aria-label="Seleccionar ${item.nombre} para eliminar">
             ${imgNode}
             <div class="cart-item-details">
@@ -118,16 +151,16 @@ export function renderCart(cartItems) {
                 ${stockNotice}
                 <div class="cart-item-controls">
                     <div class="qty-control" role="group" aria-label="Cantidad de ${item.nombre}">
-                        <button type="button" class="qty-btn dec-btn" data-id="${item.id}"
+                        <button type="button" class="qty-btn dec-btn" data-id="${item.cartId || item.id}"
                             aria-label="Reducir cantidad de ${item.nombre}">−</button>
                         <input type="number" class="qty-input" value="${item.cantidad}"
                             aria-label="Cantidad de ${item.nombre}"
                             aria-readonly="true" readonly
                             min="1" step="1">
-                        <button type="button" class="qty-btn inc-btn" data-id="${item.id}" ${incDisabled}
+                        <button type="button" class="qty-btn inc-btn" data-id="${item.cartId || item.id}" ${incDisabled}
                             aria-label="Aumentar cantidad de ${item.nombre}">+</button>
                     </div>
-                    <button type="button" class="btn-remove-item" data-id="${item.id}"
+                    <button type="button" class="btn-remove-item" data-id="${item.cartId || item.id}"
                         aria-label="Eliminar ${item.nombre} del carrito"
                         title="Eliminar producto">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"

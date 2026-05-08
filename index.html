@@ -84,6 +84,24 @@
 
         <!-- ===== HERO ===== -->
         <section id="hero" class="hero wrap-wide" aria-labelledby="hero-title" aria-describedby="hero-summary">
+            <!-- Background Carousel -->
+            <div class="hero-carousel" aria-hidden="true" id="hero-carousel">
+                <img src="app/view/assets/css/images/mujer-correr.webp" alt="" class="carousel-slide active">
+                <img src="app/view/assets/css/images/personas-corriendo.webp" alt="" class="carousel-slide">
+                <img src="app/view/assets/css/images/persona-yoga.webp" alt="" class="carousel-slide">
+                <div class="carousel-overlay"></div>
+            </div>
+            
+            <!-- Carousel Controls -->
+            <div class="carousel-controls" aria-label="Controles del carrusel">
+                <button type="button" id="btn-prev-slide" class="carousel-btn" aria-label="Imagen anterior" aria-controls="hero-carousel">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button type="button" id="btn-next-slide" class="carousel-btn" aria-label="Siguiente imagen" aria-controls="hero-carousel">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+
             <div class="hero-copy">
                 <p class="eyebrow">Nueva colección rendimiento</p>
                 <h2 id="hero-title">Empieza por lo esencial.</h2>
@@ -91,22 +109,10 @@
                     Prendas limpias, ordenadas y pensadas para el uso diario.</p>
                 <div class="hero-actions">
                     <a href="app/view/catalog.html" class="btn btn-primary">Ver catálogo</a>
-                    <a href="#coleccion" class="btn btn-secondary">Descubrir colección</a>
                 </div>
             </div>
 
-            <div class="hero-visual" aria-label="Vista conceptual de colecciones deportivas">
-                <article class="hero-card hero-card-light" aria-label="Colección Mujer">
-                    <span>Mujer</span>
-                    <strong>Movimiento limpio</strong>
-                    <p>Leggings, tops y capas suaves para entrenar con comodidad.</p>
-                </article>
-                <article class="hero-card hero-card-dark" aria-label="Colección Hombre">
-                    <span>Hombre</span>
-                    <strong>Rendimiento diario</strong>
-                    <p>Sets versátiles para gimnasio, running y uso urbano.</p>
-                </article>
-            </div>
+
         </section>
 
         <!-- ===== BENEFICIOS ===== -->
@@ -136,6 +142,17 @@
             </ul>
         </section>
 
+        <!-- ===== PRODUCTOS DESTACADOS ===== -->
+        <section id="catalogo" class="catalog-section wrap-wide" aria-labelledby="sec-productos" aria-live="polite">
+            <div class="section-heading">
+                <h2 id="sec-productos">Destacados</h2>
+                <p>Prendas deportivas seleccionadas para una tienda limpia, ordenada y fácil de navegar.</p>
+            </div>
+            <ul id="product-grid" class="product-grid" aria-label="Listado de productos destacados" aria-busy="true">
+                <li class="loading" aria-live="polite">Cargando productos...</li>
+            </ul>
+        </section>
+
         <!-- ===== COLECCIÓN BANNER ===== -->
         <section id="coleccion" class="collection-banner wrap-wide" aria-labelledby="sec-coleccion">
             <div class="collection-copy">
@@ -149,37 +166,6 @@
                 <button type="button" class="collection-chip" aria-pressed="false" data-category="Kids">KIDS</button>
                 <button type="button" class="collection-chip" aria-pressed="false" data-category="Accesorios">ACCESORIOS</button>
             </div>
-        </section>
-
-        <!-- ===== PRODUCTOS DESTACADOS ===== -->
-        <section id="catalogo" class="catalog-section wrap-wide" aria-labelledby="sec-productos" aria-live="polite">
-            <div class="section-heading">
-                <h2 id="sec-productos">Destacados</h2>
-                <p>Prendas deportivas seleccionadas para una tienda limpia, ordenada y fácil de navegar.</p>
-            </div>
-            <ul id="product-grid" class="product-grid" aria-label="Listado de productos destacados" aria-busy="true">
-                <li class="loading" aria-live="polite">Cargando productos...</li>
-            </ul>
-        </section>
-
-        <!-- ===== MATERIALES ===== -->
-        <section class="materials wrap-wide" aria-labelledby="sec-materiales" aria-describedby="materiales-summary">
-            <div class="materials-copy">
-                <p class="eyebrow">tejidos técnicos</p>
-                <h2 id="sec-materiales">Fibras que se sienten diferentes.</h2>
-                <p id="materiales-summary">Cada prenda está pensada para acompañar el cuerpo con suavidad, ventilación y
-                    estructura mínima.</p>
-            </div>
-            <ul class="materials-grid" aria-label="Materiales destacados">
-                <li class="materials-item" aria-label="Material modal">
-                    <strong>Modal</strong>
-                    <p>Suave al tacto, cae bien y mantiene un look limpio.</p>
-                </li>
-                <li class="materials-item" aria-label="Material algodón técnico">
-                    <strong>Algodón técnico</strong>
-                    <p>Cómodo, respirable y fácil de combinar en capas.</p>
-                </li>
-            </ul>
         </section>
 
         <!-- ===== PROMO BANNER ===== -->
