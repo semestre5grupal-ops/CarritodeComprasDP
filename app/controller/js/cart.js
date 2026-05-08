@@ -74,9 +74,10 @@ export function getTotalItems() {
  * Añade un producto al carrito.
  * Si ya existe, incrementa la cantidad; si no, lo agrega como nuevo item.
  * @param {number} id - ID del producto a añadir
- * @returns {Array<Object>} Carrito actualizado
+ * @param {string} [tallaSeleccionada] - Talla específica elegida por el usuario
+ * @returns {Array<Object>|false} Carrito actualizado o false si no hay stock
  */
-export function addToCart(id) {
+export function addToCart(id, tallaSeleccionada) {
     const productoExistente = carrito.find(item => item.id === id);
     const productInfo = repo.getProductoById(id) || repo.productosDisponibles.find(item => item.id === id);
 
@@ -93,12 +94,18 @@ export function addToCart(id) {
 
     if (productoExistente) {
         productoExistente.cantidad += 1;
+        // Actualizar la talla seleccionada si se provee una nueva
+        if (tallaSeleccionada) productoExistente.tallaSeleccionada = tallaSeleccionada;
     } else {
-        carrito.push({ ...productInfo, cantidad: 1 });
+        carrito.push({
+            ...productInfo,
+            cantidad: 1,
+            tallaSeleccionada: tallaSeleccionada || productInfo.talla
+        });
     }
 
     guardarCarritoEnStorage();
-    return true;
+    return carrito;
 }
 
 /**

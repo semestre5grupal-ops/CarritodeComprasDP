@@ -111,7 +111,7 @@ export function renderCart(cartItems) {
             ${imgNode}
             <div class="cart-item-details">
                 <h4>${item.nombre}</h4>
-                <span class="cart-item-cat">${item.categoria} — ${item.talla}</span>
+                <span class="cart-item-cat">${item.categoria} — Talla: ${item.tallaSeleccionada || item.talla}</span>
                 <span class="cart-item-price" aria-label="Precio: $${(item.precio * item.cantidad).toFixed(2)}">
                     $${(item.precio * item.cantidad).toFixed(2)}
                 </span>

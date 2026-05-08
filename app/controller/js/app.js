@@ -25,8 +25,12 @@ let pendingDeleteBulkIds = null;
 window.mostrarAlerta = view.showAlert;
 
 // ── Función global para añadir al carrito (usada desde HTML) ─
-window.agregarAlCarrito = (id) => {
-    const added = cart.addToCart(id);
+/**
+ * @param {number} id - ID del producto
+ * @param {string} [tallaSeleccionada] - Talla elegida por el usuario en el selector
+ */
+window.agregarAlCarrito = (id, tallaSeleccionada) => {
+    const added = cart.addToCart(id, tallaSeleccionada);
     if (!added) {
         window.mostrarAlerta('Stock insuficiente', 'No se puede agregar más unidades de este producto.');
         return;
@@ -179,7 +183,32 @@ const cookieManager = {
                     btnAccept.disabled = false;
                     btnAccept.removeAttribute('aria-disabled');
                 }
-            }, 600);
+                // Mover foco al primer botón del banner (WCAG 2.4.3)
+                if (btnReject) btnReject.focus();
+            }, 650);
+
+            // ── Focus trap del banner de cookies ──────────────────────────
+            banner.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') return;
+                const focusables = Array.from(
+                    banner.querySelectorAll('button:not([disabled])')
+                );
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last  = focusables[focusables.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            });
 
             if (btnAccept) {
                 btnAccept.addEventListener('click', () => {
@@ -461,6 +490,31 @@ function initCartDelegation() {
 // RENDERIZADO DE TARJETAS DE PRODUCTO (Home Page)
 // ====================================================================
 /**
+ * Construye las opciones <option> para el selector de talla de un producto.
+ * @param {string} tallaRango - Rango de tallas del producto (ej: "S - XL")
+ * @returns {string} HTML de las opciones
+ */
+function buildSizeOptions(tallaRango) {
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    const parts = tallaRango.split(' - ');
+    const startSize = parts[0].trim().toUpperCase();
+    const endSize = parts[1] ? parts[1].trim().toUpperCase() : startSize;
+    const startIndex = sizeOrder.indexOf(startSize);
+    const endIndex = sizeOrder.indexOf(endSize);
+
+    if (startIndex === -1) {
+        // Talla no estándar: mostrar solo como opción única
+        return `<option value="${tallaRango}">${tallaRango}</option>`;
+    }
+
+    const available = sizeOrder.slice(
+        startIndex,
+        endIndex !== -1 ? endIndex + 1 : startIndex + 1
+    );
+    return available.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+/**
  * Genera el HTML de una tarjeta de producto para la página de inicio.
  * @param {Object} producto - Objeto del producto desde el JSON
  * @returns {string} HTML de la tarjeta como string
@@ -504,8 +558,17 @@ function getProductoHtml(producto) {
                         ${lowStockLabel}
                     </div>
                 </div>
+                <div class="product-size-row">
+                    <label for="talla-inicio-${producto.id}" class="size-label">Talla:</label>
+                    <select id="talla-inicio-${producto.id}"
+                        class="size-select"
+                        aria-label="Seleccionar talla de ${producto.nombre}"
+                        ${stockDisponible === 0 ? 'disabled' : ''}>
+                        ${buildSizeOptions(producto.talla)}
+                    </select>
+                </div>
                 <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
-                    onclick="agregarAlCarrito(${producto.id})"
+                    onclick="agregarAlCarrito(${producto.id}, document.getElementById('talla-inicio-${producto.id}').value)"
                     aria-label="Añadir ${producto.nombre} al carrito">
                     Añadir
                 </button>

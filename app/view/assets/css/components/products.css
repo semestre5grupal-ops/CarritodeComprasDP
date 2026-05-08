@@ -184,6 +184,52 @@
     font-weight: 500;
 }
 
+/* ── Selector de talla en tarjeta de producto ── */
+.product-size-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+}
+
+.size-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.size-select {
+    flex: 1;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2366737b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 1.8rem;
+}
+
+.size-select:focus {
+    outline: 3px solid var(--accent-3);
+    outline-offset: 2px;
+    border-color: var(--accent);
+}
+
+.size-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* ==========================================================================
    Formulario de Contacto Accesible
    ========================================================================== */

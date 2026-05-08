@@ -16,6 +16,25 @@ import * as cart from './cart.js';
 /** @type {Array<Object>} Productos cargados del catálogo */
 let catalogProductos = [];
 
+/**
+ * Construye opciones <option> para el selector de talla en el catálogo.
+ * @param {string} tallaRango - Ej: "S - XL"
+ * @returns {string} HTML de las opciones
+ */
+function buildCatalogSizeOptions(tallaRango) {
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    const parts = tallaRango.split(' - ');
+    const start = parts[0].trim().toUpperCase();
+    const end   = parts[1] ? parts[1].trim().toUpperCase() : start;
+    const si = sizeOrder.indexOf(start);
+    const ei = sizeOrder.indexOf(end);
+    if (si === -1) return `<option value="${tallaRango}">${tallaRango}</option>`;
+    return sizeOrder
+        .slice(si, ei !== -1 ? ei + 1 : si + 1)
+        .map(s => `<option value="${s}">${s}</option>`)
+        .join('');
+}
+
 function getStockDisponible(producto) {
     const cartItem = cart.getCartItemById(producto.id);
     const reservado = cartItem ? cartItem.cantidad : 0;
@@ -38,7 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn && btn.classList.contains('btn-primary')) {
                 const id = parseInt(btn.dataset.id, 10);
                 if (id && typeof window.agregarAlCarrito === 'function') {
-                    window.agregarAlCarrito(id);
+                    // Leer la talla seleccionada desde el <select> de la misma tarjeta
+                    const card = btn.closest('.product-card');
+                    const sizeSelect = card ? card.querySelector('.size-select') : null;
+                    const tallaSeleccionada = sizeSelect ? sizeSelect.value : undefined;
+                    window.agregarAlCarrito(id, tallaSeleccionada);
                 }
             }
         });
@@ -383,6 +406,15 @@ function renderizarProductosFiltrados() {
                         <span class="product-tag">${stockLabel}</span>
                         ${lowStockHtml}
                     </div>
+                </div>
+                <div class="product-size-row">
+                    <label for="talla-cat-${producto.id}" class="size-label">Talla:</label>
+                    <select id="talla-cat-${producto.id}"
+                        class="size-select"
+                        aria-label="Seleccionar talla de ${producto.nombre}"
+                        ${stockDisponible === 0 ? 'disabled' : ''}>
+                        ${buildCatalogSizeOptions(producto.talla)}
+                    </select>
                 </div>
                 <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
                     aria-label="Añadir ${producto.nombre} al carrito">
