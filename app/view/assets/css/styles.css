@@ -437,6 +437,13 @@ main {
     text-transform: uppercase;
 }
 
+.collection-banner .collection-copy h2 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
 .hero-copy p,
 .section-heading p,
 .collection-copy p,
