@@ -882,6 +882,87 @@ main {
     border-radius: 1rem;
 }
 
+/* ===== DISCOUNT CTA ===== */
+.discount-cta {
+    margin-top: 1.2rem;
+    min-height: 420px;
+    border-radius: 1.3rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    background:
+        linear-gradient(to right, rgba(12, 57, 73, 0.94) 38%, rgba(12, 57, 73, 0.45) 75%, transparent 100%),
+        url('images/gym-wear.jpg') center / cover no-repeat;
+    box-shadow: var(--shadow);
+}
+
+.discount-cta-content {
+    position: relative;
+    z-index: 1;
+    padding: 2.5rem 2rem;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.discount-cta .eyebrow {
+    color: var(--accent-3);
+}
+
+.discount-cta h2 {
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.discount-cta p {
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.65;
+    max-width: 38ch;
+}
+
+.btn-cta {
+    align-self: flex-start;
+    background: #fff;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    padding: 0.95rem 2.25rem;
+    border: 2px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-cta:hover {
+    background: var(--accent-3);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+    .discount-cta {
+        min-height: 480px;
+    }
+
+    .discount-cta-content {
+        padding: 3rem 3rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .discount-cta {
+        min-height: 520px;
+    }
+
+    .discount-cta-content {
+        padding: 4rem 4rem;
+    }
+}
+
 .site-footer {
     margin-top: 1.2rem;
     padding: 1.35rem;
