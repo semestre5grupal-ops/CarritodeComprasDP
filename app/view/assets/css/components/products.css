@@ -8,6 +8,12 @@
     gap: 1.5rem;
 }
 
+.product-grid li:only-child {
+    max-width: 680px;
+    margin: 0 auto;
+    justify-self: center;
+}
+
 .product-card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -17,7 +23,13 @@
     overflow: hidden;
     position: relative;
     box-shadow: 0 10px 24px rgba(21, 33, 42, 0.03);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, outline 0.1s;
+    cursor: pointer;
+}
+
+.product-card:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .product-card:hover {
@@ -178,12 +190,62 @@
     font-weight: 500;
 }
 
+/* ── Selector de talla en tarjeta de producto ── */
+.product-size-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+}
+
+.size-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.size-select {
+    flex: 1;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface-soft);
+    color: var(--ink);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2366737b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 1.8rem;
+}
+
+.size-select:focus {
+    outline: 3px solid var(--accent-3);
+    outline-offset: 2px;
+    border-color: var(--accent);
+}
+
+.size-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* ==========================================================================
    Formulario de Contacto Accesible
    ========================================================================== */
 .contact-section {
-    max-width: 600px;
-    margin: 0 auto 4rem auto;
+    max-width: 640px;
+    margin: 6rem auto 5rem auto;
+    padding: 3rem 2.5rem;
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
 .form-accesible .form-group {
@@ -232,4 +294,31 @@
 /* Estilo cuando el campo es inválido (controlado por JS) */
 .form-accesible input[aria-invalid="true"] {
     border-color: #d32f2f;
+    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.12);
+}
+
+/* Estilo cuando el campo es válido (controlado por JS con aria-invalid="false") */
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.15);
+}
+
+/* Indicador de éxito visible (aparece cuando el campo es válido) */
+.form-accesible .success-indicator {
+    color: #2e7d32;
+    font-size: 0.82rem;
+    margin-top: 0.3rem;
+    display: none;
+    font-weight: 500;
+}
+
+.form-accesible input[aria-invalid="false"]:not(:placeholder-shown) ~ .success-indicator {
+    display: block;
+}
+
+/* Botón submit: estilo cuando está deshabilitado con aria-disabled */
+.form-accesible button[disabled],
+.form-accesible button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

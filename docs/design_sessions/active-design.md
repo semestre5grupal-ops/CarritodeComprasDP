@@ -2,70 +2,68 @@
 
 ## Feature Name
 
-Mobile-First Responsiveness Audit & Notification Refinement
+Luxury Sportswear Aesthetic Home Page Redesign
 
 ---
 
 ## Problem Statement
 
-The main objective is to ensure that the web application's design is truly "mobile-first" and adapts fluidly without any layout errors across all screens. Additionally, notifications (such as "add to cart" alerts, validation error messages, etc.) must be reviewed and adapted so they render correctly and do not disrupt the user experience or usability on mobile devices.
+The current design of the home page is functional but lacks the premium, high-end aesthetic required for a modern luxury sportswear brand. It needs a visual overhaul to incorporate strategic editorial imagery, refine the mobile layout, and enhance the overall premium feel. This must be achieved while keeping the existing color palette, avoiding changes to the HTML structure or JavaScript logic, and strictly maintaining WCAG AA accessibility standards.
 
 ---
 
 ## Scope
 
 **Included:**
-- Audit of the presentation layer (CSS) to ensure the use of `@media (min-width: ...)` as the mobile-first standard.
-- Verification of at least 3 optimal breakpoints (Mobile, Tablet, Desktop) following the "Golden Rules".
-- Refinement of notification/toast design and positioning to prevent them from overflowing the screen on small devices, ensuring visibility and accessibility.
-- Adjustment of Flexbox and CSS Grid layouts to prevent horizontal scroll (overflow-x) across all device sizes.
-- Exhaustive UI component testing across defined resolutions.
+- Elevating the home page design to a luxury, editorial aesthetic.
+- Mobile-first layout refinements specifically for the first hero section (perfectly centered text card, smaller and subtler carousel arrows that remain usable).
+- Strategic integration of new high-quality images (`mujer-correr.webp`, `yoga-mujer.avif`, `running-color-negro.webp`, `personas-corriendo.png`, `mujer-movimiento.jpg`, `top-mujer-vino.webp`) in places currently lacking imagery (e.g., Collection Banner, Materials, Promo Banner, Story Grid).
+- Maintaining the current structure of the Hero, Contact section, and Products.
+- Maintaining the existing color palette (`--bg`, `--surface`, `--ink`, `--accent`, etc.).
 
 **Excluded:**
-- Modification of underlying business logic (shopping cart state, calculations) unless it directly affects the visual presentation.
-- Integration of external CSS libraries or frameworks (like Bootstrap or Tailwind), which are strictly forbidden by the project architecture.
+- Any changes to JavaScript logic (`app.js`, `cart.js`, `catalog.js`, etc.).
+- Modifications to the underlying semantic HTML structure that would break existing functionality.
+- Writing any code before the open design questions are resolved.
 
 ---
 
 ## Implementation Details
 
-1. **Breakpoint Definition (Presentation Layer):**
-   - Establish the base structural design assuming mobile screens (e.g., `< 768px`). Do not use `@media` queries for the base design.
-   - Breakpoint 1 (Tablet): `@media (min-width: 768px)` to transition from single-column lists to multi-column grids.
-   - Breakpoint 2 (Desktop): `@media (min-width: 1024px)` or `1200px` to apply `max-width` and center main containers.
+1. **Hero Refinements:**
+   - Adjust flexbox alignments and padding for `.hero-copy` on mobile screens (`< 768px`) to ensure the text card is dead-center both vertically and horizontally.
+   - Reduce `.carousel-btn` visual size (e.g., to 32px or 36px) and soften their contrast (e.g., lower opacity or glassmorphism), while padding out the actual element to maintain a minimum `44px x 44px` touch target for accessibility.
 
-2. **Structural Refinement:**
-   - Confirm correct usage of the viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`.
-   - Replace any fixed width values in pixels (e.g., `width: 500px`) in main containers with relative units (`%`, `vw`, `rem`) and fluid functions.
+2. **Image Strategy:**
+   - **Collection Banner:** Replace the current flat gradient with an editorial background image (`yoga-mujer.avif`).
+   - **Materials Section:** Introduce visual depth by adding `running-color-negro.webp` as a background or split context to highlight the "Fibras" concept.
+   - **Promo Banner:** Replace the solid blue gradient with a high-energy action shot (`personas-corriendo.png`), using a colored overlay to maintain the `--accent-3` brand vibe.
+   - **Story Grid:** Replace the SVG pattern on the left card with `mujer-movimiento.jpg` and the flat background on the right card with `top-mujer-vino.webp`.
 
-3. **Notifications and Toasts:**
-   - **Mobile:** Modify notification styles so that, instead of floating in a tiny corner, they occupy a more visible space (e.g., pinned to the bottom `bottom: 1rem` or top, with `max-width: 90%` or `width: calc(100% - 2rem)`).
-   - **Desktop:** Retain standard floating presentation (e.g., top-right or bottom-right corner).
-   - **Accessibility:** Maintain `role="alert"` or `role="status"` on notification containers for screen reader support.
-
-4. **Overflow Prevention:**
-   - Apply `word-break: break-word` or `overflow-wrap: break-word` to long texts inside notifications or product details.
-   - Adjust the cart summary layout for small screens (avoiding rigid `<table>` tags if they break, and favoring flexbox/grid stacked card layouts for each item).
+3. **Accessibility Overlays:**
+   - Implement either dark gradients, solid semi-transparent backgrounds, or CSS backdrop filters (`blur()`) behind text placed over new imagery to guarantee WCAG AA text contrast.
 
 ---
 
 ## Test Plan
 
-- **Extreme Mobile Test:** Emulate a 320px resolution (e.g., iPhone SE). Ensure zero horizontal scrolling and that notifications are legible.
-- **Tablet Transition Test:** Vary viewport from 767px to 769px. Validate that the single-column to multi-column grid transition occurs smoothly.
-- **Desktop Boundary Test:** Emulate Ultra-Wide screens (1920px+). Confirm that the main content does not expand infinitely and stays centered.
-- **Notification Event Audit:** Trigger actions like "Add to Cart" or form validation failures at each breakpoint to guarantee that popups/notifications do not overlap crucial buttons or hinder navigation.
+- **Accessibility Audit:** Run automated and manual checks to ensure all text over new images passes the 4.5:1 contrast ratio.
+- **Mobile Usability:** Verify that the hero card is perfectly centered on standard mobile viewports (320px, 375px, 414px) and that carousel arrows are easy to tap without overlapping text.
+- **Keyboard Navigation:** Ensure focus rings are highly visible against all new image backgrounds.
 
 ---
 
 ## Risks / Edge Cases
 
-- **Cart Component:** Cart interfaces often include multiple columns (Image, Product, Price, Qty, Total). On mobile, this tabular structure collapses horizontally. It will likely need to be converted into a vertically stacked card layout.
-- **Multiple Notifications:** If multiple notifications stack at once on mobile, they might cover the entire screen and prevent the user from operating the interface (violating the "Operable" POUR rule).
+- **Contrast Failures:** High-contrast photography can make text illegible if overlays are too subtle or if the image loads slowly.
+- **Touch Targets:** Making arrows "visually smaller" risks failing WCAG tap target requirements if the interactive area (`padding`) isn't increased proportionately.
 
 ---
 
 ## Open Questions
 
-- Do the current notifications use a specific CSS module or JavaScript file that we need to review in the codebase?
-- Are there specific UI elements that have previously shown responsiveness issues known by the team?
+Before proceeding with the CSS implementation, please clarify the following to avoid assumptions:
+
+1. **Beneficios & Trust Panel:** Currently, these sections (`.benefits-item`, `.trust-card`) use text and simple flat backgrounds. Do you want to keep them minimal and text-focused (which often feels cleaner/more luxury), or should we try to incorporate subtle background images/textures there as well?
+2. **Text Overlays:** To maintain contrast over the new images, do you prefer a **dark aesthetic** (dark gradient overlays with white text) or a **light/glassmorphic aesthetic** (frosted translucent glass boxes with dark text)?
+3. **Typography tweaks:** Luxury brands often use lighter font weights for headings combined with generous letter spacing. Are you open to adjusting the `font-weight` and `letter-spacing` rules in the CSS for headings to enhance the premium feel, or should typography remain exactly as it is?

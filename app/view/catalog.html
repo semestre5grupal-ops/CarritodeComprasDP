@@ -4,186 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Catálogo completo de ropa deportiva - Shop Sport">
+    <meta name="description" content="Catálogo completo de ropa deportiva Shop Sport. Filtra por género, talla, color y precio.">
+
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Catálogo | Shop Sport">
+    <meta property="og:description" content="Explora toda la colección de ropa deportiva con filtros personalizados por género, talla, color y precio.">
+    <meta property="og:locale" content="es_EC">
+    <meta name="theme-color" content="#0c4d63">
+
     <title>Catálogo | Shop Sport</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/components/products.css">
     <link rel="stylesheet" href="assets/css/components/cart.css">
-        <style>
-        .catalog-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .filters-sidebar {
-            background: rgba(255, 255, 255, 0.98);
-            padding: 1.6rem;
-            border-radius: 28px;
-            height: fit-content;
-            border: 1px solid rgba(17, 24, 39, 0.08);
-            box-shadow: 0 20px 40px rgba(17, 24, 39, 0.06);
-        }
-
-        .filter-header h2 {
-            font-size: 1.1rem;
-            margin: 0 0 1rem;
-            color: #102a43;
-        }
-
-        .filter-group {
-            margin-bottom: 1.8rem;
-            padding-bottom: 1.25rem;
-            border-bottom: 1px solid rgba(17, 24, 39, 0.06);
-        }
-
-        .filter-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .filter-group h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            color: #102a43;
-            letter-spacing: 0.08em;
-        }
-
-        .filter-options {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .size-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .filter-option {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0.2rem;
-            border-radius: 14px;
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-
-        .filter-option:hover {
-            background: rgba(97, 168, 184, 0.08);
-            transform: translateX(1px);
-        }
-
-        .filter-option input[type="checkbox"] {
-            accent-color: var(--accent);
-            width: 1.05rem;
-            height: 1.05rem;
-            cursor: pointer;
-        }
-
-        .filter-option label {
-            cursor: pointer;
-            font-size: 0.92rem;
-            color: #334e68;
-            margin: 0;
-            flex: 1;
-        }
-
-        .filter-option input:checked + label {
-            color: #0c4d63;
-            font-weight: 700;
-        }
-
-        .color-list .filter-option {
-            justify-content: flex-start;
-        }
-
-        .color-swatch {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            display: inline-block;
-            border: 1px solid rgba(17, 24, 39, 0.12);
-            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
-        }
-
-        .btn-clear-filters {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 999px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-top: 1rem;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .btn-clear-filters:hover,
-        .btn-clear-filters:focus-visible {
-            background: #0b3f56;
-            transform: translateY(-1px);
-        }
-
-        .product-grid-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .filter-info {
-            background: rgba(97, 168, 184, 0.08);
-            padding: 1rem 1.25rem;
-            border-radius: 18px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(97, 168, 184, 0.14);
-        }
-
-        .filter-info p {
-            color: #0b3f56;
-            font-size: 0.95rem;
-            margin: 0;
-            font-weight: 600;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #6b7280;
-        }
-
-        .no-results p {
-            font-size: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .catalog-container {
-                grid-template-columns: minmax(240px, 300px) 1fr;
-                align-items: start;
-            }
-
-            .filters-sidebar {
-                position: sticky;
-                top: 24px;
-                background-color: #ffffff;
-                border: 1px solid rgba(17, 24, 39, 0.08);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/components/catalog.css">
 </head>
 
 <body>
     <div id="network-status" class="network-status hidden" role="alert" aria-live="assertive"></div>
-    <a class="skip-link" href="#contenido">Saltar al catálogo</a>
+    <a class="skip-link" href="#contenido">Saltar al catálogo de productos</a>
 
-    <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Cargando catálogo de ropa">
+    <div id="loading-overlay" role="status" aria-label="Cargando catálogo" aria-live="polite">
         <div class="spinner" aria-hidden="true"></div>
         <p>Cargando catálogo...</p>
     </div>
@@ -203,8 +44,8 @@
         <div class="nav-bar wrap-wide">
             <h1 class="brand"><a href="../../index.html"
                     style="text-decoration: none; color: inherit;">Shop<span>sport</span></a></h1>
-            
-            <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú">
+
+            <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú de navegación">
                 <svg class="hamburger-icon" aria-hidden="true" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -216,11 +57,11 @@
                 <ul>
                     <li><a href="../../index.html">Inicio</a></li>
                     <li><a href="catalog.html" aria-current="page">Catálogo</a></li>
-                    <li><a href="../../index.html#contacto">Contacto</a></li>
+                    <li><a href="../../index.html#contacto-section">Contacto</a></li>
                 </ul>
             </nav>
             <div class="nav-actions" aria-label="Acciones rápidas">
-                <button type="button" class="btn-user nav-pill" aria-label="Login">
+                <button type="button" class="btn-user nav-pill" aria-label="Iniciar sesión">
                     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
@@ -228,7 +69,7 @@
                     <span class="user-text">Login</span>
                 </button>
                 <button type="button" class="btn-cart nav-pill" aria-label="Abrir carrito, 0 artículos"
-                    aria-expanded="false">
+                    aria-expanded="false" aria-controls="cart-drawer">
                     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
@@ -242,132 +83,149 @@
     </header>
 
     <main id="contenido" aria-label="Contenido principal">
-        <section class="wrap-wide" style="padding-top: 2rem; margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Catálogo Completo</h1>
-            <p style="color: #666;">Explora toda nuestra colección de ropa deportiva con filtros personalizados</p>
+
+        <!-- Encabezado de página -->
+        <section class="wrap-wide catalog-page-header" aria-labelledby="page-title">
+            <h2 id="page-title">Catálogo Completo</h2>
+            <p>Explora toda nuestra colección de ropa deportiva con filtros personalizados</p>
         </section>
 
-        <section class="wrap-wide">
-            <div class="catalog-container">
-                <!-- Sidebar de Filtros -->
-                <aside class="filters-sidebar" aria-label="Filtros de búsqueda">
-                    <div class="filter-header">
-                        <h2>Filtrar Por</h2>
-                    </div>
+        <button type="button" id="mobile-filter-open" class="mobile-filter-open-btn" aria-expanded="false" aria-controls="filter-panel" aria-label="Abrir menú de filtros">
+            Filtros
+            <span aria-hidden="true">☰</span>
+        </button>
 
+        <!-- Catálogo con filtros -->
+        <section class="wrap-wide" aria-labelledby="catalog-label">
+            <h2 id="catalog-label" class="sr-only">Catálogo de productos con filtros</h2>
+            <div class="catalog-container">
+
+                <!-- Sidebar de Filtros -->
+                <aside class="filters-sidebar" aria-label="Panel de filtros de búsqueda" aria-describedby="filter-hint">
+                    <p id="filter-hint" class="sr-only">Usa los filtros para refinar los productos. Los cambios se aplican automáticamente.</p>
+                    <div class="filter-header">
+                        <h3>Filtrar Por</h3>
+                        <button type="button" class="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel">
+                            Cerrar
+                            <span class="toggle-icon" aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="filter-panel collapsed" id="filter-panel">
                     <!-- Género -->
-                    <div class="filter-group">
-                        <h3>Género</h3>
+                    <fieldset class="filter-group">
+                        <legend class="filter-legend">Género</legend>
                         <div class="filter-options">
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-gender-mujer" class="gender-filter" value="Mujer" checked>
+                                <input type="checkbox" id="filter-gender-mujer" class="gender-filter" value="Mujer">
                                 <label for="filter-gender-mujer">Mujer</label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-gender-hombre" class="gender-filter" value="Hombre" checked>
+                                <input type="checkbox" id="filter-gender-hombre" class="gender-filter" value="Hombre">
                                 <label for="filter-gender-hombre">Hombre</label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-gender-unisex" class="gender-filter" value="Unisex" checked>
+                                <input type="checkbox" id="filter-gender-unisex" class="gender-filter" value="Unisex">
                                 <label for="filter-gender-unisex">Unisex</label>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
-                    <!-- Talla (Estructura para cuadrícula/botones) -->
-                    <div class="filter-group">
-                        <h3>Talla</h3>
+                    <!-- Talla -->
+                    <fieldset class="filter-group">
+                        <legend class="filter-legend">Talla</legend>
                         <div class="filter-options size-grid">
                             <div class="filter-option size-box">
-                                <input type="checkbox" id="filter-s" class="size-filter" value="S" checked>
+                                <input type="checkbox" id="filter-s" class="size-filter" value="S">
                                 <label for="filter-s">S</label>
                             </div>
                             <div class="filter-option size-box">
-                                <input type="checkbox" id="filter-m" class="size-filter" value="M" checked>
+                                <input type="checkbox" id="filter-m" class="size-filter" value="M">
                                 <label for="filter-m">M</label>
                             </div>
                             <div class="filter-option size-box">
-                                <input type="checkbox" id="filter-l" class="size-filter" value="L" checked>
+                                <input type="checkbox" id="filter-l" class="size-filter" value="L">
                                 <label for="filter-l">L</label>
                             </div>
                             <div class="filter-option size-box">
-                                <input type="checkbox" id="filter-xl" class="size-filter" value="XL" checked>
+                                <input type="checkbox" id="filter-xl" class="size-filter" value="XL">
                                 <label for="filter-xl">XL</label>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
-                    <!-- Color (Estructura para swatches/muestras visuales) -->
-                    <div class="filter-group">
-                        <h3>Color</h3>
+                    <!-- Color -->
+                    <fieldset class="filter-group">
+                        <legend class="filter-legend">Color</legend>
                         <div class="filter-options color-list">
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-color-negro" class="color-filter" value="Negro" checked>
+                                <input type="checkbox" id="filter-color-negro" class="color-filter" value="Negro">
                                 <label for="filter-color-negro">
-                                    <span class="color-swatch" style="background-color: #000000;"></span> Negro
+                                    <span class="color-swatch" style="background-color: #000000;" aria-hidden="true"></span> Negro
                                 </label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-color-blanco" class="color-filter" value="Blanco" checked>
+                                <input type="checkbox" id="filter-color-blanco" class="color-filter" value="Blanco">
                                 <label for="filter-color-blanco">
-                                    <span class="color-swatch" style="background-color: #ffffff; border: 1px solid #ccc;"></span> Blanco
+                                    <span class="color-swatch" style="background-color: #ffffff; border: 1px solid #ccc;" aria-hidden="true"></span> Blanco
                                 </label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-color-azul" class="color-filter" value="Azul" checked>
+                                <input type="checkbox" id="filter-color-azul" class="color-filter" value="Azul">
                                 <label for="filter-color-azul">
-                                    <span class="color-swatch" style="background-color: #1a365d;"></span> Azul
+                                    <span class="color-swatch" style="background-color: #1a365d;" aria-hidden="true"></span> Azul
                                 </label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-color-gris" class="color-filter" value="Gris" checked>
+                                <input type="checkbox" id="filter-color-gris" class="color-filter" value="Gris">
                                 <label for="filter-color-gris">
-                                    <span class="color-swatch" style="background-color: #a0aec0;"></span> Gris
+                                    <span class="color-swatch" style="background-color: #a0aec0;" aria-hidden="true"></span> Gris
                                 </label>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
                     <!-- Precio -->
-                    <div class="filter-group">
-                        <h3>Precio</h3>
+                    <fieldset class="filter-group">
+                        <legend class="filter-legend">Precio</legend>
                         <div class="filter-options">
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-precio-1" class="price-filter" value="0-20" checked>
+                                <input type="checkbox" id="filter-precio-1" class="price-filter" value="0-20">
                                 <label for="filter-precio-1">$0 - $20</label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-precio-2" class="price-filter" value="20-50" checked>
+                                <input type="checkbox" id="filter-precio-2" class="price-filter" value="20-50">
                                 <label for="filter-precio-2">$20 - $50</label>
                             </div>
                             <div class="filter-option">
-                                <input type="checkbox" id="filter-precio-3" class="price-filter" value="50+" checked>
+                                <input type="checkbox" id="filter-precio-3" class="price-filter" value="50+">
                                 <label for="filter-precio-3">$50+</label>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
-                    <button type="button" class="btn-clear-filters" aria-label="Limpiar todos los filtros">Limpiar filtros</button>
+                    <button type="button" class="btn-clear-filters" aria-label="Limpiar todos los filtros seleccionados">Limpiar filtros</button>
+                    </div>
                 </aside>
+
+                <div class="mobile-filter-backdrop" id="mobile-filter-backdrop" aria-hidden="true"></div>
 
                 <!-- Contenedor de Productos -->
                 <div class="product-grid-container">
-                    <div class="filter-info">
+                    <div class="filter-info" role="status" aria-live="polite" aria-atomic="true">
                         <p id="filter-count">Mostrando 0 productos</p>
                     </div>
-                    <div id="product-grid" class="product-grid" role="list" aria-label="Catálogo de productos">
-                        <p class="loading">Cargando productos...</p>
-                    </div>
+                    <ul id="product-grid" class="product-grid" aria-label="Catálogo de productos" aria-busy="true" aria-live="polite">
+                        <li class="loading">Cargando productos...</li>
+                    </ul>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Carrito (mismo que en index.html) -->
-    <!-- Overlay y Drawer del carrito (versión progresiva unificada) -->
     <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
     <aside id="cart-drawer" class="cart-drawer" aria-hidden="true" aria-modal="true" role="dialog"
-        aria-label="Tu carrito de compras">
+        aria-label="Tu carrito de compras" aria-live="polite">
         <div class="cart-header">
             <h2>Tu Carrito</h2>
             <button type="button" id="btn-close-cart" class="btn-close-cart" aria-label="Cerrar carrito">
@@ -381,16 +239,16 @@
 
         <div class="cart-bulk-actions">
             <label for="select-all-cart">
-                <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito">
+                <input type="checkbox" id="select-all-cart" aria-label="Seleccionar todos los productos del carrito" disabled>
                 Seleccionar todos
             </label>
-            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk"
+            <button type="button" id="btn-delete-bulk" class="btn-delete-bulk" disabled
                 aria-label="Eliminar productos seleccionados">
                 Eliminar items
             </button>
         </div>
 
-        <div id="cart-items-container" class="cart-items-container">
+        <div id="cart-items-container" class="cart-items-container" aria-live="polite" aria-atomic="false">
             <div class="cart-empty-msg">
                 <svg aria-hidden="true" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -400,13 +258,12 @@
                 </svg>
                 <p>Tu carrito está vacío.</p>
             </div>
-            <!-- Aquí se inyectan los items desde JS -->
         </div>
 
         <div class="cart-footer">
             <div class="cart-totals">
                 <span>Total estimado:</span>
-                <span id="cart-total-price">$0.00</span>
+                <span id="cart-total-price" aria-live="polite" aria-atomic="true">$0.00</span>
             </div>
             <p id="cart-last-update" aria-live="polite" class="cart-item-cat"
                 style="display: none; text-align: center; margin-bottom: 0.8rem;"></p>
@@ -415,7 +272,7 @@
         </div>
     </aside>
 
-    <!-- Diálogos de confirmación (igual que en index.html) -->
+    <!-- Diálogos de confirmación -->
     <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="dialog-title">
         <form method="dialog">
             <h3 id="dialog-title">¿Desea eliminar el producto del carrito?</h3>
@@ -435,6 +292,7 @@
             </div>
         </form>
     </dialog>
+
     <aside id="cookie-banner" class="cookie-banner" role="dialog" aria-labelledby="cookie-title"
         aria-describedby="cookie-desc" aria-hidden="true">
         <div class="cookie-content wrap-wide">
@@ -451,7 +309,6 @@
             </div>
         </div>
     </aside>
-
 
     <footer class="site-footer wrap-wide" aria-label="Pie de página">
         <div>
