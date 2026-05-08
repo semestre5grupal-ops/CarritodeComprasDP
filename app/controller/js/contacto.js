@@ -4,32 +4,27 @@
  * Cumple con WCAG 2.2 AA.
  */
 
+import { storage } from './storage.js';
+
 // ==========================================
 // MODELO: Lógica de Negocio y Seguridad
 // ==========================================
 class ContactoModel {
     constructor() {
-        // Listas blancas estrictas (Allowlist)
         this.regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$/;
         this.regexTelefono = /^09\d{8}$/;
         this.regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     }
 
-    /**
-     * Blindaje contra SQLi y XSS
-     */
     sanitizarEntrada(texto) {
         if (!texto) return '';
-
         return texto
-            // 1. Eliminar caracteres peligrosos de SQLi (;, ', ", --, /*, */)
             .replace(/;/g, '')
             .replace(/'/g, '')
             .replace(/"/g, '')
             .replace(/--/g, '')
             .replace(/\/\*/g, '')
             .replace(/\*\//g, '')
-            // 2. Escapar caracteres para prevenir XSS (<, >)
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .trim();
@@ -82,17 +77,31 @@ class ContactoView {
         }
     }
 
+    /**
+     * Muestra u oculta el mensaje de error de un campo.
+     * Actualiza aria-invalid para lectores de pantalla.
+     * @param {string} campo - Nombre del campo
+     * @param {string|null} mensaje - Mensaje de error o null si es válido
+     */
     mostrarError(campo, mensaje) {
         const input = this.inputs[campo];
         const errorSpan = this.errors[campo];
 
         if (mensaje) {
-            errorSpan.textContent = mensaje;
-            errorSpan.hidden = false;
-            input.setAttribute('aria-invalid', 'true');
+            // Campo inválido: mostrar error
+            if (errorSpan) {
+                errorSpan.textContent = mensaje;
+                errorSpan.hidden = false;
+            }
+            if (input) input.setAttribute('aria-invalid', 'true');
         } else {
-            errorSpan.hidden = true;
-            input.setAttribute('aria-invalid', 'false');
+            // Campo válido: ocultar error
+            if (errorSpan) errorSpan.hidden = true;
+            if (input) {
+                // Solo marcar como válido si tiene contenido
+                const isEmpty = !input.value || input.value.trim() === '';
+                input.setAttribute('aria-invalid', isEmpty ? 'false' : 'false');
+            }
         }
     }
 
@@ -103,6 +112,7 @@ class ContactoView {
     bloquearBoton(estado) {
         if (this.btnSubmit) {
             this.btnSubmit.disabled = estado;
+            this.btnSubmit.setAttribute('aria-disabled', estado.toString());
         }
     }
 }
@@ -128,22 +138,19 @@ class ContactoController {
     init() {
         if (!this.view.form) return;
 
-        // Estado inicial del botón
         this.evaluarEstadoGlobal();
 
-        // 1. Bloqueo Preventivo (Keydown) - Solo para restringir tipos de caracteres
-        this.view.inputs.nombre.addEventListener('keydown', (e) => {
-            if (e.key.length > 1) return;
-            const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/;
-            if (!regexLetras.test(e.key)) e.preventDefault();
+        // 1. Bloqueo Preventivo Físico infalible (Input Event)
+        this.view.inputs.nombre.addEventListener('input', function () {
+            this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
         });
 
-        this.view.inputs.telefono.addEventListener('keydown', (e) => {
-            if (e.key.length > 1) return;
-            if (!/^\d$/.test(e.key)) e.preventDefault();
+        this.view.inputs.telefono.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length > 10) this.value = this.value.slice(0, 10);
         });
 
-        // 2. Timing de Validación: Blur + Debounce en Input
+        // 2. Timing de Validación
         const validadoresDebounced = {};
         Object.keys(this.view.inputs).forEach(campo => {
             validadoresDebounced[campo] = this.debounce(() => {
@@ -157,37 +164,51 @@ class ContactoController {
             });
 
             input.addEventListener('input', () => {
-                this.evaluarEstadoGlobal(); // Re-evaluar botón siempre
+                this.evaluarEstadoGlobal();
                 if (input.dataset.tocado === 'true') {
                     validadoresDebounced[campo]();
                 }
             });
         });
 
-        // 3. Validación Final en Submit
-        this.view.form.addEventListener('submit', (e) => {
+        // 3. Intercepción Offline en el Submit
+        this.view.form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             if (this.validarTodoElFormulario()) {
-                alert('¡Seguridad verificada! Formulario enviado correctamente.');
-                this.view.form.reset();
-                this.view.limpiarErrores();
-                Object.values(this.view.inputs).forEach(i => delete i.dataset.tocado);
-                this.evaluarEstadoGlobal();
+                if (!navigator.onLine) {
+                    const datos = {
+                        nombre: this.view.inputs.nombre.value,
+                        correo: this.view.inputs.correo.value,
+                        telefono: this.view.inputs.telefono.value
+                    };
+                    try {
+                        await storage.guardarTareaOffline('enviar_contacto', datos);
+                        window.mostrarAlerta("Modo Offline 📡", "Estás sin conexión. Tu mensaje se ha guardado de forma segura y se enviará automáticamente cuando vuelva el internet.");
+                        this.limpiarFormulario();
+                    } catch(err) {
+                        console.error(err);
+                    }
+                } else {
+                    window.mostrarAlerta("¡Mensaje Enviado! 🟢", "Formulario validado y enviado con éxito.");
+                    this.limpiarFormulario();
+                }
             }
         });
     }
 
-    /**
-     * Sanitiza y valida un campo individual
-     */
+    limpiarFormulario() {
+        this.view.form.reset();
+        this.view.limpiarErrores();
+        Object.values(this.view.inputs).forEach(i => delete i.dataset.tocado);
+        this.evaluarEstadoGlobal();
+    }
+
     procesarYValidar(campo) {
         const input = this.view.inputs[campo];
-
-        // A. Sanitización (Blindaje Anti-Inyección)
         const valorLimpio = this.model.sanitizarEntrada(input.value);
         this.view.actualizarValor(campo, valorLimpio);
 
-        // B. Validación por Lista Blanca (Allowlist)
         let mensajeError = null;
         switch (campo) {
             case 'nombre': mensajeError = this.model.validarNombre(valorLimpio); break;
@@ -232,9 +253,8 @@ class ContactoController {
     }
 }
 
-// Inicialización del módulo
 export const initContacto = () => {
     const model = new ContactoModel();
     const view = new ContactoView();
-    new ContactoController(model, view);
+    const controller = new ContactoController(model, view);
 };
