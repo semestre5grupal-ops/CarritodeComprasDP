@@ -16,6 +16,8 @@ import { storage } from './storage.js';
 import { repo } from './repo.js';
 import * as cart from './cart.js';
 import * as view from './view.js';
+import './modal.js';
+import { initCarousel } from './carousel.js';
 
 // ── Estado global de diálogos ─────────────────────────────
 let pendingDeleteId = null;
@@ -39,6 +41,10 @@ window.agregarAlCarrito = (id, tallaSeleccionada) => {
     view.renderCart(cart.getCartItems());
     window.actualizarStockCatalogo?.();
     window.actualizarStockInicio?.();
+
+    const product = cart.getCartItems().find(item => String(item.id) === String(id));
+    const nombre = product ? product.nombre : "el producto";
+    view.showToast(`Agregaste exitosamente ${nombre} al carrito`);
 };
 
 window.actualizarStockInicio = () => {
@@ -69,6 +75,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initCartDelegation();
     initMobileMenu();
     initCollectionChips();
+    initProductCardDelegation();
+    initCarousel();
 
     // 4. Inicializar cookies
     if (typeof gestionCookies !== 'undefined') {
@@ -134,6 +142,40 @@ function initCollectionChips() {
 }
 
 // ====================================================================
+// PRODUCT CARD DELEGATION (Home Page)
+// ====================================================================
+/**
+ * Gestiona los clics y teclado en las tarjetas de producto de la página de inicio.
+ */
+function initProductCardDelegation() {
+    const grid = document.getElementById('product-grid');
+    if (!grid || window.location.pathname.includes('catalog.html')) return;
+
+    grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.product-card');
+        if (card) {
+            const id = parseInt(card.dataset.id, 10);
+            if (id && typeof window.abrirModalProducto === 'function') {
+                window.abrirModalProducto(id);
+            }
+        }
+    });
+
+    grid.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            const card = e.target.closest('.product-card');
+            if (card) {
+                e.preventDefault();
+                const id = parseInt(card.dataset.id, 10);
+                if (id && typeof window.abrirModalProducto === 'function') {
+                    window.abrirModalProducto(id);
+                }
+            }
+        }
+    });
+}
+
+// ====================================================================
 // INICIALIZACIÓN DEL SISTEMA
 // ====================================================================
 /**
@@ -195,7 +237,7 @@ const cookieManager = {
                 );
                 if (focusables.length === 0) return;
                 const first = focusables[0];
-                const last  = focusables[focusables.length - 1];
+                const last = focusables[focusables.length - 1];
 
                 if (e.shiftKey) {
                     if (document.activeElement === first) {
@@ -416,7 +458,7 @@ function initCartDrawer() {
     if (btnDeleteBulk && dialogConfirm) {
         btnDeleteBulk.addEventListener('click', () => {
             const itemCheckboxes = cartDrawer.querySelectorAll('.item-checkbox:checked');
-            const idsToRemove = Array.from(itemCheckboxes).map(cb => parseInt(cb.dataset.id, 10));
+            const idsToRemove = Array.from(itemCheckboxes).map(cb => cb.dataset.id);
 
             if (idsToRemove.length > 0) {
                 pendingDeleteBulkIds = idsToRemove;
@@ -444,7 +486,7 @@ function initCartDelegation() {
         const btnRemove = e.target.closest('.btn-remove-item');
 
         if (btnInc) {
-            const success = cart.modifyQuantity(parseInt(btnInc.dataset.id, 10), 1);
+            const success = cart.modifyQuantity(btnInc.dataset.id, 1);
             if (!success) {
                 window.mostrarAlerta('Stock insuficiente', 'No hay suficientes unidades disponibles para aumentar la cantidad.');
                 return;
@@ -453,7 +495,7 @@ function initCartDelegation() {
             window.actualizarStockCatalogo?.();
             window.actualizarStockInicio?.();
         } else if (btnDec) {
-            const id = parseInt(btnDec.dataset.id, 10);
+            const id = btnDec.dataset.id;
             const item = cart.getCartItemById(id);
             if (item && item.cantidad === 1) {
                 pendingDeleteId = id;
@@ -466,7 +508,7 @@ function initCartDelegation() {
                 window.actualizarStockInicio?.();
             }
         } else if (btnRemove) {
-            pendingDeleteId = parseInt(btnRemove.dataset.id, 10);
+            pendingDeleteId = btnRemove.dataset.id;
             document.getElementById('dialog-title').textContent = '¿Desea eliminar el producto del carrito?';
             document.getElementById('confirm-dialog').showModal();
         }
@@ -524,8 +566,7 @@ function getProductoHtml(producto) {
         ? `<img src="${repo.getProductoImagePath(producto.imagen)}" alt="${producto.nombre}" class="product-image" loading="lazy">`
         : `<div class="product-art" aria-hidden="true">${producto.abreviatura}</div>`;
 
-    const cartItem = cart.getCartItemById(producto.id);
-    const reservedQuantity = cartItem ? cartItem.cantidad : 0;
+    const reservedQuantity = cart.getProductQuantityInCart(producto.id);
     const stockDisponible = Math.max(0, producto.stock - reservedQuantity);
     const lowStockLabel = stockDisponible > 0 && stockDisponible <= 5
         ? `<span class="product-stock product-stock-low" aria-live="polite">Pocas unidades</span>`
@@ -537,7 +578,7 @@ function getProductoHtml(producto) {
             : `Disponibles: ${stockDisponible}`;
 
     return `
-        <li class="product-card" role="article"
+        <li class="product-card" role="button" tabindex="0" data-id="${producto.id}"
             aria-labelledby="producto-${producto.id}-nombre"
             aria-describedby="producto-${producto.id}-descripcion producto-${producto.id}-precio producto-${producto.id}-talla">
             <div class="product-visual" style="--tone: ${producto.tone}; --accent: ${producto.accent};">
@@ -553,25 +594,10 @@ function getProductoHtml(producto) {
                 <div class="product-meta">
                     <p id="producto-${producto.id}-precio" class="product-price">$${producto.precio.toFixed(2)}</p>
                     <div class="product-badges-meta">
-                        <span id="producto-${producto.id}-talla" class="product-tag">${producto.talla}</span>
                         <span class="product-tag">${stockText}</span>
                         ${lowStockLabel}
                     </div>
                 </div>
-                <div class="product-size-row">
-                    <label for="talla-inicio-${producto.id}" class="size-label">Talla:</label>
-                    <select id="talla-inicio-${producto.id}"
-                        class="size-select"
-                        aria-label="Seleccionar talla de ${producto.nombre}"
-                        ${stockDisponible === 0 ? 'disabled' : ''}>
-                        ${buildSizeOptions(producto.talla)}
-                    </select>
-                </div>
-                <button type="button" data-id="${producto.id}" class="btn btn-primary" ${stockDisponible === 0 ? 'disabled' : ''}
-                    onclick="agregarAlCarrito(${producto.id}, document.getElementById('talla-inicio-${producto.id}').value)"
-                    aria-label="Añadir ${producto.nombre} al carrito">
-                    Añadir
-                </button>
             </div>
         </li>
     `;
