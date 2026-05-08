@@ -370,15 +370,10 @@ main {
     border-radius: 50%;
 }
 
-.hero-copy,
 .hero-visual,
 .benefits article,
 .collection-banner,
 .materials,
-.promo-banner,
-.story-card,
-.trust-card,
-.bottom-notes article,
 .site-footer {
     background: var(--surface);
     border: 1px solid rgba(21, 33, 42, 0.08);
@@ -427,9 +422,7 @@ main {
 .hero h2,
 .section-heading h2,
 .collection-copy h2,
-.materials-copy h2,
-.story-card h2,
-.trust-card h2 {
+.materials-copy h2 {
     font-size: clamp(2.4rem, 5vw, 4.9rem);
     line-height: 1;
     letter-spacing: 0.02em;
@@ -441,16 +434,12 @@ main {
 .section-heading p,
 .collection-copy p,
 .materials-copy p,
-.story-card p,
-.trust-card p,
-.bottom-notes p,
 .site-footer p {
     color: var(--muted);
     line-height: 1.6;
 }
 
-.hero-actions,
-.promo-actions {
+.hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.85rem;
@@ -490,8 +479,7 @@ main {
 
 .hero-stats article,
 .benefits article,
-.materials-grid article,
-.bottom-notes article {
+.materials-grid article {
     border: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.78);
 }
@@ -503,8 +491,7 @@ main {
 
 .hero-stats strong,
 .benefits span,
-.materials-grid strong,
-.bottom-notes strong {
+.materials-grid strong {
     display: block;
     margin-bottom: 0.45rem;
     font-size: 1rem;
@@ -628,9 +615,13 @@ main {
     min-height: 160px;
 }
 
-.collection-banner,
-.promo-banner,
-.trust-panel {
+/* Compatibilidad con article si se usa en otras partes */
+.benefits article {
+    padding: 1rem;
+    min-height: 160px;
+}
+
+.collection-banner {
     margin-top: 1.2rem;
 }
 
@@ -657,6 +648,7 @@ main {
     background: linear-gradient(135deg, #edf3f6, #e2e8e9);
     border-radius: 1.3rem;
 }
+
 
 .collection-switch {
     display: flex;
@@ -695,9 +687,7 @@ main {
 
 .catalog-section,
 .materials,
-.story-grid,
-.trust-panel,
-.bottom-notes {
+.discount-cta {
     margin-top: 1.2rem;
 }
 
@@ -807,11 +797,9 @@ main {
     color: var(--muted);
 }
 
-.story-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    flex-direction: column;
-    gap: 1rem;
+.materials-item p {
+    font-size: 0.92rem;
+    color: var(--muted);
 }
 
 .story-card {
@@ -821,10 +809,16 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    gap: 0.8rem;
 }
 
-.story-card-left {
+/* ===== DESCUENTO CTA ===== */
+.discount-cta {
+    position: relative;
+    min-height: 420px;
+    border-radius: 1.3rem;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.95) 75%),
         url('images/sport-top-azul-deslavado-mujer.jpg') center/cover no-repeat;
@@ -836,16 +830,17 @@ main {
         url('images/top-mujer-vino.webp') center/cover no-repeat;
 }
 
-.trust-panel {
-    display: grid;
-    grid-template-columns: 1fr;
-    flex-direction: column;
-    gap: 1rem;
+.discount-cta__eyebrow {
+    color: rgba(255, 255, 255, 0.65);
 }
 
-.trust-card {
-    padding: 1rem;
-    border-radius: 1.25rem;
+.discount-cta__content h2 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    color: #fff;
+    line-height: 1.05;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .bottom-notes {
@@ -971,8 +966,7 @@ main {
 @media (min-width: 768px) {
 
     .materials-grid,
-    .benefits,
-    .bottom-notes {
+    .benefits {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -1002,9 +996,7 @@ main {
 
     .hero-copy,
     .hero-visual,
-    .materials,
-    .trust-card,
-    .story-card {
+    .materials {
         padding: clamp(1.25rem, 3vw, 3rem);
     }
 
