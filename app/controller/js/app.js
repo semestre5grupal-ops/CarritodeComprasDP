@@ -17,6 +17,7 @@ import { repo } from './repo.js';
 import * as cart from './cart.js';
 import * as view from './view.js';
 import './modal.js';
+import './citas.js';
 import { initCarousel } from './carousel.js';
 
 // ── Estado global de diálogos ─────────────────────────────
