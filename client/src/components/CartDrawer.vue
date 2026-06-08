@@ -149,6 +149,7 @@ function closeOfflineAlert() {
         v-if="drawerOpen"
         ref="overlay"
         class="cart-overlay"
+        :class="{ 'active': drawerOpen }"
         @click="handleOverlayClick"
         aria-hidden="true"
       ></div>
@@ -159,6 +160,7 @@ function closeOfflineAlert() {
         v-if="drawerOpen"
         ref="drawer"
         class="cart-drawer"
+        :class="{ 'open': drawerOpen }"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cart-drawer-title"

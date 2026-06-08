@@ -1,32 +1,64 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import api from '../services/api'
 import ProductCard from '../components/ProductCard.vue'
 import { useCart } from '../composables/useCart'
 
-const { addProduct } = useCart()
+const { addProduct, openDrawer } = useCart()
 
 const productos = ref([])
 const loading = ref(true)
 const error = ref(null)
-const activeCategory = ref(null)
 
-const categorias = computed(() => {
-  const cats = [...new Set(productos.value.map((p) => p.categoria).filter(Boolean))]
-  return cats.sort()
-})
+const mobileFiltersOpen = ref(false)
+const SESSION_KEY = 'shopsport_catalog_filters'
+const filters = reactive(loadFilters())
 
-const filtered = computed(() => {
-  if (!activeCategory.value) return productos.value
-  return productos.value.filter((p) => p.categoria === activeCategory.value)
-})
+function loadFilters() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? JSON.parse(raw) : defaultFilters()
+  } catch { return defaultFilters() }
+}
+function defaultFilters() {
+  return { generos: [], tallas: [], colores: [], precios: [] }
+}
+function resetFilters() {
+  Object.assign(filters, defaultFilters())
+  sessionStorage.removeItem(SESSION_KEY)
+}
+
+watch(filters, () => {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(filters))
+}, { deep: true })
+
+const SIZE_ORDER  = ['XS','S','M','L','XL','XXL']
+const genders     = ['Mujer','Hombre','Unisex']
+const sizes       = SIZE_ORDER
+const priceRanges = [
+  { label: '$0 - $20',   min: 0,   max: 20, value: '0-20'  },
+  { label: '$20 - $50',  min: 20,  max: 50, value: '20-50'  },
+  { label: '$50+',       min: 50,  max: Infinity, value: '50+' }
+]
+
+const colors = computed(() => [...new Set(productos.value.map(p => p.color))].filter(Boolean).sort())
+
+function getColorSwatchStyle(c) {
+    const map = {
+        'Negro': { bg: '#000000', border: 'none' },
+        'Blanco': { bg: '#ffffff', border: '1px solid #ccc' },
+        'Azul': { bg: '#1a365d', border: 'none' },
+        'Gris': { bg: '#a0aec0', border: 'none' }
+    }
+    const colorStyle = map[c] || { bg: c.toLowerCase(), border: 'none' }
+    return `background-color: ${colorStyle.bg}; ${colorStyle.border !== 'none' ? `border: ${colorStyle.border};` : ''}`
+}
 
 async function loadProducts() {
   loading.value = true
   error.value = null
   try {
-    const params = activeCategory.value ? `?categoria=${encodeURIComponent(activeCategory.value)}` : ''
-    const data = await api.get(`/productos${params}`)
+    const data = await api.get(`/productos`)
     productos.value = data.data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar productos'
@@ -36,13 +68,38 @@ async function loadProducts() {
   }
 }
 
-function filterByCategory(categoria) {
-  activeCategory.value = activeCategory.value === categoria ? null : categoria
-  loadProducts()
-}
+const filtered = computed(() => {
+  let list = productos.value
+
+  if (filters.generos.length) {
+    list = list.filter(p => filters.generos.includes(p.categoria))
+  }
+  if (filters.tallas.length) {
+    list = list.filter(p => {
+      if (!p.talla) return false;
+      const parts = p.talla.split(' - ')
+      const start = SIZE_ORDER.indexOf(parts[0]?.trim().toUpperCase())
+      const end   = SIZE_ORDER.indexOf(parts[1]?.trim().toUpperCase())
+      const available = start === -1 ? [p.talla] : SIZE_ORDER.slice(start, end !== -1 ? end + 1 : start + 1)
+      return filters.tallas.some(t => available.includes(t))
+    })
+  }
+  if (filters.colores.length) {
+    list = list.filter(p => filters.colores.includes(p.color))
+  }
+  if (filters.precios.length) {
+    list = list.filter(p => {
+      const pprecio = Number(p.precio)
+      return filters.precios.some(r => pprecio >= r.min && pprecio < r.max)
+    })
+  }
+
+  return list
+})
 
 function handleAddToCart(product) {
   addProduct(product, 1)
+  openDrawer()
 }
 
 onMounted(() => {
@@ -51,114 +108,108 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="catalog-section wrap-wide" aria-labelledby="catalog-title" aria-live="polite">
-    <div class="section-heading">
-      <h2 id="catalog-title">Catálogo</h2>
-      <p>Prendas deportivas seleccionadas para una tienda limpia, ordenada y fácil de navegar.</p>
-    </div>
+  <main id="contenido" aria-label="Contenido principal">
 
-    <div
-      v-if="categorias.length > 0"
-      class="category-filters"
-      role="group"
-      aria-label="Filtrar por categoría"
-    >
-      <button
-        v-for="cat in categorias"
-        :key="cat"
-        type="button"
-        class="collection-chip"
-        :class="{ active: activeCategory === cat }"
-        :aria-pressed="activeCategory === cat ? 'true' : 'false'"
-        @click="filterByCategory(cat)"
-      >
-        {{ cat }}
-      </button>
-    </div>
+    <!-- Encabezado de página -->
+    <section class="wrap-wide catalog-page-header" aria-labelledby="page-title">
+        <h2 id="page-title">Catálogo Completo</h2>
+        <p>Explora toda nuestra colección de ropa deportiva con filtros personalizados</p>
+    </section>
 
-    <div v-if="loading" class="loading" role="status" aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
-      <p>Cargando productos...</p>
-    </div>
+    <button type="button" id="mobile-filter-open" class="mobile-filter-open-btn" :aria-expanded="mobileFiltersOpen" aria-controls="filter-panel" aria-label="Abrir menú de filtros" @click="mobileFiltersOpen = true">
+        Filtros
+        <span aria-hidden="true">☰</span>
+    </button>
 
-    <div
-      v-else-if="error"
-      class="error-message"
-      role="alert"
-      aria-live="assertive"
-    >
-      <p>{{ error }}</p>
-      <button type="button" class="btn btn-primary" @click="loadProducts">
-        Reintentar
-      </button>
-    </div>
+    <!-- Catálogo con filtros -->
+    <section class="wrap-wide" aria-labelledby="catalog-label">
+        <h2 id="catalog-label" class="sr-only">Catálogo de productos con filtros</h2>
+        <div class="catalog-container">
 
-    <p
-      v-else-if="filtered.length === 0 && !loading"
-      class="empty-message"
-      role="status"
-    >
-      No se encontraron productos{{ activeCategory ? ` en la categoría "${activeCategory}"` : '' }}.
-    </p>
+            <!-- Sidebar de Filtros -->
+            <aside class="filters-sidebar" :class="{ 'expanded': mobileFiltersOpen }" aria-label="Panel de filtros de búsqueda" aria-describedby="filter-hint">
+                <p id="filter-hint" class="sr-only">Usa los filtros para refinar los productos. Los cambios se aplican automáticamente.</p>
+                <div class="filter-header">
+                    <h3>Filtrar Por</h3>
+                    <button type="button" class="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel" @click="mobileFiltersOpen = false">
+                        Cerrar
+                        <span class="toggle-icon" aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="filter-panel" id="filter-panel" :class="{ 'collapsed': !mobileFiltersOpen }">
+                <!-- Género -->
+                <fieldset class="filter-group">
+                    <legend class="filter-legend">Género</legend>
+                    <div class="filter-options">
+                        <div class="filter-option" v-for="g in genders" :key="g">
+                            <input type="checkbox" :id="`filter-gender-${g}`" class="gender-filter" :value="g" v-model="filters.generos">
+                            <label :for="`filter-gender-${g}`">{{ g }}</label>
+                        </div>
+                    </div>
+                </fieldset>
 
-    <ul
-      v-else
-      class="product-grid"
-      aria-label="Listado de productos"
-    >
-      <ProductCard
-        v-for="product in filtered"
-        :key="product.id"
-        :product="product"
-        @add-to-cart="handleAddToCart"
-      />
-    </ul>
-  </section>
+                <!-- Talla -->
+                <fieldset class="filter-group">
+                    <legend class="filter-legend">Talla</legend>
+                    <div class="filter-options size-grid">
+                        <div class="filter-option size-box" v-for="s in sizes" :key="s">
+                            <input type="checkbox" :id="`filter-${s}`" class="size-filter" :value="s" v-model="filters.tallas">
+                            <label :for="`filter-${s}`">{{ s }}</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Color -->
+                <fieldset class="filter-group">
+                    <legend class="filter-legend">Color</legend>
+                    <div class="filter-options color-list">
+                        <div class="filter-option" v-for="c in colors" :key="c">
+                            <input type="checkbox" :id="`filter-color-${c}`" class="color-filter" :value="c" v-model="filters.colores">
+                            <label :for="`filter-color-${c}`">
+                                <span class="color-swatch" :style="getColorSwatchStyle(c)" aria-hidden="true"></span> {{ c }}
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Precio -->
+                <fieldset class="filter-group">
+                    <legend class="filter-legend">Precio</legend>
+                    <div class="filter-options">
+                        <div class="filter-option" v-for="p in priceRanges" :key="p.label">
+                            <input type="checkbox" :id="`filter-precio-${p.value}`" class="price-filter" :value="p" v-model="filters.precios">
+                            <label :for="`filter-precio-${p.value}`">{{ p.label }}</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <button type="button" class="btn-clear-filters" aria-label="Limpiar todos los filtros seleccionados" @click="resetFilters">Limpiar filtros</button>
+                </div>
+            </aside>
+
+            <div class="mobile-filter-backdrop" id="mobile-filter-backdrop" :aria-hidden="!mobileFiltersOpen" :class="{'visible': mobileFiltersOpen}" @click="mobileFiltersOpen = false"></div>
+
+            <!-- Contenedor de Productos -->
+            <div class="product-grid-container">
+                <div class="filter-info" role="status" aria-live="polite" aria-atomic="true">
+                    <p id="filter-count">Mostrando {{ filtered.length }} productos</p>
+                </div>
+                <ul id="product-grid" class="product-grid" aria-label="Catálogo de productos" :aria-busy="loading" aria-live="polite">
+                    <li v-if="loading" class="loading">
+                      <div class="spinner" aria-hidden="true"></div>
+                      <p>Cargando productos...</p>
+                    </li>
+                    <li v-else-if="error" class="error-message">Error: {{ error }}</li>
+                    <li v-else-if="filtered.length === 0" style="grid-column: 1/-1; text-align: center; padding: 2rem;">No se encontraron productos con estos filtros.</li>
+                    <ProductCard v-else v-for="p in filtered" :key="p.id" :product="p" @add-to-cart="handleAddToCart" />
+                </ul>
+            </div>
+        </div>
+    </section>
+  </main>
 </template>
 
 <style scoped>
-.catalog-section {
-  margin-top: 1.2rem;
-}
-
-.category-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  margin-bottom: 1.5rem;
-}
-
-.collection-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.8rem 1rem;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background: var(--ink);
-  color: #fff;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
-}
-
-.collection-chip:hover {
-  transform: translateY(-1px);
-}
-
-.collection-chip.active,
-.collection-chip[aria-pressed="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.collection-chip:focus-visible {
-  outline: 3px solid var(--accent-3);
-  outline-offset: 3px;
-}
-
 .loading {
   grid-column: 1 / -1;
   padding: 2rem;
@@ -183,34 +234,6 @@ onMounted(() => {
   to { transform: rotate(360deg); }
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.error-message {
-  text-align: center;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: var(--muted);
-}
-
-.empty-message {
-  text-align: center;
-  padding: 2rem;
-  color: var(--muted);
-}
-
 @media (min-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
 }
 </style>

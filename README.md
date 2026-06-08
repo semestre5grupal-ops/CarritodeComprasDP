@@ -69,52 +69,69 @@ Desarrollado como parte del **Reto 2-5 — Desarrollo de Plataformas** (Semestre
 
 ---
 
-## Inicio Rápido
+## Inicio Rápido (Guía Paso a Paso para Evaluadores)
 
-### Requisitos
+Para ejecutar este proyecto en su máquina local, siga estrictamente estos pasos:
 
-- Node.js 18+
-- SQL Server (local o remoto)
-- npm
+### 1. Requisitos Previos
+- **Node.js** v18 o superior.
+- **SQL Server** instalado localmente.
+- **SQL Server Management Studio (SSMS)** u otro gestor de bases de datos.
 
-### Backend
+### 2. Configuración de la Base de Datos
+1. Abra SQL Server Management Studio y conéctese a su servidor usando **Autenticación de Windows** (Integrated Security).
+2. Haga clic derecho en la carpeta "Bases de datos" -> **Nueva base de datos...**
+3. Nómbrela exactamente **`ShopSportDB`** y presione OK.
+   *(Nota: No es necesario crear tablas, el ORM Prisma se encargará de construirlas).*
+
+### 3. Levantar el Backend (API)
+Abra una terminal en la carpeta principal del proyecto (`CarritodeComprasDP`) y ejecute:
 
 ```bash
-# 1. Instalar dependencias
+# 1. Entrar a la carpeta del servidor
 cd server
+
+# 2. Instalar dependencias
 npm install
 
-# 2. Configurar variables de entorno
-# Copiar .env.example a .env y editar DATABASE_URL
+# 3. Configurar variables de entorno
+# Copie el archivo .env.example y renómbrelo a .env
+# (El archivo viene preconfigurado para Autenticación de Windows local)
 cp .env.example .env
 
-# 3. Ejecutar migraciones y seed
+# 4. Construir las tablas en SQL Server
 npx prisma migrate dev --name init
+
+# 5. Llenar la base de datos con los 20 productos iniciales y 2 usuarios
 npm run seed
 
-# 4. Iniciar servidor
+# 6. Iniciar el servidor
 npm run dev
-# Servidor en: http://localhost:4000
 ```
+*El servidor backend quedará corriendo en `http://localhost:4000`.*
 
-### Frontend
+### 4. Levantar el Frontend (Cliente)
+Abra **otra terminal nueva** en la carpeta principal del proyecto (sin cerrar la del backend) y ejecute:
 
 ```bash
-# 1. Instalar dependencias
+# 1. Entrar a la carpeta del cliente
 cd client
+
+# 2. Instalar dependencias
 npm install
 
-# 2. Iniciar en modo desarrollo
+# 3. Iniciar el servidor de desarrollo de Vite
 npm run dev
-# Cliente en: http://localhost:5173
 ```
+*El cliente frontend quedará corriendo en `http://localhost:5173`. Haga Ctrl+Clic en el enlace de la terminal para abrir la aplicación en su navegador.*
 
-### Usuarios por defecto (seed)
+### 5. Usuarios por defecto (Credenciales de Prueba)
+Una vez en la aplicación, puede probar las rutas protegidas y el carrito iniciando sesión con:
 
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| `admin` | `Admin123!` | admin |
-| `usuario` | `User123!` | user |
+| Usuario   | Contraseña  | Rol   |
+|-----------|-------------|-------|
+| `admin`   | `Admin123!` | admin |
+| `usuario` | `User123!`  | user  |
 
 ---
 

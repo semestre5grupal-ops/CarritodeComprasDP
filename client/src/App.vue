@@ -1,9 +1,11 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from './composables/useAuth'
 import { useCart } from './composables/useCart'
 import CartDrawer from './components/CartDrawer.vue'
+import api from './services/api'
+import { processQueue } from './services/db'
 
 const router = useRouter()
 const { user, isAuthenticated, isAdmin, logout } = useAuth()
@@ -18,17 +20,56 @@ function handleLogout() {
   router.push('/')
 }
 
+const showPromoBanner = ref(false)
+
+function checkCookie() {
+  const match = document.cookie.match(new RegExp('(^| )promo_closed=([^;]+)'))
+  if (!match || match[2] !== 'true') {
+    showPromoBanner.value = true
+  }
+}
+
+function closePromoBanner() {
+  showPromoBanner.value = false
+  // Cookie expires in 7 days
+  const d = new Date()
+  d.setTime(d.getTime() + (7*24*60*60*1000))
+  document.cookie = `promo_closed=true;expires=${d.toUTCString()};path=/`
+}
+
+async function syncOfflineQueue() {
+  if (navigator.onLine) {
+    try {
+      const result = await processQueue(api)
+      if (result.processed > 0) {
+        alert(`Se han sincronizado ${result.processed} pedido(s) pendiente(s) que realizaste sin conexión.`)
+      }
+    } catch (err) {
+      console.error('Error al sincronizar pedidos offline:', err)
+    }
+  }
+}
+
 onMounted(() => {
   window.addEventListener('auth:expired', handleAuthExpired)
+  window.addEventListener('online', syncOfflineQueue)
+  checkCookie()
+  syncOfflineQueue()
 })
 
 onUnmounted(() => {
   window.removeEventListener('auth:expired', handleAuthExpired)
+  window.removeEventListener('online', syncOfflineQueue)
 })
 </script>
 
 <template>
   <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <div v-if="showPromoBanner" class="promo-banner" role="alert" aria-live="polite">
+    <p>¡Usa el código <strong>DEPORTE20</strong> para un 20% de descuento en tu primera compra!</p>
+    <button type="button" @click="closePromoBanner" aria-label="Cerrar banner promocional">×</button>
+  </div>
 
   <CartDrawer />
 
@@ -42,7 +83,8 @@ onUnmounted(() => {
 
       <nav class="primary-nav" aria-label="Navegación principal">
         <ul>
-          <li><router-link to="/" aria-current="page">Inicio</router-link></li>
+          <li><router-link to="/">Inicio</router-link></li>
+          <li><router-link to="/catalog">Catálogo</router-link></li>
         </ul>
       </nav>
 
@@ -110,6 +152,7 @@ onUnmounted(() => {
       <h3>Nosotros</h3>
       <ul>
         <li><router-link to="/">Inicio</router-link></li>
+        <li><router-link to="/catalog">Catálogo</router-link></li>
       </ul>
     </nav>
     <div aria-label="Medios de contacto">
@@ -120,3 +163,32 @@ onUnmounted(() => {
     </div>
   </footer>
 </template>
+
+<style scoped>
+.promo-banner {
+  background: var(--accent);
+  color: white;
+  text-align: center;
+  padding: 0.5rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 100;
+}
+.promo-banner button {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 0 0.5rem;
+}
+.promo-banner button:hover {
+  opacity: 1;
+}
+</style>

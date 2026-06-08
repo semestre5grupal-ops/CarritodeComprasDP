@@ -16,25 +16,29 @@ const USERNAME_RE = /^[a-zA-Z0-9_]{3,30}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,50}$/
 
+function validateField(field) {
+  if (field === 'username') {
+    if (!username.value) errors.value.username = 'El usuario es obligatorio.'
+    else if (!USERNAME_RE.test(username.value)) errors.value.username = '3-30 caracteres. Solo letras, números y guion bajo.'
+    else delete errors.value.username
+  }
+  if (field === 'email') {
+    if (!email.value) errors.value.email = 'El correo es obligatorio.'
+    else if (!EMAIL_RE.test(email.value)) errors.value.email = 'Ingrese un correo electrónico válido.'
+    else delete errors.value.email
+  }
+  if (field === 'password') {
+    if (!password.value) errors.value.password = 'La contraseña es obligatoria.'
+    else if (!PASSWORD_RE.test(password.value)) errors.value.password = 'Mín. 6 caracteres, mayúscula, minúscula y número.'
+    else delete errors.value.password
+  }
+}
+
 function validate() {
-  const errs = {}
-  if (!username.value) {
-    errs.username = 'El usuario es obligatorio.'
-  } else if (!USERNAME_RE.test(username.value)) {
-    errs.username = '3-30 caracteres. Solo letras, números y guion bajo.'
-  }
-  if (!email.value) {
-    errs.email = 'El correo es obligatorio.'
-  } else if (!EMAIL_RE.test(email.value)) {
-    errs.email = 'Ingrese un correo electrónico válido.'
-  }
-  if (!password.value) {
-    errs.password = 'La contraseña es obligatoria.'
-  } else if (!PASSWORD_RE.test(password.value)) {
-    errs.password = 'Mín. 6 caracteres, mayúscula, minúscula y número.'
-  }
-  errors.value = errs
-  return Object.keys(errs).length === 0
+  validateField('username')
+  validateField('email')
+  validateField('password')
+  return Object.keys(errors.value).length === 0
 }
 
 async function handleSubmit() {
@@ -85,6 +89,8 @@ async function handleSubmit() {
           :aria-invalid="errors.username ? 'true' : 'false'"
           :aria-describedby="errors.username ? 'reg-username-err' : undefined"
           placeholder="Ej: juanperez"
+          @blur="validateField('username')"
+          @input="errors.username && validateField('username')"
         />
         <p
           v-if="errors.username"
@@ -108,6 +114,8 @@ async function handleSubmit() {
           :aria-invalid="errors.email ? 'true' : 'false'"
           :aria-describedby="errors.email ? 'reg-email-err' : undefined"
           placeholder="ejemplo@correo.com"
+          @blur="validateField('email')"
+          @input="errors.email && validateField('email')"
         />
         <p
           v-if="errors.email"
@@ -131,6 +139,8 @@ async function handleSubmit() {
           :aria-invalid="errors.password ? 'true' : 'false'"
           :aria-describedby="errors.password ? 'reg-password-err' : undefined"
           placeholder="Mín. 6, mayúscula, minúscula, número"
+          @blur="validateField('password')"
+          @input="errors.password && validateField('password')"
         />
         <p
           v-if="errors.password"

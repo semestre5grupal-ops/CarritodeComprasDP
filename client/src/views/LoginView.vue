@@ -14,20 +14,23 @@ const serverError = ref('')
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,30}$/
 const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,50}$/
 
+function validateField(field) {
+  if (field === 'username') {
+    if (!username.value) errors.value.username = 'El usuario es obligatorio.'
+    else if (!USERNAME_RE.test(username.value)) errors.value.username = '3-30 caracteres. Solo letras, números y guion bajo.'
+    else delete errors.value.username
+  }
+  if (field === 'password') {
+    if (!password.value) errors.value.password = 'La contraseña es obligatoria.'
+    else if (!PASSWORD_RE.test(password.value)) errors.value.password = 'Mín. 6 caracteres, mayúscula, minúscula y número.'
+    else delete errors.value.password
+  }
+}
+
 function validate() {
-  const errs = {}
-  if (!username.value) {
-    errs.username = 'El usuario es obligatorio.'
-  } else if (!USERNAME_RE.test(username.value)) {
-    errs.username = '3-30 caracteres. Solo letras, números y guion bajo.'
-  }
-  if (!password.value) {
-    errs.password = 'La contraseña es obligatoria.'
-  } else if (!PASSWORD_RE.test(password.value)) {
-    errs.password = 'Mín. 6 caracteres, mayúscula, minúscula y número.'
-  }
-  errors.value = errs
-  return Object.keys(errs).length === 0
+  validateField('username')
+  validateField('password')
+  return Object.keys(errors.value).length === 0
 }
 
 async function handleSubmit() {
@@ -78,6 +81,8 @@ async function handleSubmit() {
           :aria-invalid="errors.username ? 'true' : 'false'"
           :aria-describedby="errors.username ? 'login-username-err' : undefined"
           placeholder="Tu nombre de usuario"
+          @blur="validateField('username')"
+          @input="errors.username && validateField('username')"
         />
         <p
           v-if="errors.username"
@@ -101,6 +106,8 @@ async function handleSubmit() {
           :aria-invalid="errors.password ? 'true' : 'false'"
           :aria-describedby="errors.password ? 'login-password-err' : undefined"
           placeholder="Tu contraseña"
+          @blur="validateField('password')"
+          @input="errors.password && validateField('password')"
         />
         <p
           v-if="errors.password"

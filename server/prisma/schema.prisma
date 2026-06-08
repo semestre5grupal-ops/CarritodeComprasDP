@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  admin
-  user
-}
 
 model Producto {
   id        Int      @id @default(autoincrement())
@@ -19,6 +15,8 @@ model Producto {
   stock     Int      @default(0)
   imagen    String?
   categoria String?
+  talla     String?
+  color     String?
   createdAt DateTime @default(now())
 
   detalles PedidoDetalle[]
@@ -29,7 +27,7 @@ model Usuario {
   username     String   @unique
   email        String   @unique
   passwordHash String
-  role         Role     @default(user)
+  role         String   @default("user")
   createdAt    DateTime @default(now())
 
   pedidos Pedido[]

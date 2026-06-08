@@ -1,4 +1,4 @@
-const { PrismaClient, Role } = require('@prisma/client')
+const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcrypt')
 const path = require('path')
 const fs = require('fs')
@@ -8,15 +8,28 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('[SEED] Iniciando seed de la base de datos...')
 
-  // ── Productos desde JSON ──────────────────────────────────────────
-  const productosPath = path.resolve(__dirname, '../../app/data/productos.json')
-  if (!fs.existsSync(productosPath)) {
-    console.warn('[SEED] No se encontró productos.json, se usarán datos por defecto')
-  }
-
-  const productosData = fs.existsSync(productosPath)
-    ? JSON.parse(fs.readFileSync(productosPath, 'utf-8'))
-    : []
+  const productosData = [
+    {
+        nombre: "Legging Seamless Fit", precio: 28.00, stock: 45,
+        imagen: "/images/sport-leggins-azul-deslavado-mujer.jpg",
+        categoria: "Mujer", talla: "XS - XL", color: "Azul"
+    },
+    {
+        nombre: "Top Training Core", precio: 22.00, stock: 12,
+        imagen: "/images/sport-top-azul-mujer.jpg",
+        categoria: "Mujer", talla: "S - L", color: "Azul"
+    },
+    {
+        nombre: "Pro Fit Tank", precio: 25.00, stock: 42,
+        imagen: "/images/2011c388_401_gm_ft_glb.jpg",
+        categoria: "Hombre", talla: "M - XL", color: "Azul"
+    },
+    {
+        nombre: "Athletic Performance Shirt", precio: 27.00, stock: 38,
+        imagen: "/images/gp08h-g61_p1.jpg",
+        categoria: "Unisex", talla: "XS - XXL", color: "Gris"
+    }
+  ]
 
   const existingCount = await prisma.producto.count()
   if (existingCount === 0) {
@@ -28,6 +41,8 @@ async function main() {
           stock: p.stock ?? 0,
           imagen: p.imagen ?? null,
           categoria: p.categoria ?? null,
+          talla: p.talla ?? null,
+          color: p.color ?? null,
         },
       })
     }
@@ -45,7 +60,7 @@ async function main() {
         username: 'admin',
         email: 'admin@shopsport.com',
         passwordHash: hash,
-        role: Role.admin,
+        role: 'admin',
       },
     })
     console.log('[SEED] Usuario admin creado (admin / Admin123!)')
@@ -61,7 +76,7 @@ async function main() {
         username: 'usuario',
         email: 'usuario@shopsport.com',
         passwordHash: hash,
-        role: Role.user,
+        role: 'user',
       },
     })
     console.log('[SEED] Usuario user creado (usuario / User123!)')
