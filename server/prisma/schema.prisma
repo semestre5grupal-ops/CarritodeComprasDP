@@ -562,6 +562,7 @@ model productos {
   pro_valor_compra                                           Decimal              @db.Decimal(7, 3)
   pro_genero_                                                String               @db.VarChar(150)
   pro_estado                                                 String               @db.VarChar(150)
+  pro_imagen                                                 String               @db.Text
   unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida?        @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
   unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida?        @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
   categoria                                                  categoria?            @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
