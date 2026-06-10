@@ -1,6 +1,6 @@
 # Shop Sport — Carrito de Compras Full Stack
 
-> Tienda de ropa deportiva minimalista. Aplicación Full Stack con **Vue 3 (Vite)** en el frontend y **Node.js + Express + Prisma + SQL Server** en el backend.
+> Tienda de ropa deportiva minimalista. Aplicación Full Stack con **Vue 3 (Vite)** en el frontend y **Node.js + Express + Prisma + PostgreSQL** en el backend.
 
 ---
 
@@ -18,11 +18,13 @@ Desarrollado como parte del **Reto 2-5 — Desarrollo de Plataformas** (Semestre
 ┌──────────────────────────────────────────────────────────────┐
 │                     CLIENTE (Vue 3 + Vite)                    │
 │  ┌──────────┐  ┌──────────────┐  ┌─────────────────────────┐ │
-│  │  Views/   │  │  Components/ │  │  Composables/ + Services│ │
-│  │ (Vistas)  │◄─┤ (Componentes)│◄─┤ (Estado + API + DB)    │ │
-│  │   MVC-V   │  │    MVC-V     │  │     MVC-M               │ │
+│  │  Views/   │  │  Components/ │  │        Models/          │ │
+│  │ (Vistas)  │◄─┤ (Componentes)│◄─┤   (Estado Reactivo)     │ │
+│  │   MVC-V   │  │    MVC-V     │  │        MVC-M            │ │
 │  └─────┬─────┘  └──────────────┘  └───────────┬─────────────┘ │
-│        └──────────────────┬───────────────────┘               │
+│        │                                      │               │
+│        └────────►  Controllers/   ◄───────────┘               │
+│                    (Controladores MVC-C)                      │
 │                           │ HTTP (Fetch + JWT)                │
 └───────────────────────────┼───────────────────────────────────┘
                             │
@@ -39,18 +41,23 @@ Desarrollado como parte del **Reto 2-5 — Desarrollo de Plataformas** (Semestre
 │  └────────────────────────┬─────────────────────────────────┘ │
 │                           ▼                                   │
 │  ┌──────────────────────────────────────────────────────────┐ │
+│  │                     Models (Modelos)                     │ │
+│  │     authModel      productoModel       pedidoModel       │ │
+│  └────────────────────────┬─────────────────────────────────┘ │
+│                           ▼                                   │
+│  ┌──────────────────────────────────────────────────────────┐ │
 │  │       Middlewares (Seguridad + Validación)                │ │
 │  │  auth (JWT)  role (RBAC)  validate (express-validator)   │ │
 │  │  errorHandler  cors  helmet  morgan  rate-limit           │ │
 │  └────────────────────────┬─────────────────────────────────┘ │
 │                           ▼                                   │
 │  ┌──────────────────────────────────────────────────────────┐ │
-│  │          Prisma ORM (Modelo de datos)                     │ │
-│  │  Producto  Usuario  Pedido  PedidoDetalle  Role (enum)   │ │
+│  │          Prisma ORM (Data Access Layer)                   │ │
+│  │  productos, variantes, usuarios, documentos, bodega, etc. │ │
 │  └────────────────────────┬─────────────────────────────────┘ │
 │                           ▼                                   │
 │  ┌──────────────────────────────────────────────────────────┐ │
-│  │              SQL Server (Persistencia)                    │ │
+│  │              PostgreSQL (Persistencia en Render)          │ │
 │  └──────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -61,11 +68,11 @@ Desarrollado como parte del **Reto 2-5 — Desarrollo de Plataformas** (Semestre
 
 | Capa | Tecnología | Características |
 |------|-----------|-----------------|
-| **Frontend** | Vue 3 (Composition API) + Vite | `<script setup>`, SFC, Router, Fetch API, IndexedDB |
-| **Backend** | Node.js + Express | MVC, middlewares, JWT, RBAC, express-validator |
-| **ORM** | Prisma | Migraciones, seed, esquema declarativo |
-| **Base de datos** | SQL Server | Modelo relacional con 4 tablas + enum Role |
-| **Seguridad** | OWASP | bcrypt, helmet, CORS, rate-limit, validación, JWT |
+| **Frontend** | Vue 3 (Composition API) + Vite | Modelos (`models/`), Vistas (`views/`) y Controladores (`controllers/`) |
+| **Backend** | Node.js + Express | MVC Completo (Modelos, Vistas JSON, Controladores), JWT, RBAC |
+| **ORM** | Prisma | Migraciones, seed, abstracción de datos |
+| **Base de datos** | PostgreSQL | Modelo relacional avanzado (productos, variantes, bodega, documentos, clientes) |
+| **Seguridad** | OWASP | bcrypt, helmet, CORS, rate-limit, validación de schemas |
 
 ---
 
@@ -75,14 +82,7 @@ Para ejecutar este proyecto en su máquina local, siga estrictamente estos pasos
 
 ### 1. Requisitos Previos
 - **Node.js** v18 o superior.
-- **SQL Server** instalado localmente.
-- **SQL Server Management Studio (SSMS)** u otro gestor de bases de datos.
-
-### 2. Configuración de la Base de Datos
-1. Abra SQL Server Management Studio y conéctese a su servidor usando **Autenticación de Windows** (Integrated Security).
-2. Haga clic derecho en la carpeta "Bases de datos" -> **Nueva base de datos...**
-3. Nómbrela exactamente **`ShopSportDB`** y presione OK.
-   *(Nota: No es necesario crear tablas, el ORM Prisma se encargará de construirlas).*
+- Este proyecto ya está conectado a una base de datos **PostgreSQL alojada en la nube (Render)**. No es necesario instalar ninguna base de datos local ni configurar SSMS. El archivo `.env` ya incluye la URL de conexión de producción.
 
 ### 3. Levantar el Backend (API)
 Abra una terminal en la carpeta principal del proyecto (`CarritodeComprasDP`) y ejecute:
@@ -94,13 +94,10 @@ cd server
 # 2. Instalar dependencias
 npm install
 
-# 3. Configurar variables de entorno
-# Copie el archivo .env.example y renómbrelo a .env
-# (El archivo viene preconfigurado para Autenticación de Windows local)
-cp .env.example .env
+# 3. La conexión a la BD remota de PostgreSQL ya está en el .env incluido.
+# Si deseas aplicar cambios al esquema de Prisma en el futuro:
+npx prisma generate
 
-# 4. Construir las tablas en SQL Server
-npx prisma migrate dev --name init
 
 # 5. Llenar la base de datos con los 20 productos iniciales y 2 usuarios
 npm run seed
@@ -145,8 +142,8 @@ CarritodeComprasDP/
 │   ├── package.json
 │   ├── .env
 │   ├── prisma/
-│   │   ├── schema.prisma           # Modelo de datos
-│   │   └── seed.js                 # Datos iniciales
+│   │   ├── schema.prisma           # Schema de BD PostgreSQL
+│   │   └── data.sql                # Seed script
 │   └── src/
 │       ├── index.js                # Entry point
 │       ├── lib/
@@ -154,12 +151,15 @@ CarritodeComprasDP/
 │       ├── middlewares/
 │       │   ├── auth.js             # JWT verification
 │       │   ├── role.js             # Role-based access
-│       │   ├── validate.js         # express-validator
-│       │   └── errorHandler.js     # Error centralizado
+│       │   └── validate.js         # Validaciones
+│       ├── models/
+│       │   ├── auth.model.js       # Data Access Object para Usuarios
+│       │   ├── pedido.model.js     # DAO para Documentos e Inventario
+│       │   └── producto.model.js   # DAO para Productos
 │       ├── controllers/
-│       │   ├── authController.js
-│       │   ├── productoController.js
-│       │   └── pedidoController.js
+│       │   ├── auth.controller.js
+│       │   ├── producto.controller.js
+│       │   └── pedido.controller.js
 │       └── routes/
 │           ├── auth.routes.js
 │           ├── producto.routes.js
@@ -179,13 +179,16 @@ CarritodeComprasDP/
 │       ├── services/
 │       │   ├── api.js              # Fetch client + JWT interceptor
 │       │   └── db.js               # IndexedDB offline queue
-│       ├── composables/
+│       ├── models/                 # Modelos del Cliente (Estado Reactivo MVC)
 │       │   ├── useAuth.js          # Auth state (singleton)
 │       │   └── useCart.js          # Cart state + localStorage/sessionStorage
+│       ├── controllers/            # Controladores MVC
+│       │   ├── ProductController.js
+│       │   └── OrderController.js
 │       ├── components/
 │       │   ├── ProductCard.vue     # ARIA product card
 │       │   └── CartDrawer.vue      # Side drawer + focus trap + offline
-│       └── views/
+│       └── views/                  # Vistas MVC
 │           ├── CatalogView.vue     # Catálogo con filtros
 │           ├── LoginView.vue       # Login con regex + ARIA
 │           ├── RegisterView.vue    # Register con regex + ARIA

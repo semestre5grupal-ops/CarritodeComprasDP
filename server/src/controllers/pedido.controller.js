@@ -1,4 +1,4 @@
-const prisma = require('../lib/prisma')
+const PedidoModel = require('../models/pedido.model')
 
 async function create(req, res, next) {
   try {
@@ -9,10 +9,7 @@ async function create(req, res, next) {
     // Buscar la variante real para el producto, ya que pedidos van a variante
     const items = []
     for (const d of detalles) {
-      const producto = await prisma.productos.findUnique({ 
-        where: { id_producto: d.productoId },
-        include: { variantes_producto: { include: { inventario_bodegas: true } } }
-      })
+      const producto = await PedidoModel.findProductoWithStock(d.productoId)
       if (!producto) {
         return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: `Producto ${d.productoId} no encontrado` })
       }
@@ -34,77 +31,23 @@ async function create(req, res, next) {
       items.push({ varianteId: variante.id_variante, d, stock, inv: variante.inventario_bodegas[0] })
     }
 
-    const vendedor = await prisma.vendedores.findFirst() || { id_vendedor: 1 }
-    let cliente = await prisma.clientes.findFirst()
+    const vendedor = await PedidoModel.getFirstVendedor() || { id_vendedor: 1 }
+    let cliente = await PedidoModel.getFirstCliente()
     if (!cliente) {
-      const ciudad = await prisma.ciudad.findFirst() || { id_ciudad: 1 }
-      cliente = await prisma.clientes.create({
-        data: {
-          id_ciudad: ciudad.id_ciudad,
-          cli_nombre: req.user.username || 'Cliente Final',
-          cli_ciruc: '9999999999999',
-          cli_celular: '0000000000',
-          cli_telefono: '0000000000',
-          cli_correo: req.user.email || 'correo@correo.com',
-          cli_categoria: 1,
-          cli_estado: true
-        }
+      const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
+      cliente = await PedidoModel.createCliente({
+        id_ciudad: ciudad.id_ciudad,
+        cli_nombre: req.user.username || 'Cliente Final',
+        cli_ciruc: '9999999999999',
+        cli_celular: '0000000000',
+        cli_telefono: '0000000000',
+        cli_correo: req.user.email || 'correo@correo.com',
+        cli_categoria: 1,
+        cli_estado: true
       }).catch(e => ({ id_cliente: 1 }))
     }
 
-    const pedido = await prisma.$transaction(async (tx) => {
-      // 1. Descontar stock
-      for (const item of items) {
-        if (item.inv) {
-          await tx.inventario_bodegas.update({
-            where: {
-              id_bodega_id_variante_inv_periodo: {
-                id_bodega: item.inv.id_bodega,
-                id_variante: item.varianteId,
-                inv_periodo: item.inv.inv_periodo
-              }
-            },
-            data: { inv_saldo_final: { decrement: item.d.cantidad } }
-          })
-        }
-      }
-
-      // 2. Crear documento
-      const subtotal = Math.round(total * 100) / 100
-      const doc = await tx.documentos.create({
-        data: {
-          id_cliente: cliente.id_cliente,
-          id_vendedor: vendedor.id_vendedor,
-          doc_tipo: 'FAC',
-          doc_emision: new Date(),
-          doc_descripcion: 'Compra online Carrito',
-          doc_subtotal: subtotal,
-          doc_iva: 0,
-          doc_descuento: 0,
-          doc_total: subtotal,
-          doc_estado: 'ACT',
-          productosxdocumento: {
-            create: items.map(item => ({
-              id_variante: item.varianteId,
-              pxd_cantidad: item.d.cantidad,
-              pxd_valor_unitario: item.d.precioUnitario,
-              pxd_valor_subtotal: item.d.cantidad * item.d.precioUnitario,
-              pxd_estado: 'ACT'
-            }))
-          }
-        },
-        include: {
-          productosxdocumento: {
-            include: {
-              variantes_producto: {
-                include: { productos: true }
-              }
-            }
-          }
-        }
-      })
-      return doc
-    })
+    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total)
 
     // Formatear respuesta al formato original esperado por frontend
     const formatPedido = {
@@ -136,14 +79,7 @@ async function getMyOrders(req, res, next) {
   try {
     // Buscar todos los documentos, idealmente los de este id_cliente. 
     // Mapearemos todos para evitar complejidad extra en esta prueba.
-    const documentos = await prisma.documentos.findMany({
-      include: {
-        productosxdocumento: {
-          include: { variantes_producto: { include: { productos: true } } }
-        }
-      },
-      orderBy: { doc_emision: 'desc' },
-    })
+    const documentos = await PedidoModel.findAllMyOrders()
 
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
@@ -172,15 +108,7 @@ async function getAll(req, res, next) {
   try {
     const { role } = req.user
 
-    const documentos = await prisma.documentos.findMany({
-      include: {
-        clientes: true,
-        productosxdocumento: {
-          include: { variantes_producto: { include: { productos: true } } }
-        }
-      },
-      orderBy: { doc_emision: 'desc' },
-    })
+    const documentos = await PedidoModel.findAllOrders()
 
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,

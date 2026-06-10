@@ -1,13 +1,16 @@
-const prisma = require('../lib/prisma')
+const ProductoModel = require('../models/producto.model')
 
 // Función auxiliar para formatear producto a lo que espera el frontend
 function formatProducto(p) {
+  const variante = p.variantes_producto?.[0];
   return {
     id: p.id_producto,
     nombre: p.pro_descripcion,
     precio: p.pro_valor_compra,
-    stock: p.variantes_producto?.[0]?.inventario_bodegas?.[0]?.inv_saldo_final || 0,
+    stock: variante?.inventario_bodegas?.[0]?.inv_saldo_final || 0,
     categoria: p.categoria ? p.categoria.cat_nombre : 'General',
+    talla: variante?.tallas ? variante.tallas.tal_descripcion : null,
+    color: variante?.colores ? variante.colores.col_nombre : null,
     imagen: null // Imagen ya no existe en el esquema
   }
 }
@@ -15,15 +18,7 @@ function formatProducto(p) {
 async function getAll(req, res, next) {
   try {
     const { categoria } = req.query
-    // Nota: El filtro de categoría por nombre requiere un join, lo simplificamos por ahora
-    const productos = await prisma.productos.findMany({
-      include: {
-        categoria: true,
-        variantes_producto: {
-          include: { inventario_bodegas: true }
-        }
-      }
-    })
+    const productos = await ProductoModel.findAll()
 
     const data = productos.map(formatProducto)
     if (categoria) {
@@ -38,15 +33,7 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
   try {
     const id = parseInt(req.params.id, 10)
-    const producto = await prisma.productos.findUnique({ 
-      where: { id_producto: id },
-      include: {
-        categoria: true,
-        variantes_producto: {
-          include: { inventario_bodegas: true }
-        }
-      }
-    })
+    const producto = await ProductoModel.findById(id)
 
     if (!producto) {
       return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado' })
@@ -63,56 +50,50 @@ async function create(req, res, next) {
     const { nombre, precio, stock, categoria, imagen } = req.body
 
     // Buscar dependencias por defecto creadas por el seed
-    const marca = await prisma.marcas.findFirst() || { id_marca: 1 }
-    const temporada = await prisma.temporadas.findFirst() || { id_temporada: 1 }
-    const unidad = await prisma.unidad_medida.findFirst() || { id_unidadmedida: 1 }
-    let cat = await prisma.categoria.findFirst()
-    const material = await prisma.materiales.findFirst() || { id_material: 1 }
+    const marca = await ProductoModel.getFirstMarca() || { id_marca: 1 }
+    const temporada = await ProductoModel.getFirstTemporada() || { id_temporada: 1 }
+    const unidad = await ProductoModel.getFirstUnidad() || { id_unidadmedida: 1 }
+    let cat = await ProductoModel.getFirstCategoria()
+    const material = await ProductoModel.getFirstMaterial() || { id_material: 1 }
 
-    const producto = await prisma.productos.create({
-      data: {
-        pro_descripcion: nombre,
-        pro_valor_compra: precio,
-        id_marca: marca.id_marca,
-        id_temporada: temporada.id_temporada,
-        id_unidadmedida: unidad.id_unidadmedida,
-        uni_id_unidadmedida: unidad.id_unidadmedida,
-        id_categoria: cat ? cat.id_categoria : 1,
-        id_material: material.id_material,
-        pro_factor_conversion_: 1,
-        pro_genero_: 'U',
-        pro_estado: 'ACT'
-      },
+    const producto = await ProductoModel.create({
+      pro_descripcion: nombre,
+      pro_valor_compra: precio,
+      id_marca: marca.id_marca,
+      id_temporada: temporada.id_temporada,
+      id_unidadmedida: unidad.id_unidadmedida,
+      uni_id_unidadmedida: unidad.id_unidadmedida,
+      id_categoria: cat ? cat.id_categoria : 1,
+      id_material: material.id_material,
+      pro_factor_conversion_: 1,
+      pro_genero_: 'U',
+      pro_estado: 'ACT'
     })
 
     // Crear variante e inventario si tenemos dependencias
-    const color = await prisma.colores.findFirst()
-    const talla = await prisma.tallas.findFirst()
-    const bodega = await prisma.bodega.findFirst()
+    const color = await ProductoModel.getFirstColor()
+    const talla = await ProductoModel.getFirstTalla()
+    const bodega = await ProductoModel.getFirstBodega()
 
     if (color && talla && bodega) {
-      const variante = await prisma.variantes_producto.create({
-        data: {
-          id_producto: producto.id_producto,
-          id_color: color.id_color,
-          id_talla: talla.id_talla,
-          var_cod_barras: '0000',
-          var_precio_venta: precio,
-          var_estado: 'ACT'
-        }
+      const variante = await ProductoModel.createVariante({
+        id_producto: producto.id_producto,
+        id_color: color.id_color,
+        id_talla: talla.id_talla,
+        var_cod_barras: '0000',
+        var_precio_venta: precio,
+        var_estado: 'ACT'
       })
       
-      await prisma.inventario_bodegas.create({
-        data: {
-          id_bodega: bodega.id_bodega,
-          id_variante: variante.id_variante,
-          inv_periodo: '2026-06',
-          inv_saldo_inicial: stock ?? 0,
-          inv_qty_ingresos: stock ?? 0,
-          inv_qty_egresos: 0,
-          inv_qty_ajustes: 0,
-          inv_saldo_final: stock ?? 0
-        }
+      await ProductoModel.createInventario({
+        id_bodega: bodega.id_bodega,
+        id_variante: variante.id_variante,
+        inv_periodo: '2026-06',
+        inv_saldo_inicial: stock ?? 0,
+        inv_qty_ingresos: stock ?? 0,
+        inv_qty_egresos: 0,
+        inv_qty_ajustes: 0,
+        inv_saldo_final: stock ?? 0
       })
     }
 
@@ -125,7 +106,7 @@ async function create(req, res, next) {
 async function update(req, res, next) {
   try {
     const id = parseInt(req.params.id, 10)
-    const existing = await prisma.productos.findUnique({ where: { id_producto: id } })
+    const existing = await ProductoModel.findById(id)
 
     if (!existing) {
       return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado' })
@@ -133,18 +114,9 @@ async function update(req, res, next) {
 
     const { nombre, precio } = req.body
 
-    const producto = await prisma.productos.update({
-      where: { id_producto: id },
-      data: {
-        ...(nombre !== undefined && { pro_descripcion: nombre }),
-        ...(precio !== undefined && { pro_valor_compra: precio }),
-      },
-      include: {
-        categoria: true,
-        variantes_producto: {
-          include: { inventario_bodegas: true }
-        }
-      }
+    const producto = await ProductoModel.update(id, {
+      ...(nombre !== undefined && { pro_descripcion: nombre }),
+      ...(precio !== undefined && { pro_valor_compra: precio }),
     })
 
     res.json({ message: 'Producto actualizado exitosamente', data: formatProducto(producto) })
@@ -156,16 +128,13 @@ async function update(req, res, next) {
 async function remove(req, res, next) {
   try {
     const id = parseInt(req.params.id, 10)
-    const existing = await prisma.productos.findUnique({ where: { id_producto: id } })
+    const existing = await ProductoModel.findById(id)
 
     if (!existing) {
       return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado' })
     }
 
-    // El esquema tiene multiples Foreign Keys, primero limpiar variantes
-    await prisma.inventario_bodegas.deleteMany({ where: { variantes_producto: { id_producto: id } } })
-    await prisma.variantes_producto.deleteMany({ where: { id_producto: id } })
-    await prisma.productos.delete({ where: { id_producto: id } })
+    await ProductoModel.remove(id)
 
     res.json({ message: 'Producto eliminado exitosamente' })
   } catch (err) {
@@ -177,3 +146,4 @@ async function remove(req, res, next) {
 }
 
 module.exports = { getAll, getById, create, update, remove }
+

@@ -100,10 +100,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import api from '../services/api'
+import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
 import ContactForm from '../components/ContactForm.vue'
-import { useCart } from '../composables/useCart'
+import { useCart } from '../models/useCart'
 
 const { addProduct, openDrawer } = useCart()
 
@@ -142,8 +142,8 @@ async function loadProducts() {
   loading.value = true
   error.value = null
   try {
-    const data = await api.get('/productos')
-    productos.value = data.data || []
+    const data = await ProductController.getAll()
+    productos.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar productos'
   } finally {
