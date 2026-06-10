@@ -3,53 +3,882 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlserver"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model ajustes {
+  id_ajuste           Int       @id(map: "pk_ajustes") @default(autoincrement())
+  id_bodega           Int
+  aju_fechahora       DateTime  @db.Date
+  aju_descripcion     String    @db.VarChar(100)
+  aju_fecharesolucion DateTime? @db.Date
+  aju_num_produc_     Int
+  usu_responsable     String    @db.VarChar(30)
+  aju_estado          String    @db.Char(3)
+  bodega              bodega    @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_ajustes_ajsuta_en_bodega")
+  proxaju             proxaju[]
 
-model Producto {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  precio    Float
-  stock     Int      @default(0)
-  imagen    String?
-  categoria String?
-  talla     String?
-  color     String?
-  createdAt DateTime @default(now())
-
-  detalles PedidoDetalle[]
+  @@index([id_bodega], map: "ajsuta_en_fk")
 }
 
-model Usuario {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  email        String   @unique
-  passwordHash String
-  role         String   @default("user")
-  createdAt    DateTime @default(now())
-
-  pedidos Pedido[]
+model asientos {
+  id_asientocontable3 String            @id(map: "pk_asientos") @db.Char(10)
+  asi_fechahora       DateTime          @db.Date
+  asi_descripcion     String            @db.Char(50)
+  asi_estadoasiento   String            @db.Char(3)
+  asi_total_debe      Decimal           @db.Decimal(7, 2)
+  asi_total_haber     Decimal           @db.Decimal(7, 2)
+  asi_userid          String            @db.Char(16)
+  cuentasxasiento     cuentasxasiento[]
 }
 
-model Pedido {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  total     Float
-  createdAt DateTime @default(now())
+model asistencia {
+  id_asistencia   Int       @id(map: "pk_asistencia") @default(autoincrement())
+  id_empleado     Int
+  fecha_hora      DateTime  @db.Date
+  tipo_movimiento String    @db.Char(5)
+  empleados       empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_asistenc_hay_empleado")
 
-  usuario  Usuario         @relation(fields: [userId], references: [id])
-  detalles PedidoDetalle[]
+  @@index([id_empleado], map: "hay_fk")
 }
 
-model PedidoDetalle {
-  id            Int   @id @default(autoincrement())
-  pedidoId      Int
-  productoId    Int
-  cantidad      Int
-  precioUnitario Float
+model bodega {
+  id_bodega           Int                   @id(map: "pk_bodega") @default(autoincrement())
+  bod_nombre_         String                @db.VarChar(50)
+  bod_ubicacion       String                @db.VarChar(100)
+  estado_bod          String                @db.Char(3)
+  ajustes             ajustes[]
+  devoluciones_compra devoluciones_compra[]
+  devoluciones_ventas devoluciones_ventas[]
+  entregas            entregas[]
+  inventario_bodegas  inventario_bodegas[]
+  percha              percha[]
+  recepciones         recepciones[]
+}
 
-  pedido   Pedido   @relation(fields: [pedidoId], references: [id])
-  producto Producto @relation(fields: [productoId], references: [id])
+model cargo {
+  id_cargo        Int          @id(map: "pk_cargo") @default(autoincrement())
+  id_departamento Int
+  car_nombre      String       @db.Char(50)
+  car_sueldobase  Decimal      @db.Decimal(9, 3)
+  car_feccreacion DateTime     @db.Date
+  departamento    departamento @relation(fields: [id_departamento], references: [id_departamento], onUpdate: Restrict, map: "fk_cargo_contiene_departam")
+  contrato        contrato[]
+
+  @@index([id_departamento], map: "contiene_fk")
+}
+
+model categoria {
+  id_categoria Int         @id(map: "pk_categoria") @default(autoincrement())
+  cat_nombre   String      @db.Char(30)
+  cat_estado   String      @db.Char(3)
+  productos    productos[]
+}
+
+model categoria_cuenta {
+  id_tipocuenta3  String    @id(map: "pk_categoria_cuenta") @db.Char(1)
+  cat_descripcion String    @db.Char(60)
+  cuentas         cuentas[]
+}
+
+model ciudad {
+  id_ciudad     Int           @id(map: "pk_ciudad") @default(autoincrement())
+  ciu_nombre    String        @db.Char(45)
+  ciu_abreviado String        @db.Char(5)
+  ciu_estado    Boolean
+  clientes      clientes[]
+  direcciones   direcciones[]
+  proveedor     proveedor[]
+}
+
+model clientes {
+  id_cliente    Int             @id(map: "pk_clientes") @default(autoincrement())
+  id_ciudad     Int
+  cli_nombre    String          @db.VarChar(80)
+  cli_ciruc     String          @db.Char(13)
+  cli_celular   String          @db.Char(10)
+  cli_telefono  String          @db.Char(10)
+  cli_correo    String          @db.VarChar(100)
+  cli_categoria Int
+  cli_estado    Boolean
+  ciudad        ciudad          @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_clientes_pertenece_ciudad")
+  direcciones   direcciones[]
+  documentos    documentos[]
+  interacciones interacciones[]
+
+  @@index([id_ciudad], map: "pertenece3_fk")
+}
+
+model colores {
+  id_color           Int                  @id(map: "pk_colores") @default(autoincrement())
+  col_nombre         String               @db.VarChar(30)
+  col_familia        String               @db.VarChar(20)
+  col_estado         String               @db.Char(3)
+  variantes_producto variantes_producto[]
+}
+
+model compra {
+  id_compra           Int                   @id(map: "pk_compra") @default(autoincrement())
+  id_proveedor        Int
+  oc_fecha            DateTime              @db.Date
+  oc_fechaentrega     DateTime?             @db.Date
+  oc_subtotal         Decimal               @db.Decimal(9, 2)
+  oc_iva              Decimal               @db.Decimal(2, 0)
+  oc_total            Decimal               @db.Decimal(9, 2)
+  oc_estado           String                @db.Char(3)
+  proveedor           proveedor             @relation(fields: [id_proveedor], references: [id_proveedor], onUpdate: Restrict, map: "fk_compra_genera_proveedo")
+  devoluciones_compra devoluciones_compra[]
+  proxoc              proxoc[]
+  recepciones         recepciones[]
+
+  @@index([id_proveedor], map: "genera_fk")
+}
+
+model contrato {
+  id_contrato         Int          @id(map: "pk_contrato") @default(autoincrement())
+  id_empleado         Int
+  id_cargo            Int
+  con_tipo            String       @db.Char(1)
+  con_sueldobase      Decimal      @db.Decimal(9, 3)
+  con_fechainicio     DateTime     @db.Date
+  con_fecha_fin       DateTime?    @db.Date
+  con_mensualiza_d3   Boolean
+  con_mensualiza_d4   Boolean
+  con_mensualiza_fr   Boolean
+  con_estado          String       @db.Char(3)
+  con_empfechaingreso DateTime     @db.Date
+  cargo               cargo        @relation(fields: [id_cargo], references: [id_cargo], onUpdate: Restrict, map: "fk_contrato_pertenece_cargo")
+  empleados           empleados    @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_contrato_tiene_empleado")
+  meta                meta[]
+  vacaciones          vacaciones[]
+
+  @@index([id_cargo], map: "pertenece_fk")
+  @@index([id_empleado], map: "tiene_fk")
+}
+
+model cuentas {
+  id_codigocuenta3 String            @id(map: "pk_cuentas") @db.Char(15)
+  id_tipocuenta3   String            @db.Char(1)
+  cue_nombrecuenta String            @db.Char(25)
+  cue_descripcion  String            @db.Char(60)
+  cue_tipocuenta   String            @db.Char(7)
+  cue_deb00        Decimal           @db.Decimal(10, 2)
+  cue_deb01        Decimal           @db.Decimal(10, 2)
+  cue_deb02        Decimal           @db.Decimal(10, 2)
+  cue_deb03        Decimal           @db.Decimal(10, 2)
+  cue_deb04        Decimal           @db.Decimal(10, 2)
+  cue_deb05        Decimal           @db.Decimal(10, 2)
+  cue_deb06        Decimal           @db.Decimal(10, 2)
+  cue_deb07        Decimal           @db.Decimal(10, 2)
+  cue_deb08        Decimal           @db.Decimal(10, 2)
+  cue_deb09        Decimal           @db.Decimal(10, 2)
+  cue_deb10        Decimal           @db.Decimal(10, 2)
+  cue_deb11        Decimal           @db.Decimal(10, 2)
+  cue_deb12        Decimal           @db.Decimal(10, 2)
+  cue_deb13        Decimal           @db.Decimal(10, 2)
+  cue_hab00        Decimal           @db.Decimal(10, 2)
+  cue_hab01        Decimal           @db.Decimal(10, 2)
+  cue_hab02        Decimal           @db.Decimal(10, 2)
+  cue_hab03        Decimal           @db.Decimal(10, 2)
+  cue_hab04        Decimal           @db.Decimal(10, 2)
+  cue_hab05        Decimal           @db.Decimal(10, 2)
+  cue_hab06        Decimal           @db.Decimal(10, 2)
+  cue_hab07        Decimal           @db.Decimal(10, 2)
+  cue_hab08        Decimal           @db.Decimal(10, 2)
+  cue_hab09        Decimal           @db.Decimal(10, 2)
+  cue_hab10        Decimal           @db.Decimal(10, 2)
+  cue_hab11        Decimal           @db.Decimal(10, 2)
+  cue_hab12        Decimal           @db.Decimal(10, 2)
+  cue_hab13        Decimal           @db.Decimal(10, 2)
+  cue_userid       String            @db.Char(16)
+  cue_estadocuenta String            @db.Char(3)
+  categoria_cuenta categoria_cuenta  @relation(fields: [id_tipocuenta3], references: [id_tipocuenta3], onUpdate: Restrict, map: "fk_cuentas_dispone_categori")
+  cuentasxasiento  cuentasxasiento[]
+
+  @@index([id_tipocuenta3], map: "dispone_fk")
+}
+
+model cuentasxasiento {
+  id_codigocuenta3    String   @db.Char(15)
+  id_asientocontable3 String   @db.Char(10)
+  cxa_montodebe       Decimal  @db.Decimal(10, 2)
+  cxa_montohaber      Decimal  @db.Decimal(10, 2)
+  cxa_descripcion     String   @db.Char(80)
+  cxa_estadocxa       String   @db.Char(3)
+  asientos            asientos @relation(fields: [id_asientocontable3], references: [id_asientocontable3], onUpdate: Restrict, map: "fk_cuentasx_cuentasxa_asientos")
+  cuentas             cuentas  @relation(fields: [id_codigocuenta3], references: [id_codigocuenta3], onUpdate: Restrict, map: "fk_cuentasx_cuentasxa_cuentas")
+
+  @@id([id_codigocuenta3, id_asientocontable3], map: "pk_cuentasxasiento")
+  @@index([id_asientocontable3], map: "cuentasxasiento2_fk")
+  @@index([id_codigocuenta3], map: "cuentasxasiento_fk")
+}
+
+model cuotas {
+  id_cuota           Int         @id(map: "pk_cuotas") @default(autoincrement())
+  id_documento       Int?
+  cuo_numero         Int
+  cuo_monto          Decimal     @db.Decimal(10, 2)
+  cuo_pendiente      Decimal     @db.Decimal(10, 2)
+  cuo_fecha_pagado   DateTime?   @db.Date
+  cuo_fecha_estimada DateTime    @db.Date
+  cuo_estado         String      @db.Char(3)
+  documentos         documentos? @relation(fields: [id_documento], references: [id_documento], onDelete: Restrict, onUpdate: Restrict, map: "fk_cuotas_generan_document")
+
+  @@index([id_documento], map: "generan_fk")
+}
+
+model departamento {
+  id_departamento Int      @id(map: "pk_departamento") @default(autoincrement())
+  dep_nombre      String   @db.Char(50)
+  dep_estado      String   @db.Char(3)
+  dep_feccreacion DateTime @db.Date
+  cargo           cargo[]
+}
+
+model dependientes {
+  id_dependiente      Int       @id(map: "pk_dependientes") @default(autoincrement())
+  id_empleado         Int
+  dep_ceddoc          Decimal   @db.Decimal(10, 0)
+  dep_nom1            String    @db.Char(50)
+  dep_nom2            String?   @db.Char(50)
+  dep_ap1             String    @db.Char(50)
+  dep_ap2             String    @db.Char(50)
+  dep_fechanacimiento DateTime  @db.Date
+  dep_sexo            String    @db.Char(1)
+  dep_parentesco      String    @db.Char(25)
+  dep_estado          String    @db.Char(3)
+  empleados           empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_dependie_mantiene2_empleado")
+
+  @@index([id_empleado], map: "mantiene2_fk")
+}
+
+model detallehorario {
+  id_detalle       Int       @id(map: "pk_detallehorario") @default(autoincrement())
+  id_horario       Int
+  det_dia_semana   String?   @db.Char(1)
+  det_hora_entrada DateTime? @db.Date
+  det_hora_salida  DateTime? @db.Date
+  horario          horario   @relation(fields: [id_horario], references: [id_horario], onUpdate: Restrict, map: "fk_detalleh_tien_horario")
+
+  @@index([id_horario], map: "tien_fk")
+}
+
+model devoluciones_compra {
+  id_devcompra_pk      Int        @id(map: "pk_devoluciones_compra") @default(autoincrement())
+  id_compra            Int
+  id_bodega            Int
+  devc_fechahora       DateTime   @db.Date
+  devc_motivo          String     @db.VarChar(100)
+  devc_num_produc      Int
+  devc_fecharesolucion DateTime?  @db.Date
+  usu_responsable      String     @db.VarChar(30)
+  devc_estado          String     @db.Char(3)
+  compra               compra     @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_devoluci_crea_compra")
+  bodega               bodega     @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_devoluci_maneja_bodega")
+  proxdevc             proxdevc[]
+
+  @@index([id_compra], map: "crea_fk")
+  @@index([id_bodega], map: "maneja_fk")
+}
+
+model devoluciones_ventas {
+  id_devolucion       Int         @id(map: "pk_devoluciones_ventas") @default(autoincrement())
+  id_bodega           Int
+  id_documento        Int
+  dev_fechahora       DateTime    @db.Date
+  dev_motivo          String      @db.VarChar(100)
+  dev_num_produc      Int
+  dev_fecharesolucion DateTime?   @db.Date
+  usu_responsable     String      @db.VarChar(30)
+  estado_dev          String      @db.Char(3)
+  documentos          documentos  @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_devoluci_asocia_document")
+  bodega              bodega      @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_devoluci_sufre_bodega")
+  proxdeven           proxdeven[]
+
+  @@index([id_documento], map: "asocia_fk")
+  @@index([id_bodega], map: "sufre_fk")
+}
+
+model direcciones {
+  id_direccion   Int         @id(map: "pk_direcciones") @default(autoincrement())
+  id_ciudad      Int
+  id_cliente     Int
+  dir_sector     String      @db.VarChar(25)
+  dir_principal  String      @db.VarChar(50)
+  dir_secundaria String?     @db.VarChar(25)
+  dir_referencia String      @db.VarChar(100)
+  dir_estado     Boolean
+  ciudad         ciudad      @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_direccio_radica_ciudad")
+  clientes       clientes    @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "fk_direccio_reside_clientes")
+  logistica      logistica[]
+
+  @@index([id_ciudad], map: "radica_fk")
+  @@index([id_cliente], map: "reside_fk")
+}
+
+model documentos {
+  id_documento        Int                   @id(map: "pk_documentos") @default(autoincrement())
+  id_cliente          Int
+  doc_id_documento    Int?
+  id_vendedor         Int
+  doc_tipo            String                @db.Char(3)
+  doc_emision         DateTime              @db.Date
+  doc_pago            DateTime?             @db.Date
+  doc_descripcion     String                @db.VarChar(50)
+  doc_subtotal        Decimal               @db.Decimal(12, 4)
+  doc_iva             Decimal               @db.Decimal(12, 4)
+  doc_descuento       Decimal               @db.Decimal(12, 4)
+  doc_total           Decimal               @db.Decimal(12, 4)
+  doc_estado          String                @db.Char(3)
+  cuotas              cuotas[]
+  devoluciones_ventas devoluciones_ventas[]
+  vendedores          vendedores            @relation(fields: [id_vendedor], references: [id_vendedor], onUpdate: Restrict, map: "fk_document_crea2_vendedor")
+  documentos          documentos?           @relation("documentosTodocumentos", fields: [doc_id_documento], references: [id_documento], onDelete: Restrict, onUpdate: Restrict, map: "fk_document_refiere_document")
+  other_documentos    documentos[]          @relation("documentosTodocumentos")
+  clientes            clientes              @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "fk_document_registra_clientes")
+  documentoxpago      documentoxpago[]
+  entregas            entregas[]
+  interacciones       interacciones[]
+  logistica           logistica[]
+  productosxdocumento productosxdocumento[]
+
+  @@index([id_vendedor], map: "crea2_fk")
+  @@index([doc_id_documento], map: "refiere_fk")
+  @@index([id_cliente], map: "registra_fk")
+}
+
+model documentoxpago {
+  id_documento       Int
+  id_metodopago      Int
+  dxp_monto_aboonado Decimal     @db.Decimal(10, 2)
+  dxp_referencia     String?     @db.Char(13)
+  dxp_mesesplazo     Int?
+  documentos         documentos  @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_document_documento_document")
+  metodospago        metodospago @relation(fields: [id_metodopago], references: [id_metodopago], onUpdate: Restrict, map: "fk_document_documento_metodosp")
+
+  @@id([id_documento, id_metodopago], map: "pk_documentoxpago")
+  @@index([id_metodopago], map: "documentoxpago2_fk")
+  @@index([id_documento], map: "documentoxpago_fk")
+}
+
+model empleados {
+  id_empleado         Int                @id(map: "pk_empleados") @default(autoincrement())
+  emp_cedula          String             @db.Char(10)
+  emp_nom1            String             @db.VarChar(50)
+  emp_nom2            String?            @db.VarChar(50)
+  emp_ap1             String             @db.VarChar(50)
+  emp_ap2             String?            @db.VarChar(50)
+  emp_sexo            String             @db.Char(1)
+  emp_fechanacimiento DateTime           @db.Date
+  emp_email           String             @db.Char(100)
+  emp_direccion       String             @db.Char(50)
+  emp_telefono        String             @db.Char(10)
+  asistencia          asistencia[]
+  contrato            contrato[]
+  dependientes        dependientes[]
+  horarioxempleado    horarioxempleado[]
+  permisos            permisos[]
+  rolpagos            rolpagos[]
+  usuarios            usuarios[]
+  vendedores          vendedores[]
+}
+
+model entregas {
+  id_entrega           Int        @id(map: "pk_entregas") @default(autoincrement())
+  id_documento         Int
+  id_bodega            Int
+  ent_fechahora_       DateTime   @db.Date
+  ent_descripcion      String     @db.VarChar(100)
+  ent_num_produc       Int
+  ent_fecharesolucion_ DateTime?  @db.Date
+  usu_responsable      String     @db.VarChar(30)
+  ent_estado           String     @db.Char(3)
+  bodega               bodega     @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_entregas_entrega_e_bodega")
+  documentos           documentos @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_entregas_gestiona_document")
+  proxent              proxent[]
+
+  @@index([id_bodega], map: "entrega_en_fk")
+  @@index([id_documento], map: "gestiona_fk")
+}
+
+model horario {
+  id_horario         Int                @id(map: "pk_horario") @default(autoincrement())
+  hor_nombre_horario String             @db.Char(30)
+  hor_horastotal     Int
+  detallehorario     detallehorario[]
+  horarioxempleado   horarioxempleado[]
+}
+
+model horarioxempleado {
+  id_horario              Int
+  id_empleado             Int
+  fecha_inicio_asignacion DateTime  @db.Date
+  fecha_fin_asignacion    DateTime? @db.Date
+  empleados               empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_horariox_horarioxe_empleado")
+  horario                 horario   @relation(fields: [id_horario], references: [id_horario], onUpdate: Restrict, map: "fk_horariox_horarioxe_horario")
+
+  @@id([id_horario, id_empleado], map: "pk_horarioxempleado")
+  @@index([id_empleado], map: "horarioxempleado2_fk")
+  @@index([id_horario], map: "horarioxempleado_fk")
+}
+
+model interacciones {
+  id_interaccion    Int        @id(map: "pk_interacciones") @default(autoincrement())
+  id_cliente        Int
+  id_documento      Int
+  int_tipo          String     @db.Char(3)
+  int_canal         String     @db.Char(3)
+  int_inconveniente String     @db.VarChar(200)
+  int_apertura      DateTime   @db.Date
+  int_cierre        DateTime?  @db.Date
+  int_estado        String     @db.Char(3)
+  clientes          clientes   @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "fk_interacc_realiza_clientes")
+  documentos        documentos @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_interacc_referenci_document")
+
+  @@index([id_cliente], map: "realiza_fk")
+  @@index([id_documento], map: "referencia_fk")
+}
+
+model inventario_bodegas {
+  id_bodega          Int
+  id_variante        Int
+  inv_periodo        String             @db.Char(7)
+  inv_saldo_inicial  Int
+  inv_qty_ingresos   Int
+  inv_qty_egresos    Int
+  inv_qty_ajustes    Int
+  inv_saldo_final    Int
+  bodega             bodega             @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_inventar_inventari_bodega")
+  variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_inventar_inventari_variante")
+
+  @@id([id_bodega, id_variante, inv_periodo], map: "pk_inventario_bodegas")
+  @@index([id_bodega], map: "inventario_bodegas2_fk")
+  @@index([id_variante], map: "inventario_bodegas_fk")
+}
+
+model logistica {
+  id_logistica        Int                   @id(map: "pk_logistica") @default(autoincrement())
+  id_direccion        Int
+  id_documento        Int
+  log_despacho        DateTime              @db.Date
+  log_estimada        DateTime              @db.Date
+  log_real            DateTime?             @db.Date
+  log_estado          String                @db.Char(3)
+  direcciones         direcciones           @relation(fields: [id_direccion], references: [id_direccion], onUpdate: Restrict, map: "fk_logistic_despacha_direccio")
+  documentos          documentos            @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_logistic_entrega_document")
+  productosxlogistica productosxlogistica[]
+
+  @@index([id_direccion], map: "despacha_fk")
+  @@index([id_documento], map: "entrega_fk")
+}
+
+model marcas {
+  id_marca   Int         @id(map: "pk_marcas") @default(autoincrement())
+  mar_nombre String      @db.VarChar(60)
+  mar_estado String      @db.Char(3)
+  productos  productos[]
+}
+
+model materiales {
+  id_material  Int         @id(map: "pk_materiales") @default(autoincrement())
+  mat_nombre   String      @db.VarChar(60)
+  mat_cuidados String      @db.VarChar(200)
+  mat_estado   String      @db.Char(3)
+  productos    productos[]
+}
+
+model meta {
+  id_meta         Int       @id(map: "pk_meta") @default(autoincrement())
+  id_rolpago2     String?   @db.VarChar(10)
+  id_contrato     Int?
+  met_objetivo    Decimal   @db.Decimal(9, 3)
+  met_alcanzo     Decimal   @db.Decimal(9, 3)
+  met_porcentaje  Decimal   @db.Decimal(5, 3)
+  met_estado      String    @db.Char(3)
+  met_observacion String    @db.Char(200)
+  contrato        contrato? @relation(fields: [id_contrato], references: [id_contrato], onDelete: Restrict, onUpdate: Restrict, map: "fk_meta_relations_contrato")
+  periodo         periodo?  @relation(fields: [id_rolpago2], references: [id_rolpago2], onDelete: Restrict, onUpdate: Restrict, map: "fk_meta_relations_periodo")
+
+  @@index([id_contrato], map: "relationship_12_fk")
+  @@index([id_rolpago2], map: "relationship_13_fk")
+}
+
+model metodospago {
+  id_metodopago         Int              @id(map: "pk_metodospago") @default(autoincrement())
+  mpg_nombre            String           @db.Char(15)
+  mpg_diferido          Boolean
+  mpg_plazos            Int?
+  mpg_estado            Boolean
+  mpg_numero_referencia Boolean?
+  documentoxpago        documentoxpago[]
+}
+
+model percha {
+  id_percha          Int                  @id(map: "pk_percha") @default(autoincrement())
+  id_bodega          Int
+  per_nivel          String               @db.Char(10)
+  per_capacidad      Int
+  per_descripcion    String               @db.Char(100)
+  per_estado         String               @db.Char(3)
+  bodega             bodega               @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_percha_tener_bodega")
+  ubicacion_producto ubicacion_producto[]
+
+  @@index([id_bodega], map: "tener_fk")
+}
+
+model periodo {
+  id_rolpago2     String     @id(map: "pk_periodo") @db.VarChar(10)
+  per_descripcion String     @db.Char(100)
+  per_fechainicio DateTime   @db.Date
+  per_fechafin    DateTime   @db.Date
+  per_estado      String     @db.Char(3)
+  meta            meta[]
+  rolpagos        rolpagos[]
+}
+
+model permisos {
+  id_permiso       Int       @id(map: "pk_permisos") @default(autoincrement())
+  id_empleado      Int
+  per_fecha_inicio DateTime  @db.Date
+  per_fecha_fin    DateTime  @db.Date
+  per_estado       String    @db.Char(3)
+  per_observacion  String    @db.Char(50)
+  empleados        empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_permisos_cont_empleado")
+
+  @@index([id_empleado], map: "cont_fk")
+}
+
+model productos {
+  id_producto                                                Int                  @id(map: "pk_productos") @default(autoincrement())
+  id_marca                                                   Int
+  id_temporada                                               Int
+  id_unidadmedida                                            Int
+  id_categoria                                               Int
+  uni_id_unidadmedida                                        Int
+  id_material                                                Int
+  pro_descripcion                                            String               @db.VarChar(50)
+  pro_factor_conversion_                                     Int
+  pro_valor_compra                                           Decimal              @db.Decimal(7, 3)
+  pro_genero_                                                String               @db.Char(1)
+  pro_estado                                                 String               @db.Char(3)
+  unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida        @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
+  unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida        @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
+  categoria                                                  categoria            @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
+  marcas                                                     marcas               @relation(fields: [id_marca], references: [id_marca], onUpdate: Restrict, map: "fk_producto_relations_marcas")
+  materiales                                                 materiales           @relation(fields: [id_material], references: [id_material], onUpdate: Restrict, map: "fk_producto_relations_material")
+  temporadas                                                 temporadas           @relation(fields: [id_temporada], references: [id_temporada], onUpdate: Restrict, map: "fk_producto_relations_temporad")
+  variantes_producto                                         variantes_producto[]
+
+  @@index([id_unidadmedida], map: "emple_fk")
+  @@index([uni_id_unidadmedida], map: "emplea_fk")
+  @@index([id_categoria], map: "pertenece2_fk")
+  @@index([id_material], map: "relationship_25_fk")
+  @@index([id_marca], map: "relationship_28_fk")
+  @@index([id_temporada], map: "relationship_29_fk")
+}
+
+model productosxdocumento {
+  id_documento       Int
+  id_variante        Int
+  pxd_cantidad       Int
+  pxd_valor_unitario Decimal            @db.Decimal(10, 2)
+  pxd_valor_subtotal Decimal            @db.Decimal(10, 2)
+  pxd_estado         String             @db.Char(3)
+  documentos         documentos         @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_producto_productos_document")
+  variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_producto_ref_produ_variante")
+
+  @@id([id_documento, id_variante], map: "pk_productosxdocumento")
+  @@index([id_documento], map: "productosxdocumento_fk")
+  @@index([id_variante], map: "ref_productos_doc_3_fk")
+}
+
+model productosxlogistica {
+  id_logistica       Int
+  id_variante        Int
+  pxl_cantidad       Int
+  pxl_estado         String             @db.Char(3)
+  logistica          logistica          @relation(fields: [id_logistica], references: [id_logistica], onUpdate: Restrict, map: "fk_producto_productos_logistic")
+  variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_producto_ref_produ_variante")
+
+  @@id([id_logistica, id_variante], map: "pk_productosxlogistica")
+  @@index([id_logistica], map: "productosxlogistica_fk")
+  @@index([id_variante], map: "ref_productos_log_3_fk")
+}
+
+model proveedor {
+  id_proveedor  Int      @id(map: "pk_proveedor") @default(autoincrement())
+  id_ciudad     Int
+  prv_nombre    String   @db.Char(40)
+  prv_ciruc     String   @db.Char(13)
+  prv_telefono  String   @db.Char(10)
+  prv_mail      String   @db.Char(60)
+  prv_celular   String   @db.Char(10)
+  prv_direccion String   @db.Char(60)
+  prv_estado    String   @db.Char(3)
+  compra        compra[]
+  ciudad        ciudad   @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_proveedo_relations_ciudad")
+
+  @@index([id_ciudad], map: "relationship_47_fk")
+}
+
+model proxaju {
+  id_variante           Int
+  id_ajuste             Int
+  pxa_stock_sistema     Int
+  pxa_stock_fisico_real Int
+  pxa_qty_ajustada      Int
+  pxa_tipo_ajuste       String             @db.Char(1)
+  pxa_motivo_ajuste     String             @db.VarChar(100)
+  pxa_estado            String             @db.Char(3)
+  ajustes               ajustes            @relation(fields: [id_ajuste], references: [id_ajuste], onUpdate: Restrict, map: "fk_proxaju_productos_ajustes")
+  variantes_producto    variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxaju_productos_variante")
+
+  @@id([id_variante, id_ajuste], map: "pk_proxaju")
+  @@index([id_ajuste], map: "productosxajuste2_fk")
+  @@index([id_variante], map: "productosxajuste_fk")
+}
+
+model proxdevc {
+  id_variante            Int
+  id_devcompra_pk        Int
+  pxdc_cantidad_recibida Int
+  pxdc_cantidad_devuelta Int
+  pxdc_diferencia        Int
+  pxdc_motivo            String?             @db.VarChar(100)
+  pxdc_estado            String              @db.Char(3)
+  devoluciones_compra    devoluciones_compra @relation(fields: [id_devcompra_pk], references: [id_devcompra_pk], onUpdate: Restrict, map: "fk_proxdevc_proxdevc2_devoluci")
+  variantes_producto     variantes_producto  @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxdevc_proxdevc_variante")
+
+  @@id([id_variante, id_devcompra_pk], map: "pk_proxdevc")
+  @@index([id_devcompra_pk], map: "proxdevc2_fk")
+  @@index([id_variante], map: "proxdevc_fk")
+}
+
+model proxdeven {
+  id_devolucion           Int
+  id_variante             Int
+  pxdv_cantidad_facturada Int
+  pxdv_cantidad_devuelta  Int
+  pxdv_diferencia         Int
+  pxd_motivo_diferencia   String?             @db.VarChar(100)
+  pxdv_estado             String              @db.Char(3)
+  devoluciones_ventas     devoluciones_ventas @relation(fields: [id_devolucion], references: [id_devolucion], onUpdate: Restrict, map: "fk_proxdeve_proxdeven_devoluci")
+  variantes_producto      variantes_producto  @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxdeve_proxdeven_variante")
+
+  @@id([id_devolucion, id_variante], map: "pk_proxdeven")
+  @@index([id_variante], map: "proxdeven2_fk")
+  @@index([id_devolucion], map: "proxdeven_fk")
+}
+
+model proxent {
+  id_variante            Int
+  id_entrega             Int
+  pxe_cantidad_facturada Int
+  pxe_qty_entregada      Int
+  pxe_diferencia         Int?
+  pxe_motivo_diferencia  String?            @db.VarChar(100)
+  pxe_estado             String             @db.Char(3)
+  entregas               entregas           @relation(fields: [id_entrega], references: [id_entrega], onUpdate: Restrict, map: "fk_proxent_productos_entregas")
+  variantes_producto     variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxent_productos_variante")
+
+  @@id([id_variante, id_entrega], map: "pk_proxent")
+  @@index([id_entrega], map: "productosentrega2_fk")
+  @@index([id_variante], map: "productosentrega_fk")
+}
+
+model proxoc {
+  id_compra          Int
+  id_variante        Int
+  pxo_cantidad       Int
+  pxo_valor          Decimal            @db.Decimal(9, 2)
+  pxo_subtotal       Decimal            @db.Decimal(9, 2)
+  pxo_estado         String             @db.Char(3)
+  variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxoc_proxoc2_variante")
+  compra             compra             @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_proxoc_proxoc_compra")
+
+  @@id([id_compra, id_variante], map: "pk_proxoc")
+  @@index([id_variante], map: "proxoc2_fk")
+  @@index([id_compra], map: "proxoc_fk")
+}
+
+model proxrec {
+  id_recepcion            Int
+  id_variante             Int
+  pxr_cantidad_solicitada Int
+  pxr_qty_recibida        Int
+  pxr_diferencia          Int
+  pxr_motivo_diferencia   String?            @db.VarChar(100)
+  pxr_estado              String             @db.Char(3)
+  variantes_producto      variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxrec_proxrec2_variante")
+  recepciones             recepciones        @relation(fields: [id_recepcion], references: [id_recepcion], onUpdate: Restrict, map: "fk_proxrec_proxrec_recepcio")
+
+  @@id([id_recepcion, id_variante], map: "pk_proxrec")
+  @@index([id_variante], map: "proxrec2_fk")
+  @@index([id_recepcion], map: "proxrec_fk")
+}
+
+model recepciones {
+  id_recepcion        Int       @id(map: "pk_recepciones") @default(autoincrement())
+  id_compra           Int
+  id_bodega           Int
+  rec_descripcion     String    @db.VarChar(100)
+  rec_fechahora       DateTime  @db.Date
+  rec_num_productos   Int
+  rec_fecharesolucion DateTime? @db.Date
+  usu_responsable     String    @db.VarChar(30)
+  rec_estado          String    @db.Char(3)
+  proxrec             proxrec[]
+  compra              compra    @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_recepcio_procesa_compra")
+  bodega              bodega    @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_recepcio_recepta_e_bodega")
+
+  @@index([id_compra], map: "procesa_fk")
+  @@index([id_bodega], map: "recepta_en_fk")
+}
+
+model rolpagos {
+  id_rol              Int          @id(map: "pk_rolpagos") @default(autoincrement())
+  id_rolpago2         String       @db.VarChar(10)
+  id_empleado         Int
+  rol_destotal        Decimal      @db.Decimal(9, 3)
+  rol_bontotal        Decimal      @db.Decimal(9, 3)
+  rol_neto            Decimal      @db.Decimal(9, 3)
+  rol_estado          String       @db.Char(3)
+  rol_dias_trabajados Int
+  rol_comtotal        Decimal      @db.Decimal(9, 3)
+  periodo             periodo      @relation(fields: [id_rolpago2], references: [id_rolpago2], onUpdate: Restrict, map: "fk_rolpagos_esta_periodo")
+  empleados           empleados    @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_rolpagos_obtiene_empleado")
+  rubrosxrol          rubrosxrol[]
+
+  @@index([id_rolpago2], map: "esta_fk")
+  @@index([id_empleado], map: "obtiene_fk")
+}
+
+model rubros {
+  id_rubros       Int          @id(map: "pk_rubros") @default(autoincrement())
+  rub_descripcion String       @db.Char(100)
+  rub_estado      String       @db.Char(3)
+  rub_tipo        Boolean
+  rub_calculable  Boolean
+  rubrosxrol      rubrosxrol[]
+}
+
+model rubrosxrol {
+  id_rol       Int
+  id_rubros    Int
+  dxe_cantidad Decimal  @db.Decimal(9, 3)
+  dxe_estado   String   @db.Char(3)
+  rolpagos     rolpagos @relation(fields: [id_rol], references: [id_rol], onUpdate: Restrict, map: "fk_rubrosxr_rubrosxro_rolpagos")
+  rubros       rubros   @relation(fields: [id_rubros], references: [id_rubros], onUpdate: Restrict, map: "fk_rubrosxr_rubrosxro_rubros")
+
+  @@id([id_rol, id_rubros], map: "pk_rubrosxrol")
+  @@index([id_rubros], map: "rubrosxrol2_fk")
+  @@index([id_rol], map: "rubrosxrol_fk")
+}
+
+model tallas {
+  id_talla           Int                  @id(map: "pk_tallas") @default(autoincrement())
+  tal_codigo         String               @db.VarChar(5)
+  tal_descripcion    String               @db.VarChar(40)
+  tal_sistema        String               @db.VarChar(3)
+  tal_orden          Int
+  tal_estado         String               @db.Char(3)
+  variantes_producto variantes_producto[]
+}
+
+model temporadas {
+  id_temporada     Int         @id(map: "pk_temporadas") @default(autoincrement())
+  tem_nombre       String      @db.VarChar(60)
+  tem_fecha_inicio DateTime    @db.Date
+  tem_fecha_fin    DateTime    @db.Date
+  tem_estado       String      @db.Char(3)
+  productos        productos[]
+}
+
+model ubicacion_producto {
+  id_percha          Int
+  id_variante        Int
+  ubi_fecha_desde    DateTime           @db.Date
+  ubi_fecha_hasta    DateTime?          @db.Date
+  ubi_observacion    String?            @db.VarChar(100)
+  ubi_estado         String             @db.Char(3)
+  percha             percha             @relation(fields: [id_percha], references: [id_percha], onUpdate: Restrict, map: "fk_ubicacio_ubicacion_percha")
+  variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_ubicacio_ubicacion_variante")
+
+  @@id([id_percha, id_variante], map: "pk_ubicacion_producto")
+  @@index([id_variante], map: "ubicacion_producto2_fk")
+  @@index([id_percha], map: "ubicacion_producto_fk")
+}
+
+model unidad_medida {
+  id_unidadmedida                                        Int         @id(map: "pk_unidad_medida") @default(autoincrement())
+  umd_abreviado                                          String      @db.Char(5)
+  umd_descripcion                                        String      @db.VarChar(30)
+  um_estado                                              String      @db.Char(3)
+  productos_productos_id_unidadmedidaTounidad_medida     productos[] @relation("productos_id_unidadmedidaTounidad_medida")
+  productos_productos_uni_id_unidadmedidaTounidad_medida productos[] @relation("productos_uni_id_unidadmedidaTounidad_medida")
+}
+
+model usuarios {
+  id_usuario     Int        @id(map: "pk_usuarios") @default(autoincrement())
+  id_empleado    Int?
+  usu_nombre     String     @db.VarChar(30)
+  usu_clave      String     @db.VarChar(60)
+  usu_nombrereal String     @db.VarChar(100)
+  usu_rol        String     @db.Char(4)
+  usu_estado_    String     @db.Char(3)
+  empleados      empleados? @relation(fields: [id_empleado], references: [id_empleado], onDelete: Restrict, onUpdate: Restrict, map: "fk_usuarios_asociar2_empleado")
+
+  @@index([id_empleado], map: "asociar2_fk")
+}
+
+model vacaciones {
+  id_vacacion Int      @id(map: "pk_vacaciones") @default(autoincrement())
+  id_contrato Int
+  vac_periodo String   @db.Char(10)
+  vac_diasg   Int
+  vac_diasp   Int
+  vac_saldo   Int
+  contrato    contrato @relation(fields: [id_contrato], references: [id_contrato], onUpdate: Restrict, map: "fk_vacacion_goza_contrato")
+
+  @@index([id_contrato], map: "goza_fk")
+}
+
+model variantes_producto {
+  id_variante         Int                   @id(map: "pk_variantes_producto") @default(autoincrement())
+  id_producto         Int
+  id_color            Int
+  id_talla            Int
+  var_cod_barras      String                @db.VarChar(20)
+  var_precio_venta    Decimal               @db.Decimal(7, 3)
+  var_estado          String                @db.Char(3)
+  inventario_bodegas  inventario_bodegas[]
+  productosxdocumento productosxdocumento[]
+  productosxlogistica productosxlogistica[]
+  proxaju             proxaju[]
+  proxdevc            proxdevc[]
+  proxdeven           proxdeven[]
+  proxent             proxent[]
+  proxoc              proxoc[]
+  proxrec             proxrec[]
+  ubicacion_producto  ubicacion_producto[]
+  colores             colores               @relation(fields: [id_color], references: [id_color], onUpdate: Restrict, map: "fk_variante_relations_colores")
+  productos           productos             @relation(fields: [id_producto], references: [id_producto], onUpdate: Restrict, map: "fk_variante_relations_producto")
+  tallas              tallas                @relation(fields: [id_talla], references: [id_talla], onUpdate: Restrict, map: "fk_variante_relations_tallas")
+
+  @@index([id_producto], map: "relationship_24_fk")
+  @@index([id_talla], map: "relationship_26_fk")
+  @@index([id_color], map: "relationship_27_fk")
+}
+
+model vendedores {
+  id_vendedor  Int          @id(map: "pk_vendedores") @default(autoincrement())
+  id_empleado  Int
+  ven_comision Decimal      @db.Decimal(2, 1)
+  ven_meta     Int
+  ven_estado   String       @db.Char(3)
+  documentos   documentos[]
+  empleados    empleados    @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_vendedor_es_empleado")
+
+  @@index([id_empleado], map: "es_fk")
 }
