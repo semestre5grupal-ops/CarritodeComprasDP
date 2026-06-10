@@ -11,11 +11,11 @@ model ajustes {
   id_ajuste           Int       @id(map: "pk_ajustes") @default(autoincrement())
   id_bodega           Int
   aju_fechahora       DateTime  @db.Date
-  aju_descripcion     String    @db.VarChar(100)
+  aju_descripcion     String    @db.VarChar(150)
   aju_fecharesolucion DateTime? @db.Date
   aju_num_produc_     Int
-  usu_responsable     String    @db.VarChar(30)
-  aju_estado          String    @db.Char(3)
+  usu_responsable     String    @db.VarChar(150)
+  aju_estado          String    @db.VarChar(150)
   bodega              bodega    @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_ajustes_ajsuta_en_bodega")
   proxaju             proxaju[]
 
@@ -23,13 +23,13 @@ model ajustes {
 }
 
 model asientos {
-  id_asientocontable3 String            @id(map: "pk_asientos") @db.Char(10)
+  id_asientocontable3 String            @id(map: "pk_asientos") @db.VarChar(150)
   asi_fechahora       DateTime          @db.Date
-  asi_descripcion     String            @db.Char(50)
-  asi_estadoasiento   String            @db.Char(3)
+  asi_descripcion     String            @db.VarChar(150)
+  asi_estadoasiento   String            @db.VarChar(150)
   asi_total_debe      Decimal           @db.Decimal(7, 2)
   asi_total_haber     Decimal           @db.Decimal(7, 2)
-  asi_userid          String            @db.Char(16)
+  asi_userid          String            @db.VarChar(150)
   cuentasxasiento     cuentasxasiento[]
 }
 
@@ -37,7 +37,7 @@ model asistencia {
   id_asistencia   Int       @id(map: "pk_asistencia") @default(autoincrement())
   id_empleado     Int
   fecha_hora      DateTime  @db.Date
-  tipo_movimiento String    @db.Char(5)
+  tipo_movimiento String    @db.VarChar(150)
   empleados       empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_asistenc_hay_empleado")
 
   @@index([id_empleado], map: "hay_fk")
@@ -45,9 +45,9 @@ model asistencia {
 
 model bodega {
   id_bodega           Int                   @id(map: "pk_bodega") @default(autoincrement())
-  bod_nombre_         String                @db.VarChar(50)
-  bod_ubicacion       String                @db.VarChar(100)
-  estado_bod          String                @db.Char(3)
+  bod_nombre_         String                @db.VarChar(150)
+  bod_ubicacion       String                @db.VarChar(150)
+  estado_bod          String                @db.VarChar(150)
   ajustes             ajustes[]
   devoluciones_compra devoluciones_compra[]
   devoluciones_ventas devoluciones_ventas[]
@@ -60,7 +60,7 @@ model bodega {
 model cargo {
   id_cargo        Int          @id(map: "pk_cargo") @default(autoincrement())
   id_departamento Int
-  car_nombre      String       @db.Char(50)
+  car_nombre      String       @db.VarChar(150)
   car_sueldobase  Decimal      @db.Decimal(9, 3)
   car_feccreacion DateTime     @db.Date
   departamento    departamento @relation(fields: [id_departamento], references: [id_departamento], onUpdate: Restrict, map: "fk_cargo_contiene_departam")
@@ -71,21 +71,21 @@ model cargo {
 
 model categoria {
   id_categoria Int         @id(map: "pk_categoria") @default(autoincrement())
-  cat_nombre   String      @db.Char(30)
-  cat_estado   String      @db.Char(3)
+  cat_nombre   String      @db.VarChar(150)
+  cat_estado   String      @db.VarChar(150)
   productos    productos[]
 }
 
 model categoria_cuenta {
-  id_tipocuenta3  String    @id(map: "pk_categoria_cuenta") @db.Char(1)
-  cat_descripcion String    @db.Char(60)
+  id_tipocuenta3  String    @id(map: "pk_categoria_cuenta") @db.VarChar(150)
+  cat_descripcion String    @db.VarChar(150)
   cuentas         cuentas[]
 }
 
 model ciudad {
   id_ciudad     Int           @id(map: "pk_ciudad") @default(autoincrement())
-  ciu_nombre    String        @db.Char(45)
-  ciu_abreviado String        @db.Char(5)
+  ciu_nombre    String        @db.VarChar(150)
+  ciu_abreviado String        @db.VarChar(150)
   ciu_estado    Boolean
   clientes      clientes[]
   direcciones   direcciones[]
@@ -95,11 +95,11 @@ model ciudad {
 model clientes {
   id_cliente    Int             @id(map: "pk_clientes") @default(autoincrement())
   id_ciudad     Int
-  cli_nombre    String          @db.VarChar(80)
-  cli_ciruc     String          @db.Char(13)
-  cli_celular   String          @db.Char(10)
-  cli_telefono  String          @db.Char(10)
-  cli_correo    String          @db.VarChar(100)
+  cli_nombre    String          @db.VarChar(150)
+  cli_ciruc     String          @db.VarChar(150)
+  cli_celular   String          @db.VarChar(150)
+  cli_telefono  String          @db.VarChar(150)
+  cli_correo    String          @db.VarChar(150)
   cli_categoria Int
   cli_estado    Boolean
   ciudad        ciudad          @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_clientes_pertenece_ciudad")
@@ -112,9 +112,9 @@ model clientes {
 
 model colores {
   id_color           Int                  @id(map: "pk_colores") @default(autoincrement())
-  col_nombre         String               @db.VarChar(30)
-  col_familia        String               @db.VarChar(20)
-  col_estado         String               @db.Char(3)
+  col_nombre         String               @db.VarChar(150)
+  col_familia        String               @db.VarChar(150)
+  col_estado         String               @db.VarChar(150)
   variantes_producto variantes_producto[]
 }
 
@@ -126,7 +126,7 @@ model compra {
   oc_subtotal         Decimal               @db.Decimal(9, 2)
   oc_iva              Decimal               @db.Decimal(2, 0)
   oc_total            Decimal               @db.Decimal(9, 2)
-  oc_estado           String                @db.Char(3)
+  oc_estado           String                @db.VarChar(150)
   proveedor           proveedor             @relation(fields: [id_proveedor], references: [id_proveedor], onUpdate: Restrict, map: "fk_compra_genera_proveedo")
   devoluciones_compra devoluciones_compra[]
   proxoc              proxoc[]
@@ -139,14 +139,14 @@ model contrato {
   id_contrato         Int          @id(map: "pk_contrato") @default(autoincrement())
   id_empleado         Int
   id_cargo            Int
-  con_tipo            String       @db.Char(1)
+  con_tipo            String       @db.VarChar(150)
   con_sueldobase      Decimal      @db.Decimal(9, 3)
   con_fechainicio     DateTime     @db.Date
   con_fecha_fin       DateTime?    @db.Date
   con_mensualiza_d3   Boolean
   con_mensualiza_d4   Boolean
   con_mensualiza_fr   Boolean
-  con_estado          String       @db.Char(3)
+  con_estado          String       @db.VarChar(150)
   con_empfechaingreso DateTime     @db.Date
   cargo               cargo        @relation(fields: [id_cargo], references: [id_cargo], onUpdate: Restrict, map: "fk_contrato_pertenece_cargo")
   empleados           empleados    @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_contrato_tiene_empleado")
@@ -158,11 +158,11 @@ model contrato {
 }
 
 model cuentas {
-  id_codigocuenta3 String            @id(map: "pk_cuentas") @db.Char(15)
-  id_tipocuenta3   String            @db.Char(1)
-  cue_nombrecuenta String            @db.Char(25)
-  cue_descripcion  String            @db.Char(60)
-  cue_tipocuenta   String            @db.Char(7)
+  id_codigocuenta3 String            @id(map: "pk_cuentas") @db.VarChar(150)
+  id_tipocuenta3   String            @db.VarChar(150)
+  cue_nombrecuenta String            @db.VarChar(150)
+  cue_descripcion  String            @db.VarChar(150)
+  cue_tipocuenta   String            @db.VarChar(150)
   cue_deb00        Decimal           @db.Decimal(10, 2)
   cue_deb01        Decimal           @db.Decimal(10, 2)
   cue_deb02        Decimal           @db.Decimal(10, 2)
@@ -191,8 +191,8 @@ model cuentas {
   cue_hab11        Decimal           @db.Decimal(10, 2)
   cue_hab12        Decimal           @db.Decimal(10, 2)
   cue_hab13        Decimal           @db.Decimal(10, 2)
-  cue_userid       String            @db.Char(16)
-  cue_estadocuenta String            @db.Char(3)
+  cue_userid       String            @db.VarChar(150)
+  cue_estadocuenta String            @db.VarChar(150)
   categoria_cuenta categoria_cuenta  @relation(fields: [id_tipocuenta3], references: [id_tipocuenta3], onUpdate: Restrict, map: "fk_cuentas_dispone_categori")
   cuentasxasiento  cuentasxasiento[]
 
@@ -200,12 +200,12 @@ model cuentas {
 }
 
 model cuentasxasiento {
-  id_codigocuenta3    String   @db.Char(15)
-  id_asientocontable3 String   @db.Char(10)
+  id_codigocuenta3    String   @db.VarChar(150)
+  id_asientocontable3 String   @db.VarChar(150)
   cxa_montodebe       Decimal  @db.Decimal(10, 2)
   cxa_montohaber      Decimal  @db.Decimal(10, 2)
-  cxa_descripcion     String   @db.Char(80)
-  cxa_estadocxa       String   @db.Char(3)
+  cxa_descripcion     String   @db.VarChar(150)
+  cxa_estadocxa       String   @db.VarChar(150)
   asientos            asientos @relation(fields: [id_asientocontable3], references: [id_asientocontable3], onUpdate: Restrict, map: "fk_cuentasx_cuentasxa_asientos")
   cuentas             cuentas  @relation(fields: [id_codigocuenta3], references: [id_codigocuenta3], onUpdate: Restrict, map: "fk_cuentasx_cuentasxa_cuentas")
 
@@ -222,7 +222,7 @@ model cuotas {
   cuo_pendiente      Decimal     @db.Decimal(10, 2)
   cuo_fecha_pagado   DateTime?   @db.Date
   cuo_fecha_estimada DateTime    @db.Date
-  cuo_estado         String      @db.Char(3)
+  cuo_estado         String      @db.VarChar(150)
   documentos         documentos? @relation(fields: [id_documento], references: [id_documento], onDelete: Restrict, onUpdate: Restrict, map: "fk_cuotas_generan_document")
 
   @@index([id_documento], map: "generan_fk")
@@ -230,8 +230,8 @@ model cuotas {
 
 model departamento {
   id_departamento Int      @id(map: "pk_departamento") @default(autoincrement())
-  dep_nombre      String   @db.Char(50)
-  dep_estado      String   @db.Char(3)
+  dep_nombre      String   @db.VarChar(150)
+  dep_estado      String   @db.VarChar(150)
   dep_feccreacion DateTime @db.Date
   cargo           cargo[]
 }
@@ -240,14 +240,14 @@ model dependientes {
   id_dependiente      Int       @id(map: "pk_dependientes") @default(autoincrement())
   id_empleado         Int
   dep_ceddoc          Decimal   @db.Decimal(10, 0)
-  dep_nom1            String    @db.Char(50)
-  dep_nom2            String?   @db.Char(50)
-  dep_ap1             String    @db.Char(50)
-  dep_ap2             String    @db.Char(50)
+  dep_nom1            String    @db.VarChar(150)
+  dep_nom2            String?   @db.VarChar(150)
+  dep_ap1             String    @db.VarChar(150)
+  dep_ap2             String    @db.VarChar(150)
   dep_fechanacimiento DateTime  @db.Date
-  dep_sexo            String    @db.Char(1)
-  dep_parentesco      String    @db.Char(25)
-  dep_estado          String    @db.Char(3)
+  dep_sexo            String    @db.VarChar(150)
+  dep_parentesco      String    @db.VarChar(150)
+  dep_estado          String    @db.VarChar(150)
   empleados           empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_dependie_mantiene2_empleado")
 
   @@index([id_empleado], map: "mantiene2_fk")
@@ -256,7 +256,7 @@ model dependientes {
 model detallehorario {
   id_detalle       Int       @id(map: "pk_detallehorario") @default(autoincrement())
   id_horario       Int
-  det_dia_semana   String?   @db.Char(1)
+  det_dia_semana   String?   @db.VarChar(150)
   det_hora_entrada DateTime? @db.Date
   det_hora_salida  DateTime? @db.Date
   horario          horario   @relation(fields: [id_horario], references: [id_horario], onUpdate: Restrict, map: "fk_detalleh_tien_horario")
@@ -269,11 +269,11 @@ model devoluciones_compra {
   id_compra            Int
   id_bodega            Int
   devc_fechahora       DateTime   @db.Date
-  devc_motivo          String     @db.VarChar(100)
+  devc_motivo          String     @db.VarChar(150)
   devc_num_produc      Int
   devc_fecharesolucion DateTime?  @db.Date
-  usu_responsable      String     @db.VarChar(30)
-  devc_estado          String     @db.Char(3)
+  usu_responsable      String     @db.VarChar(150)
+  devc_estado          String     @db.VarChar(150)
   compra               compra     @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_devoluci_crea_compra")
   bodega               bodega     @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_devoluci_maneja_bodega")
   proxdevc             proxdevc[]
@@ -287,11 +287,11 @@ model devoluciones_ventas {
   id_bodega           Int
   id_documento        Int
   dev_fechahora       DateTime    @db.Date
-  dev_motivo          String      @db.VarChar(100)
+  dev_motivo          String      @db.VarChar(150)
   dev_num_produc      Int
   dev_fecharesolucion DateTime?   @db.Date
-  usu_responsable     String      @db.VarChar(30)
-  estado_dev          String      @db.Char(3)
+  usu_responsable     String      @db.VarChar(150)
+  estado_dev          String      @db.VarChar(150)
   documentos          documentos  @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_devoluci_asocia_document")
   bodega              bodega      @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_devoluci_sufre_bodega")
   proxdeven           proxdeven[]
@@ -304,10 +304,10 @@ model direcciones {
   id_direccion   Int         @id(map: "pk_direcciones") @default(autoincrement())
   id_ciudad      Int
   id_cliente     Int
-  dir_sector     String      @db.VarChar(25)
-  dir_principal  String      @db.VarChar(50)
-  dir_secundaria String?     @db.VarChar(25)
-  dir_referencia String      @db.VarChar(100)
+  dir_sector     String      @db.VarChar(150)
+  dir_principal  String      @db.VarChar(150)
+  dir_secundaria String?     @db.VarChar(150)
+  dir_referencia String      @db.VarChar(150)
   dir_estado     Boolean
   ciudad         ciudad      @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_direccio_radica_ciudad")
   clientes       clientes    @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "fk_direccio_reside_clientes")
@@ -322,15 +322,15 @@ model documentos {
   id_cliente          Int
   doc_id_documento    Int?
   id_vendedor         Int
-  doc_tipo            String                @db.Char(3)
+  doc_tipo            String                @db.VarChar(150)
   doc_emision         DateTime              @db.Date
   doc_pago            DateTime?             @db.Date
-  doc_descripcion     String                @db.VarChar(50)
+  doc_descripcion     String                @db.VarChar(150)
   doc_subtotal        Decimal               @db.Decimal(12, 4)
   doc_iva             Decimal               @db.Decimal(12, 4)
   doc_descuento       Decimal               @db.Decimal(12, 4)
   doc_total           Decimal               @db.Decimal(12, 4)
-  doc_estado          String                @db.Char(3)
+  doc_estado          String                @db.VarChar(150)
   cuotas              cuotas[]
   devoluciones_ventas devoluciones_ventas[]
   vendedores          vendedores            @relation(fields: [id_vendedor], references: [id_vendedor], onUpdate: Restrict, map: "fk_document_crea2_vendedor")
@@ -352,7 +352,7 @@ model documentoxpago {
   id_documento       Int
   id_metodopago      Int
   dxp_monto_aboonado Decimal     @db.Decimal(10, 2)
-  dxp_referencia     String?     @db.Char(13)
+  dxp_referencia     String?     @db.VarChar(150)
   dxp_mesesplazo     Int?
   documentos         documentos  @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_document_documento_document")
   metodospago        metodospago @relation(fields: [id_metodopago], references: [id_metodopago], onUpdate: Restrict, map: "fk_document_documento_metodosp")
@@ -364,16 +364,16 @@ model documentoxpago {
 
 model empleados {
   id_empleado         Int                @id(map: "pk_empleados") @default(autoincrement())
-  emp_cedula          String             @db.Char(10)
-  emp_nom1            String             @db.VarChar(50)
-  emp_nom2            String?            @db.VarChar(50)
-  emp_ap1             String             @db.VarChar(50)
-  emp_ap2             String?            @db.VarChar(50)
-  emp_sexo            String             @db.Char(1)
+  emp_cedula          String             @db.VarChar(150)
+  emp_nom1            String             @db.VarChar(150)
+  emp_nom2            String?            @db.VarChar(150)
+  emp_ap1             String             @db.VarChar(150)
+  emp_ap2             String?            @db.VarChar(150)
+  emp_sexo            String             @db.VarChar(150)
   emp_fechanacimiento DateTime           @db.Date
-  emp_email           String             @db.Char(100)
-  emp_direccion       String             @db.Char(50)
-  emp_telefono        String             @db.Char(10)
+  emp_email           String             @db.VarChar(150)
+  emp_direccion       String             @db.VarChar(150)
+  emp_telefono        String             @db.VarChar(150)
   asistencia          asistencia[]
   contrato            contrato[]
   dependientes        dependientes[]
@@ -389,11 +389,11 @@ model entregas {
   id_documento         Int
   id_bodega            Int
   ent_fechahora_       DateTime   @db.Date
-  ent_descripcion      String     @db.VarChar(100)
+  ent_descripcion      String     @db.VarChar(150)
   ent_num_produc       Int
   ent_fecharesolucion_ DateTime?  @db.Date
-  usu_responsable      String     @db.VarChar(30)
-  ent_estado           String     @db.Char(3)
+  usu_responsable      String     @db.VarChar(150)
+  ent_estado           String     @db.VarChar(150)
   bodega               bodega     @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_entregas_entrega_e_bodega")
   documentos           documentos @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_entregas_gestiona_document")
   proxent              proxent[]
@@ -404,7 +404,7 @@ model entregas {
 
 model horario {
   id_horario         Int                @id(map: "pk_horario") @default(autoincrement())
-  hor_nombre_horario String             @db.Char(30)
+  hor_nombre_horario String             @db.VarChar(150)
   hor_horastotal     Int
   detallehorario     detallehorario[]
   horarioxempleado   horarioxempleado[]
@@ -427,12 +427,12 @@ model interacciones {
   id_interaccion    Int        @id(map: "pk_interacciones") @default(autoincrement())
   id_cliente        Int
   id_documento      Int
-  int_tipo          String     @db.Char(3)
-  int_canal         String     @db.Char(3)
-  int_inconveniente String     @db.VarChar(200)
+  int_tipo          String     @db.VarChar(150)
+  int_canal         String     @db.VarChar(150)
+  int_inconveniente String     @db.VarChar(150)
   int_apertura      DateTime   @db.Date
   int_cierre        DateTime?  @db.Date
-  int_estado        String     @db.Char(3)
+  int_estado        String     @db.VarChar(150)
   clientes          clientes   @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "fk_interacc_realiza_clientes")
   documentos        documentos @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_interacc_referenci_document")
 
@@ -443,7 +443,7 @@ model interacciones {
 model inventario_bodegas {
   id_bodega          Int
   id_variante        Int
-  inv_periodo        String             @db.Char(7)
+  inv_periodo        String             @db.VarChar(150)
   inv_saldo_inicial  Int
   inv_qty_ingresos   Int
   inv_qty_egresos    Int
@@ -464,7 +464,7 @@ model logistica {
   log_despacho        DateTime              @db.Date
   log_estimada        DateTime              @db.Date
   log_real            DateTime?             @db.Date
-  log_estado          String                @db.Char(3)
+  log_estado          String                @db.VarChar(150)
   direcciones         direcciones           @relation(fields: [id_direccion], references: [id_direccion], onUpdate: Restrict, map: "fk_logistic_despacha_direccio")
   documentos          documentos            @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_logistic_entrega_document")
   productosxlogistica productosxlogistica[]
@@ -475,28 +475,28 @@ model logistica {
 
 model marcas {
   id_marca   Int         @id(map: "pk_marcas") @default(autoincrement())
-  mar_nombre String      @db.VarChar(60)
-  mar_estado String      @db.Char(3)
+  mar_nombre String      @db.VarChar(150)
+  mar_estado String      @db.VarChar(150)
   productos  productos[]
 }
 
 model materiales {
   id_material  Int         @id(map: "pk_materiales") @default(autoincrement())
-  mat_nombre   String      @db.VarChar(60)
-  mat_cuidados String      @db.VarChar(200)
-  mat_estado   String      @db.Char(3)
+  mat_nombre   String      @db.VarChar(150)
+  mat_cuidados String      @db.VarChar(150)
+  mat_estado   String      @db.VarChar(150)
   productos    productos[]
 }
 
 model meta {
   id_meta         Int       @id(map: "pk_meta") @default(autoincrement())
-  id_rolpago2     String?   @db.VarChar(10)
+  id_rolpago2     String?   @db.VarChar(150)
   id_contrato     Int?
   met_objetivo    Decimal   @db.Decimal(9, 3)
   met_alcanzo     Decimal   @db.Decimal(9, 3)
   met_porcentaje  Decimal   @db.Decimal(5, 3)
-  met_estado      String    @db.Char(3)
-  met_observacion String    @db.Char(200)
+  met_estado      String    @db.VarChar(150)
+  met_observacion String    @db.VarChar(150)
   contrato        contrato? @relation(fields: [id_contrato], references: [id_contrato], onDelete: Restrict, onUpdate: Restrict, map: "fk_meta_relations_contrato")
   periodo         periodo?  @relation(fields: [id_rolpago2], references: [id_rolpago2], onDelete: Restrict, onUpdate: Restrict, map: "fk_meta_relations_periodo")
 
@@ -506,7 +506,7 @@ model meta {
 
 model metodospago {
   id_metodopago         Int              @id(map: "pk_metodospago") @default(autoincrement())
-  mpg_nombre            String           @db.Char(15)
+  mpg_nombre            String           @db.VarChar(150)
   mpg_diferido          Boolean
   mpg_plazos            Int?
   mpg_estado            Boolean
@@ -517,10 +517,10 @@ model metodospago {
 model percha {
   id_percha          Int                  @id(map: "pk_percha") @default(autoincrement())
   id_bodega          Int
-  per_nivel          String               @db.Char(10)
+  per_nivel          String               @db.VarChar(150)
   per_capacidad      Int
-  per_descripcion    String               @db.Char(100)
-  per_estado         String               @db.Char(3)
+  per_descripcion    String               @db.VarChar(150)
+  per_estado         String               @db.VarChar(150)
   bodega             bodega               @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_percha_tener_bodega")
   ubicacion_producto ubicacion_producto[]
 
@@ -528,11 +528,11 @@ model percha {
 }
 
 model periodo {
-  id_rolpago2     String     @id(map: "pk_periodo") @db.VarChar(10)
-  per_descripcion String     @db.Char(100)
+  id_rolpago2     String     @id(map: "pk_periodo") @db.VarChar(150)
+  per_descripcion String     @db.VarChar(150)
   per_fechainicio DateTime   @db.Date
   per_fechafin    DateTime   @db.Date
-  per_estado      String     @db.Char(3)
+  per_estado      String     @db.VarChar(150)
   meta            meta[]
   rolpagos        rolpagos[]
 }
@@ -542,8 +542,8 @@ model permisos {
   id_empleado      Int
   per_fecha_inicio DateTime  @db.Date
   per_fecha_fin    DateTime  @db.Date
-  per_estado       String    @db.Char(3)
-  per_observacion  String    @db.Char(50)
+  per_estado       String    @db.VarChar(150)
+  per_observacion  String    @db.VarChar(150)
   empleados        empleados @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_permisos_cont_empleado")
 
   @@index([id_empleado], map: "cont_fk")
@@ -551,23 +551,23 @@ model permisos {
 
 model productos {
   id_producto                                                Int                  @id(map: "pk_productos") @default(autoincrement())
-  id_marca                                                   Int
-  id_temporada                                               Int
-  id_unidadmedida                                            Int
-  id_categoria                                               Int
-  uni_id_unidadmedida                                        Int
-  id_material                                                Int
-  pro_descripcion                                            String               @db.VarChar(50)
+  id_marca                                                   Int?
+  id_temporada                                               Int?
+  id_unidadmedida                                            Int?
+  id_categoria                                               Int?
+  uni_id_unidadmedida                                        Int?
+  id_material                                                Int?
+  pro_descripcion                                            String               @db.VarChar(150)
   pro_factor_conversion_                                     Int
   pro_valor_compra                                           Decimal              @db.Decimal(7, 3)
-  pro_genero_                                                String               @db.Char(1)
-  pro_estado                                                 String               @db.Char(3)
-  unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida        @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
-  unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida        @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
-  categoria                                                  categoria            @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
-  marcas                                                     marcas               @relation(fields: [id_marca], references: [id_marca], onUpdate: Restrict, map: "fk_producto_relations_marcas")
-  materiales                                                 materiales           @relation(fields: [id_material], references: [id_material], onUpdate: Restrict, map: "fk_producto_relations_material")
-  temporadas                                                 temporadas           @relation(fields: [id_temporada], references: [id_temporada], onUpdate: Restrict, map: "fk_producto_relations_temporad")
+  pro_genero_                                                String               @db.VarChar(150)
+  pro_estado                                                 String               @db.VarChar(150)
+  unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida?        @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
+  unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida?        @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
+  categoria                                                  categoria?            @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
+  marcas                                                     marcas?               @relation(fields: [id_marca], references: [id_marca], onUpdate: Restrict, map: "fk_producto_relations_marcas")
+  materiales                                                 materiales?           @relation(fields: [id_material], references: [id_material], onUpdate: Restrict, map: "fk_producto_relations_material")
+  temporadas                                                 temporadas?           @relation(fields: [id_temporada], references: [id_temporada], onUpdate: Restrict, map: "fk_producto_relations_temporad")
   variantes_producto                                         variantes_producto[]
 
   @@index([id_unidadmedida], map: "emple_fk")
@@ -584,7 +584,7 @@ model productosxdocumento {
   pxd_cantidad       Int
   pxd_valor_unitario Decimal            @db.Decimal(10, 2)
   pxd_valor_subtotal Decimal            @db.Decimal(10, 2)
-  pxd_estado         String             @db.Char(3)
+  pxd_estado         String             @db.VarChar(150)
   documentos         documentos         @relation(fields: [id_documento], references: [id_documento], onUpdate: Restrict, map: "fk_producto_productos_document")
   variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_producto_ref_produ_variante")
 
@@ -597,7 +597,7 @@ model productosxlogistica {
   id_logistica       Int
   id_variante        Int
   pxl_cantidad       Int
-  pxl_estado         String             @db.Char(3)
+  pxl_estado         String             @db.VarChar(150)
   logistica          logistica          @relation(fields: [id_logistica], references: [id_logistica], onUpdate: Restrict, map: "fk_producto_productos_logistic")
   variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_producto_ref_produ_variante")
 
@@ -609,13 +609,13 @@ model productosxlogistica {
 model proveedor {
   id_proveedor  Int      @id(map: "pk_proveedor") @default(autoincrement())
   id_ciudad     Int
-  prv_nombre    String   @db.Char(40)
-  prv_ciruc     String   @db.Char(13)
-  prv_telefono  String   @db.Char(10)
-  prv_mail      String   @db.Char(60)
-  prv_celular   String   @db.Char(10)
-  prv_direccion String   @db.Char(60)
-  prv_estado    String   @db.Char(3)
+  prv_nombre    String   @db.VarChar(150)
+  prv_ciruc     String   @db.VarChar(150)
+  prv_telefono  String   @db.VarChar(150)
+  prv_mail      String   @db.VarChar(150)
+  prv_celular   String   @db.VarChar(150)
+  prv_direccion String   @db.VarChar(150)
+  prv_estado    String   @db.VarChar(150)
   compra        compra[]
   ciudad        ciudad   @relation(fields: [id_ciudad], references: [id_ciudad], onUpdate: Restrict, map: "fk_proveedo_relations_ciudad")
 
@@ -628,9 +628,9 @@ model proxaju {
   pxa_stock_sistema     Int
   pxa_stock_fisico_real Int
   pxa_qty_ajustada      Int
-  pxa_tipo_ajuste       String             @db.Char(1)
-  pxa_motivo_ajuste     String             @db.VarChar(100)
-  pxa_estado            String             @db.Char(3)
+  pxa_tipo_ajuste       String             @db.VarChar(150)
+  pxa_motivo_ajuste     String             @db.VarChar(150)
+  pxa_estado            String             @db.VarChar(150)
   ajustes               ajustes            @relation(fields: [id_ajuste], references: [id_ajuste], onUpdate: Restrict, map: "fk_proxaju_productos_ajustes")
   variantes_producto    variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxaju_productos_variante")
 
@@ -645,8 +645,8 @@ model proxdevc {
   pxdc_cantidad_recibida Int
   pxdc_cantidad_devuelta Int
   pxdc_diferencia        Int
-  pxdc_motivo            String?             @db.VarChar(100)
-  pxdc_estado            String              @db.Char(3)
+  pxdc_motivo            String?             @db.VarChar(150)
+  pxdc_estado            String              @db.VarChar(150)
   devoluciones_compra    devoluciones_compra @relation(fields: [id_devcompra_pk], references: [id_devcompra_pk], onUpdate: Restrict, map: "fk_proxdevc_proxdevc2_devoluci")
   variantes_producto     variantes_producto  @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxdevc_proxdevc_variante")
 
@@ -661,8 +661,8 @@ model proxdeven {
   pxdv_cantidad_facturada Int
   pxdv_cantidad_devuelta  Int
   pxdv_diferencia         Int
-  pxd_motivo_diferencia   String?             @db.VarChar(100)
-  pxdv_estado             String              @db.Char(3)
+  pxd_motivo_diferencia   String?             @db.VarChar(150)
+  pxdv_estado             String              @db.VarChar(150)
   devoluciones_ventas     devoluciones_ventas @relation(fields: [id_devolucion], references: [id_devolucion], onUpdate: Restrict, map: "fk_proxdeve_proxdeven_devoluci")
   variantes_producto      variantes_producto  @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxdeve_proxdeven_variante")
 
@@ -677,8 +677,8 @@ model proxent {
   pxe_cantidad_facturada Int
   pxe_qty_entregada      Int
   pxe_diferencia         Int?
-  pxe_motivo_diferencia  String?            @db.VarChar(100)
-  pxe_estado             String             @db.Char(3)
+  pxe_motivo_diferencia  String?            @db.VarChar(150)
+  pxe_estado             String             @db.VarChar(150)
   entregas               entregas           @relation(fields: [id_entrega], references: [id_entrega], onUpdate: Restrict, map: "fk_proxent_productos_entregas")
   variantes_producto     variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxent_productos_variante")
 
@@ -693,7 +693,7 @@ model proxoc {
   pxo_cantidad       Int
   pxo_valor          Decimal            @db.Decimal(9, 2)
   pxo_subtotal       Decimal            @db.Decimal(9, 2)
-  pxo_estado         String             @db.Char(3)
+  pxo_estado         String             @db.VarChar(150)
   variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxoc_proxoc2_variante")
   compra             compra             @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_proxoc_proxoc_compra")
 
@@ -708,8 +708,8 @@ model proxrec {
   pxr_cantidad_solicitada Int
   pxr_qty_recibida        Int
   pxr_diferencia          Int
-  pxr_motivo_diferencia   String?            @db.VarChar(100)
-  pxr_estado              String             @db.Char(3)
+  pxr_motivo_diferencia   String?            @db.VarChar(150)
+  pxr_estado              String             @db.VarChar(150)
   variantes_producto      variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_proxrec_proxrec2_variante")
   recepciones             recepciones        @relation(fields: [id_recepcion], references: [id_recepcion], onUpdate: Restrict, map: "fk_proxrec_proxrec_recepcio")
 
@@ -722,12 +722,12 @@ model recepciones {
   id_recepcion        Int       @id(map: "pk_recepciones") @default(autoincrement())
   id_compra           Int
   id_bodega           Int
-  rec_descripcion     String    @db.VarChar(100)
+  rec_descripcion     String    @db.VarChar(150)
   rec_fechahora       DateTime  @db.Date
   rec_num_productos   Int
   rec_fecharesolucion DateTime? @db.Date
-  usu_responsable     String    @db.VarChar(30)
-  rec_estado          String    @db.Char(3)
+  usu_responsable     String    @db.VarChar(150)
+  rec_estado          String    @db.VarChar(150)
   proxrec             proxrec[]
   compra              compra    @relation(fields: [id_compra], references: [id_compra], onUpdate: Restrict, map: "fk_recepcio_procesa_compra")
   bodega              bodega    @relation(fields: [id_bodega], references: [id_bodega], onUpdate: Restrict, map: "fk_recepcio_recepta_e_bodega")
@@ -738,12 +738,12 @@ model recepciones {
 
 model rolpagos {
   id_rol              Int          @id(map: "pk_rolpagos") @default(autoincrement())
-  id_rolpago2         String       @db.VarChar(10)
+  id_rolpago2         String       @db.VarChar(150)
   id_empleado         Int
   rol_destotal        Decimal      @db.Decimal(9, 3)
   rol_bontotal        Decimal      @db.Decimal(9, 3)
   rol_neto            Decimal      @db.Decimal(9, 3)
-  rol_estado          String       @db.Char(3)
+  rol_estado          String       @db.VarChar(150)
   rol_dias_trabajados Int
   rol_comtotal        Decimal      @db.Decimal(9, 3)
   periodo             periodo      @relation(fields: [id_rolpago2], references: [id_rolpago2], onUpdate: Restrict, map: "fk_rolpagos_esta_periodo")
@@ -756,8 +756,8 @@ model rolpagos {
 
 model rubros {
   id_rubros       Int          @id(map: "pk_rubros") @default(autoincrement())
-  rub_descripcion String       @db.Char(100)
-  rub_estado      String       @db.Char(3)
+  rub_descripcion String       @db.VarChar(150)
+  rub_estado      String       @db.VarChar(150)
   rub_tipo        Boolean
   rub_calculable  Boolean
   rubrosxrol      rubrosxrol[]
@@ -767,7 +767,7 @@ model rubrosxrol {
   id_rol       Int
   id_rubros    Int
   dxe_cantidad Decimal  @db.Decimal(9, 3)
-  dxe_estado   String   @db.Char(3)
+  dxe_estado   String   @db.VarChar(150)
   rolpagos     rolpagos @relation(fields: [id_rol], references: [id_rol], onUpdate: Restrict, map: "fk_rubrosxr_rubrosxro_rolpagos")
   rubros       rubros   @relation(fields: [id_rubros], references: [id_rubros], onUpdate: Restrict, map: "fk_rubrosxr_rubrosxro_rubros")
 
@@ -778,20 +778,20 @@ model rubrosxrol {
 
 model tallas {
   id_talla           Int                  @id(map: "pk_tallas") @default(autoincrement())
-  tal_codigo         String               @db.VarChar(5)
-  tal_descripcion    String               @db.VarChar(40)
-  tal_sistema        String               @db.VarChar(3)
+  tal_codigo         String               @db.VarChar(150)
+  tal_descripcion    String               @db.VarChar(150)
+  tal_sistema        String               @db.VarChar(150)
   tal_orden          Int
-  tal_estado         String               @db.Char(3)
+  tal_estado         String               @db.VarChar(150)
   variantes_producto variantes_producto[]
 }
 
 model temporadas {
   id_temporada     Int         @id(map: "pk_temporadas") @default(autoincrement())
-  tem_nombre       String      @db.VarChar(60)
+  tem_nombre       String      @db.VarChar(150)
   tem_fecha_inicio DateTime    @db.Date
   tem_fecha_fin    DateTime    @db.Date
-  tem_estado       String      @db.Char(3)
+  tem_estado       String      @db.VarChar(150)
   productos        productos[]
 }
 
@@ -800,8 +800,8 @@ model ubicacion_producto {
   id_variante        Int
   ubi_fecha_desde    DateTime           @db.Date
   ubi_fecha_hasta    DateTime?          @db.Date
-  ubi_observacion    String?            @db.VarChar(100)
-  ubi_estado         String             @db.Char(3)
+  ubi_observacion    String?            @db.VarChar(150)
+  ubi_estado         String             @db.VarChar(150)
   percha             percha             @relation(fields: [id_percha], references: [id_percha], onUpdate: Restrict, map: "fk_ubicacio_ubicacion_percha")
   variantes_producto variantes_producto @relation(fields: [id_variante], references: [id_variante], onUpdate: Restrict, map: "fk_ubicacio_ubicacion_variante")
 
@@ -812,9 +812,9 @@ model ubicacion_producto {
 
 model unidad_medida {
   id_unidadmedida                                        Int         @id(map: "pk_unidad_medida") @default(autoincrement())
-  umd_abreviado                                          String      @db.Char(5)
-  umd_descripcion                                        String      @db.VarChar(30)
-  um_estado                                              String      @db.Char(3)
+  umd_abreviado                                          String      @db.VarChar(150)
+  umd_descripcion                                        String      @db.VarChar(150)
+  um_estado                                              String      @db.VarChar(150)
   productos_productos_id_unidadmedidaTounidad_medida     productos[] @relation("productos_id_unidadmedidaTounidad_medida")
   productos_productos_uni_id_unidadmedidaTounidad_medida productos[] @relation("productos_uni_id_unidadmedidaTounidad_medida")
 }
@@ -822,11 +822,11 @@ model unidad_medida {
 model usuarios {
   id_usuario     Int        @id(map: "pk_usuarios") @default(autoincrement())
   id_empleado    Int?
-  usu_nombre     String     @db.VarChar(30)
-  usu_clave      String     @db.VarChar(60)
-  usu_nombrereal String     @db.VarChar(100)
-  usu_rol        String     @db.Char(4)
-  usu_estado_    String     @db.Char(3)
+  usu_nombre     String     @db.VarChar(150)
+  usu_clave      String     @db.VarChar(150)
+  usu_nombrereal String     @db.VarChar(150)
+  usu_rol        String     @db.VarChar(150)
+  usu_estado_    String     @db.VarChar(150)
   empleados      empleados? @relation(fields: [id_empleado], references: [id_empleado], onDelete: Restrict, onUpdate: Restrict, map: "fk_usuarios_asociar2_empleado")
 
   @@index([id_empleado], map: "asociar2_fk")
@@ -835,7 +835,7 @@ model usuarios {
 model vacaciones {
   id_vacacion Int      @id(map: "pk_vacaciones") @default(autoincrement())
   id_contrato Int
-  vac_periodo String   @db.Char(10)
+  vac_periodo String   @db.VarChar(150)
   vac_diasg   Int
   vac_diasp   Int
   vac_saldo   Int
@@ -849,9 +849,9 @@ model variantes_producto {
   id_producto         Int
   id_color            Int
   id_talla            Int
-  var_cod_barras      String                @db.VarChar(20)
+  var_cod_barras      String                @db.VarChar(150)
   var_precio_venta    Decimal               @db.Decimal(7, 3)
-  var_estado          String                @db.Char(3)
+  var_estado          String                @db.VarChar(150)
   inventario_bodegas  inventario_bodegas[]
   productosxdocumento productosxdocumento[]
   productosxlogistica productosxlogistica[]
@@ -876,7 +876,7 @@ model vendedores {
   id_empleado  Int
   ven_comision Decimal      @db.Decimal(2, 1)
   ven_meta     Int
-  ven_estado   String       @db.Char(3)
+  ven_estado   String       @db.VarChar(150)
   documentos   documentos[]
   empleados    empleados    @relation(fields: [id_empleado], references: [id_empleado], onUpdate: Restrict, map: "fk_vendedor_es_empleado")
 
