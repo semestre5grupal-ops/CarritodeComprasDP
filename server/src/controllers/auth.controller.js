@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const prisma = require('../lib/prisma')
+const AuthModel = require('../models/auth.model')
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/env')
 
 function generateToken(user) {
@@ -15,9 +15,7 @@ async function register(req, res, next) {
   try {
     const { username, email, password } = req.body
 
-    const existingUser = await prisma.usuarios.findFirst({
-      where: { usu_nombre: username },
-    })
+    const existingUser = await AuthModel.findByUsername(username)
 
     if (existingUser) {
       return res.status(409).json({
@@ -28,14 +26,12 @@ async function register(req, res, next) {
 
     const passwordHash = await bcrypt.hash(password, 10)
 
-    const user = await prisma.usuarios.create({
-      data: { 
-        usu_nombre: username, 
-        usu_nombrereal: email, 
-        usu_clave: passwordHash, 
-        usu_rol: 'user',
-        usu_estado_: 'Activo'
-      },
+    const user = await AuthModel.create({
+      usu_nombre: username, 
+      usu_nombrereal: email, 
+      usu_clave: passwordHash, 
+      usu_rol: 'user',
+      usu_estado_: 'Activo'
     })
 
     const tokenUser = { id: user.id_usuario, username: user.usu_nombre, email: user.usu_nombrereal, role: user.usu_rol }
@@ -55,7 +51,7 @@ async function login(req, res, next) {
   try {
     const { username, password } = req.body
 
-    const user = await prisma.usuarios.findFirst({ where: { usu_nombre: username } })
+    const user = await AuthModel.findByUsername(username)
     if (!user) {
       return res.status(401).json({ error: 'INVALID_CREDENTIALS', message: 'Credenciales inválidas' })
     }
@@ -80,10 +76,7 @@ async function login(req, res, next) {
 
 async function profile(req, res, next) {
   try {
-    const user = await prisma.usuarios.findFirst({
-      where: { id_usuario: req.user.id },
-      select: { id_usuario: true, usu_nombre: true, usu_nombrereal: true, usu_rol: true },
-    })
+    const user = await AuthModel.findById(req.user.id)
 
     if (!user) {
       return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'Usuario no encontrado' })

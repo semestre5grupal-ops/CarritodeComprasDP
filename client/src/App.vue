@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from './composables/useAuth'
-import { useCart } from './composables/useCart'
+import { useAuth } from './models/useAuth'
+import { useCart } from './models/useCart'
 import CartDrawer from './components/CartDrawer.vue'
 import api from './services/api'
 import { processQueue } from './services/db'

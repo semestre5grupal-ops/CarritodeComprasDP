@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCart } from '../composables/useCart'
-import { useAuth } from '../composables/useAuth'
+import { useCart } from '../models/useCart'
+import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
 const { items, itemCount, subtotal, total, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()

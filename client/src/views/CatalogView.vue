@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import api from '../services/api'
+import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
-import { useCart } from '../composables/useCart'
+import { useCart } from '../models/useCart'
 
 const { addProduct, openDrawer } = useCart()
 
@@ -21,7 +21,7 @@ function loadFilters() {
   } catch { return defaultFilters() }
 }
 function defaultFilters() {
-  return { generos: [], tallas: [], colores: [], precios: [] }
+  return { categorias: [], tallas: [], colores: [], precios: [] }
 }
 function resetFilters() {
   Object.assign(filters, defaultFilters())
@@ -32,16 +32,15 @@ watch(filters, () => {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(filters))
 }, { deep: true })
 
-const SIZE_ORDER  = ['XS','S','M','L','XL','XXL']
-const genders     = ['Mujer','Hombre','Unisex']
-const sizes       = SIZE_ORDER
 const priceRanges = [
   { label: '$0 - $20',   min: 0,   max: 20, value: '0-20'  },
   { label: '$20 - $50',  min: 20,  max: 50, value: '20-50'  },
   { label: '$50+',       min: 50,  max: Infinity, value: '50+' }
 ]
 
+const categorias = computed(() => [...new Set(productos.value.map(p => p.categoria))].filter(Boolean).sort())
 const colors = computed(() => [...new Set(productos.value.map(p => p.color))].filter(Boolean).sort())
+const sizes = computed(() => [...new Set(productos.value.map(p => p.talla))].filter(Boolean).sort())
 
 function getColorSwatchStyle(c) {
     const map = {
@@ -58,8 +57,8 @@ async function loadProducts() {
   loading.value = true
   error.value = null
   try {
-    const data = await api.get(`/productos`)
-    productos.value = data.data || []
+    const data = await ProductController.getAll()
+    productos.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar productos'
     productos.value = []
@@ -71,23 +70,16 @@ async function loadProducts() {
 const filtered = computed(() => {
   let list = productos.value
 
-  if (filters.generos.length) {
-    list = list.filter(p => filters.generos.includes(p.categoria))
+  if (filters.categorias && filters.categorias.length) {
+    list = list.filter(p => filters.categorias.includes(p.categoria))
   }
-  if (filters.tallas.length) {
-    list = list.filter(p => {
-      if (!p.talla) return false;
-      const parts = p.talla.split(' - ')
-      const start = SIZE_ORDER.indexOf(parts[0]?.trim().toUpperCase())
-      const end   = SIZE_ORDER.indexOf(parts[1]?.trim().toUpperCase())
-      const available = start === -1 ? [p.talla] : SIZE_ORDER.slice(start, end !== -1 ? end + 1 : start + 1)
-      return filters.tallas.some(t => available.includes(t))
-    })
+  if (filters.tallas && filters.tallas.length) {
+    list = list.filter(p => filters.tallas.includes(p.talla))
   }
-  if (filters.colores.length) {
+  if (filters.colores && filters.colores.length) {
     list = list.filter(p => filters.colores.includes(p.color))
   }
-  if (filters.precios.length) {
+  if (filters.precios && filters.precios.length) {
     list = list.filter(p => {
       const pprecio = Number(p.precio)
       return filters.precios.some(r => pprecio >= r.min && pprecio < r.max)
@@ -137,13 +129,14 @@ onMounted(() => {
                     </button>
                 </div>
                 <div class="filter-panel" id="filter-panel" :class="{ 'collapsed': !mobileFiltersOpen }">
-                <!-- Género -->
+                
+                <!-- Categoría -->
                 <fieldset class="filter-group">
-                    <legend class="filter-legend">Género</legend>
+                    <legend class="filter-legend">Categoría</legend>
                     <div class="filter-options">
-                        <div class="filter-option" v-for="g in genders" :key="g">
-                            <input type="checkbox" :id="`filter-gender-${g}`" class="gender-filter" :value="g" v-model="filters.generos">
-                            <label :for="`filter-gender-${g}`">{{ g }}</label>
+                        <div class="filter-option" v-for="c in categorias" :key="c">
+                            <input type="checkbox" :id="`filter-cat-${c}`" class="gender-filter" :value="c" v-model="filters.categorias">
+                            <label :for="`filter-cat-${c}`">{{ c }}</label>
                         </div>
                     </div>
                 </fieldset>
@@ -151,10 +144,10 @@ onMounted(() => {
                 <!-- Talla -->
                 <fieldset class="filter-group">
                     <legend class="filter-legend">Talla</legend>
-                    <div class="filter-options size-grid">
-                        <div class="filter-option size-box" v-for="s in sizes" :key="s">
-                            <input type="checkbox" :id="`filter-${s}`" class="size-filter" :value="s" v-model="filters.tallas">
-                            <label :for="`filter-${s}`">{{ s }}</label>
+                    <div class="filter-options">
+                        <div class="filter-option" v-for="s in sizes" :key="s">
+                            <input type="checkbox" :id="`filter-talla-${s}`" class="size-filter" :value="s" v-model="filters.tallas">
+                            <label :for="`filter-talla-${s}`">{{ s }}</label>
                         </div>
                     </div>
                 </fieldset>

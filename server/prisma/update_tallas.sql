@@ -1,0 +1,10 @@
+UPDATE tallas SET tal_descripcion = 'S' WHERE id_talla = 1;
+UPDATE tallas SET tal_descripcion = 'M' WHERE id_talla = 2;
+UPDATE tallas SET tal_descripcion = 'L' WHERE id_talla = 3;
+UPDATE tallas SET tal_descripcion = 'XL' WHERE id_talla = 4;
+UPDATE tallas SET tal_descripcion = '30' WHERE id_talla = 5;
+UPDATE tallas SET tal_descripcion = '32' WHERE id_talla = 6;
+UPDATE tallas SET tal_descripcion = '34' WHERE id_talla = 7;
+UPDATE tallas SET tal_descripcion = 'Kids' WHERE id_talla = 8;
+UPDATE tallas SET tal_descripcion = '38' WHERE id_talla = 9;
+UPDATE tallas SET tal_descripcion = 'Unica' WHERE id_talla = 10;

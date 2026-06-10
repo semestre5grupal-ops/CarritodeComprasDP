@@ -91,6 +91,8 @@ function clearCart() {
 function openDrawer() { drawerOpen.value = true }
 function closeDrawer() { drawerOpen.value = false }
 
+import OrderController from '../controllers/OrderController'
+
 async function submitOrder(router) {
   const { isAuthenticated: authState } = useAuth()
   if (!authState.value) {
@@ -105,7 +107,7 @@ async function submitOrder(router) {
   }))
 
   if (navigator.onLine) {
-    const data = await api.post('/pedidos', { detalles })
+    const data = await OrderController.create({ detalles })
     clearCart()
     return data
   }

@@ -1,13 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import api from '../services/api'
+import ProductController from '../controllers/ProductController'
+import OrderController from '../controllers/OrderController'
 
 const activeTab = ref('products')
-
 const products = ref([])
 const orders = ref([])
-const loading = ref(false)
-const error = ref('')
+const loading = ref(true)
+const error = ref(null)
 
 const productForm = ref({ nombre: '', precio: '', stock: '', categoria: '', imagen: '', talla: '' })
 const editingId = ref(null)
@@ -25,8 +25,8 @@ async function loadProducts() {
   loading.value = true
   error.value = ''
   try {
-    const data = await api.get('/productos')
-    products.value = data.data || []
+    const data = await ProductController.getAll()
+    products.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar productos'
   } finally {
@@ -38,8 +38,8 @@ async function loadOrders() {
   loading.value = true
   error.value = ''
   try {
-    const data = await api.get('/pedidos')
-    orders.value = data.data || []
+    const data = await OrderController.getAll()
+    orders.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar pedidos'
   } finally {
@@ -90,9 +90,9 @@ async function saveProduct() {
   saving.value = true
   try {
     if (editingId.value) {
-      await api.put(`/productos/${editingId.value}`, body)
+      await ProductController.update(editingId.value, body)
     } else {
-      await api.post('/productos', body)
+      await ProductController.create(body)
     }
     closeForm()
     await loadProducts()
@@ -118,7 +118,7 @@ function closeDelete() {
 async function executeDelete() {
   if (!deletingId.value) return
   try {
-    await api.delete(`/productos/${deletingId.value}`)
+    await ProductController.remove(deletingId.value)
     closeDelete()
     await loadProducts()
   } catch (err) {
