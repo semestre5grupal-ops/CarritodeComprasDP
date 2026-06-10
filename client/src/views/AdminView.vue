@@ -203,7 +203,7 @@ onMounted(() => {
               <td>{{ p.id }}</td>
               <td>{{ p.nombre }}</td>
               <td>{{ p.categoria }}</td>
-              <td>${{ p.precio?.toFixed(2) }}</td>
+              <td>${{ Number(p.precio || 0).toFixed(2) }}</td>
               <td>
                 <span :class="{ 'stock-low': p.stock <= 5 }">{{ p.stock }}</span>
               </td>
@@ -275,7 +275,7 @@ onMounted(() => {
                 </ul>
                 <span v-else class="muted">—</span>
               </td>
-              <td>${{ o.total?.toFixed(2) }}</td>
+              <td>${{ Number(o.total || 0).toFixed(2) }}</td>
               <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
             </tr>
           </tbody>

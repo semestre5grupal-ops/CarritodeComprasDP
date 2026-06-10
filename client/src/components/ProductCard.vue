@@ -20,7 +20,7 @@ const imageSrc = computed(() => {
   <li
     class="product-card"
     role="article"
-    :aria-label="`${product.nombre}, $${product.precio?.toFixed(2)}`"
+    :aria-label="`${product.nombre}, $${Number(product.precio || 0).toFixed(2)}`"
     tabindex="0"
   >
     <div
@@ -59,8 +59,8 @@ const imageSrc = computed(() => {
             {{ product.stock > 0 ? `${product.stock} uds` : 'Agotado' }}
           </span>
         </div>
-        <span class="product-price" aria-label="Precio: ${{ product.precio?.toFixed(2) }}">
-          ${{ product.precio?.toFixed(2) }}
+        <span class="product-price" aria-label="Precio: ${{ Number(product.precio || 0).toFixed(2) }}">
+          ${{ Number(product.precio || 0).toFixed(2) }}
         </span>
       </div>
 
@@ -84,7 +84,7 @@ const imageSrc = computed(() => {
         type="button"
         class="btn btn-primary"
         :disabled="(product.stock ?? 0) <= 0"
-        :aria-label="`Agregar ${product.nombre} al carrito, $${product.precio?.toFixed(2)}`"
+        :aria-label="`Agregar ${product.nombre} al carrito, $${Number(product.precio || 0).toFixed(2)}`"
         @click="emit('add-to-cart', product)"
       >
         {{ (product.stock ?? 0) > 0 ? 'Agregar al carrito' : 'Agotado' }}

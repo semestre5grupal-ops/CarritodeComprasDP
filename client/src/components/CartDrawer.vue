@@ -243,7 +243,7 @@ function closeOfflineAlert() {
 
               <div class="item-details">
                 <p class="item-name">{{ item.nombre }}</p>
-                <p class="item-price">${{ item.precio?.toFixed(2) }}</p>
+                <p class="item-price">${{ Number(item.precio || 0).toFixed(2) }}</p>
               </div>
 
               <div class="item-qty" role="group" :aria-label="`Cantidad de ${item.nombre}`">

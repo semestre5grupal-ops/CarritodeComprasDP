@@ -15,38 +15,38 @@ async function register(req, res, next) {
   try {
     const { username, email, password } = req.body
 
-    const existingUser = await prisma.usuario.findFirst({
-      where: {
-        OR: [{ username }, { email }],
-      },
+    const existingUser = await prisma.usuarios.findFirst({
+      where: { usu_nombre: username },
     })
 
     if (existingUser) {
-      const field = existingUser.username === username ? 'username' : 'email'
       return res.status(409).json({
         error: 'DUPLICATE_ENTRY',
-        message: `El ${field} ya está registrado`,
+        message: `El username ya está registrado`,
       })
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
 
-    const user = await prisma.usuario.create({
-      data: { username, email, passwordHash, role: 'user' },
+    const user = await prisma.usuarios.create({
+      data: { 
+        usu_nombre: username, 
+        usu_nombrereal: email, 
+        usu_clave: passwordHash, 
+        usu_rol: 'user',
+        usu_estado_: 'Activo'
+      },
     })
 
-    const token = generateToken(user)
+    const tokenUser = { id: user.id_usuario, username: user.usu_nombre, email: user.usu_nombrereal, role: user.usu_rol }
+    const token = generateToken(tokenUser)
 
     res.status(201).json({
       message: 'Usuario registrado exitosamente',
       token,
-      user: { id: user.id, username: user.username, email: user.email, role: user.role },
+      user: tokenUser,
     })
   } catch (err) {
-    if (err.code === 'P2002') {
-      const field = err.meta?.target?.[0] || 'campo'
-      return res.status(409).json({ error: 'DUPLICATE_ENTRY', message: `El ${field} ya está registrado` })
-    }
     next(err)
   }
 }
@@ -55,22 +55,23 @@ async function login(req, res, next) {
   try {
     const { username, password } = req.body
 
-    const user = await prisma.usuario.findUnique({ where: { username } })
+    const user = await prisma.usuarios.findFirst({ where: { usu_nombre: username } })
     if (!user) {
       return res.status(401).json({ error: 'INVALID_CREDENTIALS', message: 'Credenciales inválidas' })
     }
 
-    const valid = await bcrypt.compare(password, user.passwordHash)
+    const valid = await bcrypt.compare(password, user.usu_clave)
     if (!valid) {
       return res.status(401).json({ error: 'INVALID_CREDENTIALS', message: 'Credenciales inválidas' })
     }
 
-    const token = generateToken(user)
+    const tokenUser = { id: user.id_usuario, username: user.usu_nombre, email: user.usu_nombrereal, role: user.usu_rol }
+    const token = generateToken(tokenUser)
 
     res.json({
       message: 'Inicio de sesión exitoso',
       token,
-      user: { id: user.id, username: user.username, email: user.email, role: user.role },
+      user: tokenUser,
     })
   } catch (err) {
     next(err)
@@ -79,16 +80,17 @@ async function login(req, res, next) {
 
 async function profile(req, res, next) {
   try {
-    const user = await prisma.usuario.findUnique({
-      where: { id: req.user.id },
-      select: { id: true, username: true, email: true, role: true, createdAt: true },
+    const user = await prisma.usuarios.findFirst({
+      where: { id_usuario: req.user.id },
+      select: { id_usuario: true, usu_nombre: true, usu_nombrereal: true, usu_rol: true },
     })
 
     if (!user) {
       return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'Usuario no encontrado' })
     }
 
-    res.json({ user })
+    const profileUser = { id: user.id_usuario, username: user.usu_nombre, email: user.usu_nombrereal, role: user.usu_rol }
+    res.json({ user: profileUser })
   } catch (err) {
     next(err)
   }
