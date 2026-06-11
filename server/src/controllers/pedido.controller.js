@@ -93,7 +93,7 @@ async function getMyOrders(req, res, next) {
         producto: {
           id: pxd.variantes_producto.productos.id_producto,
           nombre: pxd.variantes_producto.productos.pro_descripcion,
-          imagen: null
+          imagen: pxd.variantes_producto.productos.pro_imagen
         }
       }))
     }))
@@ -123,7 +123,7 @@ async function getAll(req, res, next) {
         producto: {
           id: pxd.variantes_producto.productos.id_producto,
           nombre: pxd.variantes_producto.productos.pro_descripcion,
-          imagen: null
+          imagen: pxd.variantes_producto.productos.pro_imagen
         }
       }))
     }))

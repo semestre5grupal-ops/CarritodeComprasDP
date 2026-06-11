@@ -962,6 +962,7 @@ create table PRODUCTOS (
    PRO_VALOR_COMPRA     DECIMAL(7,3)         not null,
    PRO_GENERO_          CHAR(1)              not null,
    PRO_ESTADO           CHAR(3)              not null,
+   PRO_IMAGEN          TEXT,
    constraint PK_PRODUCTOS primary key (ID_PRODUCTO)
 );
 

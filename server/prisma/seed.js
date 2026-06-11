@@ -31,10 +31,10 @@ async function main() {
     }
   ]
 
-  const existingCount = await prisma.producto.count()
+  const existingCount = await prisma.productos.count()
   if (existingCount === 0) {
     for (const p of productosData) {
-      await prisma.producto.create({
+      await prisma.productos.create({
         data: {
           nombre: p.nombre,
           precio: p.precio,
