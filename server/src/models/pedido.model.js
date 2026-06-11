@@ -72,8 +72,15 @@ class PedidoModel {
     })
   }
 
-  async findAllMyOrders() {
+  async findClienteByEmail(email) {
+    return prisma.clientes.findFirst({
+      where: { cli_correo: email }
+    })
+  }
+
+  async findAllMyOrders(clienteId) {
     return prisma.documentos.findMany({
+      where: { id_cliente: clienteId },
       include: {
         productosxdocumento: {
           include: { variantes_producto: { include: { productos: true } } }

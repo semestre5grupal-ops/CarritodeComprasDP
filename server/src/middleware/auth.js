@@ -32,4 +32,12 @@ function authenticate(req, res, next) {
   }
 }
 
-module.exports = { authenticate }
+function requireAdmin(req, res, next) {
+  if (req.user && req.user.role === 'admin') {
+    next()
+  } else {
+    return res.status(403).json({ error: 'FORBIDDEN', message: 'Se requieren permisos de administrador' })
+  }
+}
+
+module.exports = { authenticate, requireAdmin }
