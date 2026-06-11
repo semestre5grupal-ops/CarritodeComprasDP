@@ -11,6 +11,11 @@ class PedidoModel {
   async getFirstVendedor() { return prisma.vendedores.findFirst() }
   async getFirstCliente() { return prisma.clientes.findFirst() }
   async getFirstCiudad() { return prisma.ciudad.findFirst() }
+  async findClienteByEmail(email) {
+    return prisma.clientes.findFirst({
+      where: { cli_correo: email }
+    })
+  }
 
   async createCliente(data) {
     return prisma.clientes.create({ data })
@@ -72,8 +77,9 @@ class PedidoModel {
     })
   }
 
-  async findAllMyOrders() {
+  async findAllMyOrders(clienteId) {
     return prisma.documentos.findMany({
+      where: { id_cliente: clienteId },
       include: {
         productosxdocumento: {
           include: { variantes_producto: { include: { productos: true } } }

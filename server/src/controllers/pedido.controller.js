@@ -32,7 +32,7 @@ async function create(req, res, next) {
     }
 
     const vendedor = await PedidoModel.getFirstVendedor() || { id_vendedor: 1 }
-    let cliente = await PedidoModel.getFirstCliente()
+    let cliente = await PedidoModel.findClienteByEmail(req.user.email)
     if (!cliente) {
       const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
       cliente = await PedidoModel.createCliente({
@@ -44,7 +44,7 @@ async function create(req, res, next) {
         cli_correo: req.user.email || 'correo@correo.com',
         cli_categoria: 1,
         cli_estado: true
-      }).catch(e => ({ id_cliente: 1 }))
+      }).catch(e => ({ id_cliente: req.user.id }))
     }
 
     const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total)
@@ -77,9 +77,8 @@ async function create(req, res, next) {
 
 async function getMyOrders(req, res, next) {
   try {
-    // Buscar todos los documentos, idealmente los de este id_cliente. 
-    // Mapearemos todos para evitar complejidad extra en esta prueba.
-    const documentos = await PedidoModel.findAllMyOrders()
+    // Buscar los documentos del cliente usando req.user.id (asumiendo mapeo id_cliente = id_usuario)
+    const documentos = await PedidoModel.findAllMyOrders(req.user.id)
 
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
