@@ -73,7 +73,7 @@ const imageSrc = computed(() => {
           :aria-label="`Seleccionar talla para ${product.nombre}`"
         >
           <option
-            v-for="t in product.talla.split(' - ')"
+            v-for="t in product.talla.split(/\s*-\s*/)"
             :key="t"
             :value="t"
           >{{ t }}</option>
