@@ -97,6 +97,9 @@ onUnmounted(() => {
             </svg>
             <span class="user-text">{{ user?.username }}</span>
           </span>
+          <button type="button" class="nav-pill btn-user" style="cursor: pointer;" @click="handleLogout" aria-label="Cerrar sesión">
+            Salir
+          </button>
           <router-link
             v-if="isAdmin"
             to="/admin"
