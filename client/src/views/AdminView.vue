@@ -194,9 +194,16 @@ async function saveOrder() {
   savingOrder.value = true; orderFormError.value = ''
   try {
     console.log('[DEBUG] Simulando actualización de pedido:', editingOrderId.value, orderForm.value)
+    // await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
     await new Promise(r => setTimeout(r, 500))
+    
+    // Mutate local state for visual feedback since backend doesn't support status yet
+    const orderIndex = orders.value.findIndex(o => o.id === editingOrderId.value)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex].status = orderForm.value.status
+    }
+    
     closeOrderForm()
-    await loadOrders()
   } catch (err) { orderFormError.value = err.message || 'Error al guardar pedido' }
   finally { savingOrder.value = false }
 }
@@ -409,6 +416,7 @@ onUnmounted(() => {
               <th scope="col">Usuario</th>
               <th scope="col">Productos</th>
               <th scope="col">Total</th>
+              <th scope="col">Estado</th>
               <th scope="col">Fecha</th>
               <th scope="col">Acciones</th>
             </tr>
@@ -426,6 +434,11 @@ onUnmounted(() => {
                 <span v-else class="muted">—</span>
               </td>
               <td>${{ Number(o.total || 0).toFixed(2) }}</td>
+              <td>
+                <span class="status-badge" :class="'status-' + (o.status?.toLowerCase() || 'pendiente')">
+                  {{ o.status || 'Pendiente' }}
+                </span>
+              </td>
               <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
               <td class="actions-cell">
                 <button
@@ -838,6 +851,22 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 0.8rem;
 }
+
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.status-pendiente { background: #fef08a; color: #854d0e; }
+.status-procesando { background: #bae6fd; color: #0369a1; }
+.status-enviado { background: #ddd6fe; color: #5b21b6; }
+.status-entregado { background: #bbf7d0; color: #166534; }
+.status-cancelado { background: #fecaca; color: #991b1b; }
 
 .btn-action {
   background: none;
