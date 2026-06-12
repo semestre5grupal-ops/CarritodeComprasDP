@@ -11,7 +11,7 @@ const { isAuthenticated } = useAuth()
 const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
-const offlineAlertOpen = ref(false)
+const alertState = ref(null) // 'offline' or 'success'
 const submitting = ref(false)
 const submitError = ref('')
 
@@ -32,9 +32,9 @@ function handleKeydown(evt) {
   if (!drawerOpen.value) return
 
   if (evt.key === 'Escape') {
-    if (offlineAlertOpen.value) {
+    if (alertState.value) {
       dialog.value?.close()
-      offlineAlertOpen.value = false
+      alertState.value = null
       return
     }
     closeDrawer()
@@ -121,14 +121,16 @@ async function handleCheckout() {
 
     if (!navigator.onLine) {
       await submitOrder(router)
-      offlineAlertOpen.value = true
+      alertState.value = 'offline'
       await nextTick()
       dialog.value?.showModal()
       return
     }
 
     await submitOrder(router)
-    closeDrawer()
+    alertState.value = 'success'
+    await nextTick()
+    dialog.value?.showModal()
   } catch (err) {
     submitError.value = err.message || 'Error al procesar el pedido.'
   } finally {
@@ -136,9 +138,10 @@ async function handleCheckout() {
   }
 }
 
-function closeOfflineAlert() {
+function closeAlert() {
   dialog.value?.close()
-  offlineAlertOpen.value = false
+  alertState.value = null
+  closeDrawer()
 }
 </script>
 
@@ -325,12 +328,19 @@ function closeOfflineAlert() {
       aria-labelledby="offline-dialog-title"
       aria-describedby="offline-dialog-desc"
     >
-      <h2 id="offline-dialog-title">Pedido guardado</h2>
+      <h2 id="offline-dialog-title">
+        {{ alertState === 'offline' ? 'Pedido guardado (Offline)' : '¡Pedido exitoso!' }}
+      </h2>
       <p id="offline-dialog-desc">
-        No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
-        y se procesará automáticamente cuando vuelva la conexión.
+        <template v-if="alertState === 'offline'">
+          No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
+          y se procesará automáticamente cuando vuelva la conexión.
+        </template>
+        <template v-else>
+          Tu pedido ha sido procesado correctamente y ya se encuentra registrado en nuestro sistema. ¡Gracias por tu compra!
+        </template>
       </p>
-        <button type="button" class="btn btn-primary" @click="closeOfflineAlert(); closeDrawer()" autofocus>
+      <button type="button" class="btn btn-primary" @click="closeAlert" autofocus>
         Entendido
       </button>
     </dialog>
