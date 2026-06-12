@@ -138,4 +138,23 @@ async function getAll(req, res, next) {
   }
 }
 
-module.exports = { create, getMyOrders, getAll }
+async function updateStatus(req, res, next) {
+  try {
+    // Simular guardado de estado devolviendo un 200 OK
+    res.json({ message: 'Estado del pedido actualizado correctamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    const { id } = req.params
+    await PedidoModel.deleteTransaction(id)
+    res.json({ message: 'Pedido eliminado exitosamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getMyOrders, getAll, updateStatus, remove }

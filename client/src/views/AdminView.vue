@@ -66,16 +66,8 @@ async function loadUsers() {
   loading.value = true
   error.value = ''
   try {
-    // Cuando el backend esté listo y desplegado, descomenta la siguiente línea y borra los datos falsos:
-    // const data = await api.get('/usuarios')
-    // users.value = data || []
-    
-    // Por ahora, simulamos los datos para que no te dé error 404:
-    await new Promise(r => setTimeout(r, 500))
-    users.value = [
-      { id: 1, username: 'admin', email: 'admin@shopsport.com', role: 'admin' },
-      { id: 2, username: 'usuario', email: 'user@shopsport.com', role: 'user' }
-    ]
+    const data = await api.get('/usuarios')
+    users.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar usuarios'
   } finally {
@@ -164,14 +156,10 @@ async function executeDelete() {
       await ProductController.remove(deletingId.value)
       await loadProducts()
     } else if (deleteType.value === 'order') {
-      console.log('[DEBUG] Simulando eliminación de pedido en backend:', deletingId.value)
-      // await api.delete(`/pedidos/${deletingId.value}`)
-      await new Promise(r => setTimeout(r, 500))
+      await api.delete(`/pedidos/${deletingId.value}`)
       await loadOrders()
     } else if (deleteType.value === 'user') {
-      console.log('[DEBUG] Simulando eliminación de usuario en backend:', deletingId.value)
-      // await api.delete(`/usuarios/${deletingId.value}`)
-      await new Promise(r => setTimeout(r, 500))
+      await api.delete(`/usuarios/${deletingId.value}`)
       await loadUsers()
     }
     closeDelete()
@@ -192,9 +180,7 @@ function closeOrderForm() { orderFormDialog.value?.close() }
 async function saveOrder() {
   savingOrder.value = true; orderFormError.value = ''
   try {
-    console.log('[DEBUG] Simulando actualizar estado del pedido en backend:', editingOrderId.value, orderForm.value)
-    // await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
-    await new Promise(r => setTimeout(r, 500))
+    await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
     
     // Mutate local state for visual feedback
     const orderIndex = orders.value.findIndex(o => o.id === editingOrderId.value)
@@ -236,8 +222,6 @@ async function saveUser() {
     return
   }
   try {
-    console.log('[DEBUG] Simulando guardar usuario en backend:', editingUserId.value, userForm.value)
-    /* 
     const payload = { ...userForm.value }
     if (editingUserId.value) {
       if (!payload.password) delete payload.password
@@ -245,8 +229,7 @@ async function saveUser() {
     } else {
       await api.post('/usuarios', payload)
     }
-    */
-    await new Promise(r => setTimeout(r, 500))
+
     closeUserForm()
     await loadUsers()
   } catch (err) { userFormError.value = err.message || 'Error al guardar usuario' }

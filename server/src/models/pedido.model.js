@@ -100,6 +100,26 @@ class PedidoModel {
       orderBy: { doc_emision: 'desc' },
     })
   }
+  async deleteTransaction(id) {
+    return prisma.$transaction(async (tx) => {
+      const doc = await tx.documentos.findUnique({
+        where: { id_documento: parseInt(id) },
+        include: { productosxdocumento: true }
+      });
+
+      if (!doc) throw new Error('Pedido no encontrado');
+
+      await tx.productosxdocumento.deleteMany({
+        where: { id_documento: parseInt(id) }
+      });
+
+      await tx.documentos.delete({
+        where: { id_documento: parseInt(id) }
+      });
+
+      return true;
+    })
+  }
 }
 
 module.exports = new PedidoModel()
