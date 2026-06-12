@@ -25,9 +25,16 @@ const drawerOpen = ref(false)
 const selectedIds = ref(new Set())
 
 const items = ref(loadCart())
+const couponCode = ref('')
+const discount = computed(() => {
+  if (couponCode.value.trim().toUpperCase() === 'DEPORTE20') {
+    return Math.round(subtotal.value * 0.2 * 100) / 100
+  }
+  return 0
+})
 const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.cantidad, 0))
 const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.precio * i.cantidad, 0))
-const total = computed(() => Math.round(subtotal.value * 100) / 100)
+const total = computed(() => Math.round((subtotal.value - discount.value) * 100) / 100)
 
 function addProduct(product, cantidad = 1) {
   const existing = items.value.find((i) => i.id === product.id)
@@ -85,6 +92,7 @@ function toggleSelected(productId) {
 function clearCart() {
   items.value = []
   selectedIds.value = new Set()
+  couponCode.value = ''
   saveCart(items.value)
 }
 
@@ -107,13 +115,13 @@ async function submitOrder(router, clienteDatos) {
   }))
 
   if (navigator.onLine) {
-    const data = await OrderController.create({ detalles, clienteDatos })
+    const data = await OrderController.create({ detalles, clienteDatos, cupon: couponCode.value })
     clearCart()
     window.dispatchEvent(new Event('order-completed'))
     return data
   }
 
-  await addToQueue({ detalles, clienteDatos })
+  await addToQueue({ detalles, clienteDatos, cupon: couponCode.value })
   clearCart()
   window.dispatchEvent(new Event('order-completed'))
   return { offline: true }
@@ -124,7 +132,9 @@ export function useCart() {
     items,
     itemCount,
     subtotal,
+    discount,
     total,
+    couponCode,
     drawerOpen,
     selectedIds,
     addProduct,

@@ -5,13 +5,13 @@ import { useCart } from '../models/useCart'
 import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
-const { items, itemCount, subtotal, total, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
+const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
 const { isAuthenticated, user, fetchProfile } = useAuth()
 
 const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
-const alertState = ref(null) // 'offline' or 'success'
+const offlineAlertOpen = ref(false)
 const submitting = ref(false)
 const submitError = ref('')
 
@@ -55,9 +55,9 @@ function handleKeydown(evt) {
   if (!drawerOpen.value) return
 
   if (evt.key === 'Escape') {
-    if (alertState.value) {
+    if (offlineAlertOpen.value) {
       dialog.value?.close()
-      alertState.value = null
+      offlineAlertOpen.value = false
       return
     }
     closeDrawer()
@@ -171,14 +171,14 @@ async function handleCheckout() {
   submitError.value = ''
   try {
     if (!navigator.onLine) {
-      await submitOrder(router, checkoutForm.value)
+      await submitOrder(router)
       alertState.value = 'offline'
       await nextTick()
       dialog.value?.showModal()
       return
     }
 
-    await submitOrder(router, checkoutForm.value)
+    await submitOrder(router)
     alertState.value = 'success'
     await nextTick()
     dialog.value?.showModal()
@@ -189,10 +189,9 @@ async function handleCheckout() {
   }
 }
 
-function closeAlert() {
+function closeOfflineAlert() {
   dialog.value?.close()
-  alertState.value = null
-  closeDrawer()
+  offlineAlertOpen.value = false
 }
 </script>
 
@@ -399,19 +398,12 @@ function closeAlert() {
       aria-labelledby="offline-dialog-title"
       aria-describedby="offline-dialog-desc"
     >
-      <h2 id="offline-dialog-title">
-        {{ alertState === 'offline' ? 'Pedido guardado (Offline)' : '¡Pedido exitoso!' }}
-      </h2>
+      <h2 id="offline-dialog-title">Pedido guardado</h2>
       <p id="offline-dialog-desc">
-        <template v-if="alertState === 'offline'">
-          No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
-          y se procesará automáticamente cuando vuelva la conexión.
-        </template>
-        <template v-else>
-          Tu pedido ha sido procesado correctamente y ya se encuentra registrado en nuestro sistema. ¡Gracias por tu compra!
-        </template>
+        No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
+        y se procesará automáticamente cuando vuelva la conexión.
       </p>
-      <button type="button" class="btn btn-primary" @click="closeAlert" autofocus>
+        <button type="button" class="btn btn-primary" @click="closeOfflineAlert(); closeDrawer()" autofocus>
         Entendido
       </button>
     </dialog>
@@ -723,10 +715,6 @@ function closeAlert() {
   width: calc(100% - 2rem);
   background: var(--surface);
   box-shadow: var(--shadow);
-  margin: 0;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .offline-dialog::backdrop {
