@@ -21,6 +21,13 @@ class PedidoModel {
     return prisma.clientes.create({ data })
   }
 
+  async updateCliente(id, data) {
+    return prisma.clientes.update({
+      where: { id_cliente: parseInt(id) },
+      data
+    })
+  }
+
   async createTransaction(items, clienteId, vendedorId, total, descuento = 0) {
     return prisma.$transaction(async (tx) => {
       // 1. Descontar stock

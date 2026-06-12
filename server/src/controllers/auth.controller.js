@@ -89,7 +89,15 @@ async function profile(req, res, next) {
       return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'Usuario no encontrado' })
     }
 
-    const profileUser = { id: user.id_usuario, username: user.usu_nombre, email: user.usu_nombrereal, role: user.usu_rol }
+    const cliente = await AuthModel.findClienteByEmail(user.usu_nombrereal)
+
+    const profileUser = { 
+      id: user.id_usuario, 
+      username: user.usu_nombre, 
+      email: user.usu_nombrereal, 
+      role: user.usu_rol,
+      cliente: cliente || null
+    }
     res.json({ user: profileUser })
   } catch (err) {
     next(err)

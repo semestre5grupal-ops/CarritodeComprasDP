@@ -6,14 +6,37 @@ import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
 const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user, fetchProfile } = useAuth()
 
 const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
-const alertState = ref(null) // 'offline' or 'success'
+const offlineAlertOpen = ref(false)
 const submitting = ref(false)
 const submitError = ref('')
+
+const showCheckoutForm = ref(false)
+const checkoutForm = ref({
+  nombre: '',
+  cedula: '',
+  celular: '',
+  telefono: ''
+})
+
+function validateCheckout() {
+  if (!checkoutForm.value.nombre) return 'El Nombre es obligatorio.'
+  if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]+$/.test(checkoutForm.value.nombre)) return 'El Nombre solo puede contener letras y puntos.'
+
+  if (!checkoutForm.value.cedula) return 'La Cédula/RUC es obligatoria.'
+  if (!/^\d{10}$|^\d{13}$/.test(checkoutForm.value.cedula)) return 'La Cédula debe tener 10 dígitos o el RUC 13 dígitos numéricos.'
+
+  if (!checkoutForm.value.celular) return 'El Celular es obligatorio.'
+  if (!/^\d{10}$/.test(checkoutForm.value.celular)) return 'El Celular debe tener exactamente 10 dígitos numéricos.'
+
+  if (checkoutForm.value.telefono && !/^\d+$/.test(checkoutForm.value.telefono)) return 'El Teléfono solo puede contener números.'
+
+  return null
+}
 
 const allSelected = computed({
   get: () => items.value.length > 0 && selectedIds.value.size === items.value.length,
@@ -32,9 +55,9 @@ function handleKeydown(evt) {
   if (!drawerOpen.value) return
 
   if (evt.key === 'Escape') {
-    if (alertState.value) {
+    if (offlineAlertOpen.value) {
       dialog.value?.close()
-      alertState.value = null
+      offlineAlertOpen.value = false
       return
     }
     closeDrawer()
@@ -70,12 +93,28 @@ watch(drawerOpen, async (open) => {
     document.body.style.overflow = 'hidden'
     await nextTick()
     drawer.value?.focus()
+    
+    if (isAuthenticated.value) {
+      await fetchProfile()
+      const cliente = user.value?.cliente
+      if (cliente && cliente.cli_ciruc && !cliente.cli_ciruc.startsWith('9999999999')) {
+        checkoutForm.value = {
+          nombre: cliente.cli_nombre || '',
+          cedula: cliente.cli_ciruc || '',
+          celular: cliente.cli_celular || '',
+          telefono: cliente.cli_telefono && !cliente.cli_telefono.startsWith('0000000000') ? cliente.cli_telefono : ''
+        }
+      }
+    }
   } else {
     document.body.style.overflow = ''
     if (previousFocus) {
       previousFocus.focus()
       previousFocus = null
     }
+    showCheckoutForm.value = false
+    checkoutForm.value = { nombre: '', cedula: '', celular: '', telefono: '' }
+    submitError.value = ''
   }
 })
 
@@ -108,28 +147,29 @@ function decreaseQty(item) {
   }
 }
 
-function sanitizeCoupon(e) {
-  couponCode.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 9)
-}
-
 async function handleCheckout() {
   if (submitting.value) return
-  submitting.value = true
-  submitError.value = ''
-
-  if (couponCode.value.trim() !== '' && couponCode.value.trim().toUpperCase() !== 'DEPORTE20') {
-    submitError.value = 'Cupón inválido'
-    submitting.value = false
+  
+  if (!isAuthenticated.value) {
+    closeDrawer()
+    router.push('/login')
     return
   }
 
-  try {
-    if (!isAuthenticated.value) {
-      closeDrawer()
-      router.push('/login')
-      return
-    }
+  if (!showCheckoutForm.value) {
+    showCheckoutForm.value = true
+    return
+  }
 
+  const errorMsg = validateCheckout()
+  if (errorMsg) {
+    submitError.value = errorMsg
+    return
+  }
+
+  submitting.value = true
+  submitError.value = ''
+  try {
     if (!navigator.onLine) {
       await submitOrder(router)
       alertState.value = 'offline'
@@ -149,10 +189,9 @@ async function handleCheckout() {
   }
 }
 
-function closeAlert() {
+function closeOfflineAlert() {
   dialog.value?.close()
-  alertState.value = null
-  closeDrawer()
+  offlineAlertOpen.value = false
 }
 </script>
 
@@ -306,25 +345,6 @@ function closeAlert() {
               <span>Subtotal</span>
               <span>${{ subtotal.toFixed(2) }}</span>
             </div>
-            <div class="coupon-section">
-              <input
-                id="cart-coupon"
-                type="text"
-                v-model="couponCode"
-                @input="sanitizeCoupon"
-                maxlength="9"
-                placeholder="Ingresa cupón (ej: DEPORTE20)"
-                class="coupon-input"
-                aria-label="Cupón de descuento"
-              />
-              <div v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'" class="coupon-error">
-                Cupón inválido
-              </div>
-            </div>
-            <div v-if="discount > 0" class="summary-row discount-row">
-              <span>Descuento (20%)</span>
-              <span>-${{ discount.toFixed(2) }}</span>
-            </div>
             <div class="summary-row summary-total">
               <span>Total</span>
               <span>${{ total.toFixed(2) }}</span>
@@ -338,6 +358,26 @@ function closeAlert() {
             aria-live="assertive"
           >
             {{ submitError }}
+          </div>
+
+          <div v-if="showCheckoutForm" class="checkout-form-container">
+            <h3 class="checkout-form-title">Datos de Facturación</h3>
+            <div class="form-group">
+              <label for="cf-nombre">Nombre y Apellido *</label>
+              <input id="cf-nombre" v-model="checkoutForm.nombre" type="text" class="input-base" required @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')" />
+            </div>
+            <div class="form-group">
+              <label for="cf-cedula">Cédula / RUC *</label>
+              <input id="cf-cedula" v-model="checkoutForm.cedula" type="text" class="input-base" required maxlength="13" @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')" />
+            </div>
+            <div class="form-group">
+              <label for="cf-celular">Celular *</label>
+              <input id="cf-celular" v-model="checkoutForm.celular" type="text" class="input-base" required maxlength="10" @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')" />
+            </div>
+            <div class="form-group">
+              <label for="cf-telefono">Teléfono Fijo (Opcional)</label>
+              <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" />
+            </div>
           </div>
 
           <button
@@ -358,19 +398,12 @@ function closeAlert() {
       aria-labelledby="offline-dialog-title"
       aria-describedby="offline-dialog-desc"
     >
-      <h2 id="offline-dialog-title">
-        {{ alertState === 'offline' ? 'Pedido guardado (Offline)' : '¡Pedido exitoso!' }}
-      </h2>
+      <h2 id="offline-dialog-title">Pedido guardado</h2>
       <p id="offline-dialog-desc">
-        <template v-if="alertState === 'offline'">
-          No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
-          y se procesará automáticamente cuando vuelva la conexión.
-        </template>
-        <template v-else>
-          Tu pedido ha sido procesado correctamente y ya se encuentra registrado en nuestro sistema. ¡Gracias por tu compra!
-        </template>
+        No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
+        y se procesará automáticamente cuando vuelva la conexión.
       </p>
-      <button type="button" class="btn btn-primary" @click="closeAlert" autofocus>
+        <button type="button" class="btn btn-primary" @click="closeOfflineAlert(); closeDrawer()" autofocus>
         Entendido
       </button>
     </dialog>
@@ -615,35 +648,6 @@ function closeAlert() {
   color: var(--muted);
 }
 
-.coupon-section {
-  margin: 0.25rem 0;
-}
-.coupon-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  background: var(--surface-soft);
-  color: var(--ink);
-  outline: none;
-  transition: border-color 0.2s;
-}
-.coupon-input:focus {
-  border-color: var(--accent);
-}
-.discount-row {
-  color: #10b981;
-  font-weight: 600;
-}
-.coupon-error {
-  color: #ef4444;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  padding-left: 0.25rem;
-  font-weight: 500;
-}
-
 .summary-total {
   font-size: 1.1rem;
   font-weight: 700;
@@ -662,6 +666,47 @@ function closeAlert() {
   margin: 0 1.25rem;
 }
 
+.checkout-form-container {
+  padding: 1rem 1.25rem;
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
+  margin-bottom: 1rem;
+}
+
+.checkout-form-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.input-base {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .offline-dialog {
   border: 1px solid var(--line);
   border-radius: 1.3rem;
@@ -670,10 +715,6 @@ function closeAlert() {
   width: calc(100% - 2rem);
   background: var(--surface);
   box-shadow: var(--shadow);
-  margin: 0;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .offline-dialog::backdrop {

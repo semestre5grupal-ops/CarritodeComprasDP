@@ -101,7 +101,7 @@ function closeDrawer() { drawerOpen.value = false }
 
 import OrderController from '../controllers/OrderController'
 
-async function submitOrder(router) {
+async function submitOrder(router, clienteDatos) {
   const { isAuthenticated: authState } = useAuth()
   if (!authState.value) {
     router.push('/login')
@@ -115,13 +115,13 @@ async function submitOrder(router) {
   }))
 
   if (navigator.onLine) {
-    const data = await OrderController.create({ detalles, cupon: couponCode.value })
+    const data = await OrderController.create({ detalles, clienteDatos, cupon: couponCode.value })
     clearCart()
     window.dispatchEvent(new Event('order-completed'))
     return data
   }
 
-  await addToQueue({ detalles, cupon: couponCode.value })
+  await addToQueue({ detalles, clienteDatos, cupon: couponCode.value })
   clearCart()
   window.dispatchEvent(new Event('order-completed'))
   return { offline: true }

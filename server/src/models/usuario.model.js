@@ -17,7 +17,7 @@ class UsuarioModel {
   }
 
   async create(data) {
-    return prisma.usuarios.create({
+    const newUser = await prisma.usuarios.create({
       data: {
         usu_nombre: data.username,
         usu_clave: data.password,
@@ -26,6 +26,34 @@ class UsuarioModel {
         usu_estado_: 'A'
       }
     })
+
+    let ciudadDefault = await prisma.ciudad.findFirst()
+    if (!ciudadDefault) {
+      ciudadDefault = await prisma.ciudad.create({
+        data: { ciu_nombre: 'Default', ciu_abreviado: 'DEF', ciu_estado: true }
+      })
+    }
+
+    const existingClient = await prisma.clientes.findFirst({
+      where: { cli_correo: data.email }
+    })
+
+    if (!existingClient) {
+      await prisma.clientes.create({
+        data: {
+          id_ciudad: ciudadDefault.id_ciudad,
+          cli_nombre: data.username,
+          cli_ciruc: '9999999999',
+          cli_celular: '0999999999',
+          cli_telefono: '022222222',
+          cli_correo: data.email,
+          cli_categoria: 1,
+          cli_estado: true
+        }
+      })
+    }
+
+    return newUser
   }
 
   async update(id, data) {
