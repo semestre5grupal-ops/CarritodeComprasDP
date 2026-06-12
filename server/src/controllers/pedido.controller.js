@@ -44,7 +44,7 @@ async function create(req, res, next) {
         cli_correo: req.user.email || 'correo@correo.com',
         cli_categoria: 1,
         cli_estado: true
-      }).catch(e => ({ id_cliente: 1 }))
+      }).catch(e => ({ id_cliente: req.user.id }))
     }
 
     const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total)
@@ -77,13 +77,8 @@ async function create(req, res, next) {
 
 async function getMyOrders(req, res, next) {
   try {
-    // Buscar cliente asociado al usuario actual
-    let cliente = await PedidoModel.findClienteByEmail(req.user.email)
-    if (!cliente) {
-      return res.json({ data: [] }) // No ha hecho compras aún
-    }
-
-    const documentos = await PedidoModel.findAllMyOrders(cliente.id_cliente)
+    // Buscar los documentos del cliente usando req.user.id (asumiendo mapeo id_cliente = id_usuario)
+    const documentos = await PedidoModel.findAllMyOrders(req.user.id)
 
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
@@ -97,7 +92,7 @@ async function getMyOrders(req, res, next) {
         producto: {
           id: pxd.variantes_producto.productos.id_producto,
           nombre: pxd.variantes_producto.productos.pro_descripcion,
-          imagen: pxd.variantes_producto.productos.pro_imagen
+          imagen: null
         }
       }))
     }))
@@ -127,7 +122,7 @@ async function getAll(req, res, next) {
         producto: {
           id: pxd.variantes_producto.productos.id_producto,
           nombre: pxd.variantes_producto.productos.pro_descripcion,
-          imagen: pxd.variantes_producto.productos.pro_imagen
+          imagen: null
         }
       }))
     }))

@@ -2,7 +2,7 @@ const prisma = require('../lib/prisma')
 
 class PedidoModel {
   async findProductoWithStock(id_producto) {
-    return prisma.productos.findUnique({ 
+    return prisma.productos.findUnique({
       where: { id_producto },
       include: { variantes_producto: { include: { inventario_bodegas: true } } }
     })
@@ -11,6 +11,11 @@ class PedidoModel {
   async getFirstVendedor() { return prisma.vendedores.findFirst() }
   async getFirstCliente() { return prisma.clientes.findFirst() }
   async getFirstCiudad() { return prisma.ciudad.findFirst() }
+  async findClienteByEmail(email) {
+    return prisma.clientes.findFirst({
+      where: { cli_correo: email }
+    })
+  }
 
   async createCliente(data) {
     return prisma.clientes.create({ data })
@@ -69,12 +74,6 @@ class PedidoModel {
         }
       })
       return doc
-    })
-  }
-
-  async findClienteByEmail(email) {
-    return prisma.clientes.findFirst({
-      where: { cli_correo: email }
     })
   }
 

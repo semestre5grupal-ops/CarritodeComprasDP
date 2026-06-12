@@ -269,7 +269,7 @@ onMounted(() => {
               <td>{{ o.usuario?.username || o.userId }}</td>
               <td>
                 <ul class="order-detail-list" v-if="o.detalles?.length">
-                  <li v-for="d in o.detalles" :key="d.id">
+                  <li v-for="(d, index) in o.detalles" :key="'det-' + index">
                     {{ d.producto?.nombre || `Producto #${d.productoId}` }} x{{ d.cantidad }}
                   </li>
                 </ul>
