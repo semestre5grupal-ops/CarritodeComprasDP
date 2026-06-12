@@ -611,6 +611,10 @@ function closeAlert() {
   width: calc(100% - 2rem);
   background: var(--surface);
   box-shadow: var(--shadow);
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .offline-dialog::backdrop {
