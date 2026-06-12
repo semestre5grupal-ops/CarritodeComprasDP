@@ -331,7 +331,7 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="af-nombre">Nombre</label>
-          <input id="af-nombre" v-model.trim="productForm.nombre" type="text" maxlength="100" required />
+          <input id="af-nombre" v-model.trim="productForm.nombre" @input="productForm.nombre = productForm.nombre.replace(/[0-9]/g, '')" type="text" maxlength="100" required />
         </div>
 
         <div class="form-group">
@@ -345,11 +345,11 @@ onUnmounted(() => {
         <div class="form-row">
           <div class="form-group">
             <label for="af-precio">Precio ($)</label>
-            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" required />
+            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
           </div>
           <div class="form-group">
             <label for="af-stock">Stock</label>
-            <input id="af-stock" v-model="productForm.stock" type="number" min="0" required />
+            <input id="af-stock" v-model="productForm.stock" type="number" min="0" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
           </div>
         </div>
 

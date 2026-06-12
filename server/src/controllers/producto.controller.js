@@ -113,15 +113,40 @@ async function update(req, res, next) {
       return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado' })
     }
 
-    const { nombre, precio, imagen } = req.body
+    const { nombre, precio, imagen, categoria, talla, stock } = req.body
+
+    let catData = undefined;
+    if (categoria) {
+      catData = await ProductoModel.getOrCreateCategoria(categoria)
+    }
 
     const producto = await ProductoModel.update(id, {
       ...(nombre !== undefined && { pro_descripcion: nombre }),
       ...(precio !== undefined && { pro_valor_compra: precio }),
       ...(imagen !== undefined && { pro_imagen: imagen }),
+      ...(catData && { id_categoria: catData.id_categoria }),
     })
 
-    res.json({ message: 'Producto actualizado exitosamente', data: formatProducto(producto) })
+    if (existing.variantes_producto && existing.variantes_producto[0]) {
+      const variante = existing.variantes_producto[0]
+      
+      if (talla) {
+        const tallaData = await ProductoModel.getOrCreateTalla(talla)
+        await ProductoModel.updateVariante(variante.id_variante, {
+          id_talla: tallaData.id_talla
+        })
+      }
+
+      if (stock !== undefined && variante.inventario_bodegas && variante.inventario_bodegas[0]) {
+        await ProductoModel.updateInventario(variante.inventario_bodegas[0].id_inventario_bodegas, {
+          inv_saldo_final: parseInt(stock, 10)
+        })
+      }
+    }
+
+    const updatedProduct = await ProductoModel.findById(id)
+
+    res.json({ message: 'Producto actualizado exitosamente', data: formatProducto(updatedProduct) })
   } catch (err) {
     next(err)
   }

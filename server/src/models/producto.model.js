@@ -92,7 +92,9 @@ class ProductoModel {
   }
 
   async createVariante(data) { return prisma.variantes_producto.create({ data }) }
+  async updateVariante(id, data) { return prisma.variantes_producto.update({ where: { id_variante: id }, data }) }
   async createInventario(data) { return prisma.inventario_bodegas.create({ data }) }
+  async updateInventario(id, data) { return prisma.inventario_bodegas.update({ where: { id_inventario_bodegas: id }, data }) }
 }
 
 module.exports = new ProductoModel()
