@@ -2,7 +2,7 @@ const prisma = require('../lib/prisma')
 
 class PedidoModel {
   async findProductoWithStock(id_producto) {
-    return prisma.productos.findUnique({ 
+    return prisma.productos.findUnique({
       where: { id_producto },
       include: { variantes_producto: { include: { inventario_bodegas: true } } }
     })

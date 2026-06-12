@@ -11,7 +11,7 @@ function formatProducto(p) {
     categoria: p.categoria ? p.categoria.cat_nombre : 'General',
     talla: variante?.tallas ? variante.tallas.tal_descripcion : null,
     color: variante?.colores ? variante.colores.col_nombre : null,
-    imagen: null // Imagen ya no existe en el esquema
+    imagen: p.pro_imagen
   }
 }
 
@@ -67,7 +67,8 @@ async function create(req, res, next) {
       id_material: material.id_material,
       pro_factor_conversion_: 1,
       pro_genero_: 'U',
-      pro_estado: 'ACT'
+      pro_estado: 'ACT',
+      pro_imagen: imagen || null
     })
 
     // Crear variante e inventario si tenemos dependencias
@@ -112,11 +113,12 @@ async function update(req, res, next) {
       return res.status(404).json({ error: 'PRODUCT_NOT_FOUND', message: 'Producto no encontrado' })
     }
 
-    const { nombre, precio } = req.body
+    const { nombre, precio, imagen } = req.body
 
     const producto = await ProductoModel.update(id, {
       ...(nombre !== undefined && { pro_descripcion: nombre }),
       ...(precio !== undefined && { pro_valor_compra: precio }),
+      ...(imagen !== undefined && { pro_imagen: imagen }),
     })
 
     res.json({ message: 'Producto actualizado exitosamente', data: formatProducto(producto) })

@@ -14,7 +14,7 @@ async function main() {
   let bodega = await prisma.bodega.findFirst() || await prisma.bodega.create({ data: { bod_nombre_: 'Principal', bod_ubicacion: 'Centro', estado_bod: 'ACT' } })
   let color = await prisma.colores.findFirst() || await prisma.colores.create({ data: { col_nombre: 'Azul', col_familia: 'Primario', col_estado: 'ACT' } })
   let talla = await prisma.tallas.findFirst() || await prisma.tallas.create({ data: { tal_codigo: 'M', tal_descripcion: 'Mediana', tal_sistema: 'INT', tal_orden: 1, tal_estado: 'ACT' } })
-  
+
   // Categorias base
   let catMujer = await prisma.categoria.findFirst({ where: { cat_nombre: 'Mujer' } }) || await prisma.categoria.create({ data: { cat_nombre: 'Mujer', cat_estado: 'ACT' } })
   let catHombre = await prisma.categoria.findFirst({ where: { cat_nombre: 'Hombre' } }) || await prisma.categoria.create({ data: { cat_nombre: 'Hombre', cat_estado: 'ACT' } })
