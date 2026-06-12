@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
+import api from '../services/api'
 
 const activeTab = ref('products')
 const products = ref([])
@@ -65,16 +66,8 @@ async function loadUsers() {
   loading.value = true
   error.value = ''
   try {
-    // Simular un request o hacer un fetch al backend una vez que tu compañera termine
-    // const data = await api.get('/usuarios')
-    // users.value = data.data || []
-    
-    // Por ahora, datos falsos simulados hasta que el endpoint esté listo
-    await new Promise(r => setTimeout(r, 500))
-    users.value = [
-      { id: 1, username: 'admin', email: 'admin@shopsport.com', role: 'admin' },
-      { id: 2, username: 'usuario', email: 'user@shopsport.com', role: 'user' }
-    ]
+    const data = await api.get('/usuarios')
+    users.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar usuarios'
   } finally {
@@ -127,14 +120,12 @@ async function saveProduct() {
 
   saving.value = true
   try {
-    console.log('[DEBUG] Enviando al backend:', body)
     let resData;
     if (editingId.value) {
       resData = await ProductController.update(editingId.value, body)
     } else {
       resData = await ProductController.create(body)
     }
-    console.log('[DEBUG] Respuesta del backend:', resData)
     closeForm()
     await loadProducts()
   } catch (err) {
@@ -165,14 +156,10 @@ async function executeDelete() {
       await ProductController.remove(deletingId.value)
       await loadProducts()
     } else if (deleteType.value === 'order') {
-      console.log('[DEBUG] Simulando eliminación de pedido:', deletingId.value)
-      // await api.delete(`/pedidos/${deletingId.value}`)
-      await new Promise(r => setTimeout(r, 500))
+      await api.delete(`/pedidos/${deletingId.value}`)
       await loadOrders()
     } else if (deleteType.value === 'user') {
-      console.log('[DEBUG] Simulando eliminación de usuario:', deletingId.value)
-      // await api.delete(`/usuarios/${deletingId.value}`)
-      await new Promise(r => setTimeout(r, 500))
+      await api.delete(`/usuarios/${deletingId.value}`)
       await loadUsers()
     }
     closeDelete()
@@ -193,11 +180,9 @@ function closeOrderForm() { orderFormDialog.value?.close() }
 async function saveOrder() {
   savingOrder.value = true; orderFormError.value = ''
   try {
-    console.log('[DEBUG] Simulando actualización de pedido:', editingOrderId.value, orderForm.value)
-    // await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
-    await new Promise(r => setTimeout(r, 500))
+    await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
     
-    // Mutate local state for visual feedback since backend doesn't support status yet
+    // Mutate local state for visual feedback
     const orderIndex = orders.value.findIndex(o => o.id === editingOrderId.value)
     if (orderIndex !== -1) {
       orders.value[orderIndex].status = orderForm.value.status
@@ -237,8 +222,13 @@ async function saveUser() {
     return
   }
   try {
-    console.log('[DEBUG] Simulando guardar usuario:', editingUserId.value, userForm.value)
-    await new Promise(r => setTimeout(r, 500))
+    const payload = { ...userForm.value }
+    if (editingUserId.value) {
+      if (!payload.password) delete payload.password
+      await api.put(`/usuarios/${editingUserId.value}`, payload)
+    } else {
+      await api.post('/usuarios', payload)
+    }
     closeUserForm()
     await loadUsers()
   } catch (err) { userFormError.value = err.message || 'Error al guardar usuario' }
