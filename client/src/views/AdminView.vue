@@ -6,6 +6,7 @@ import OrderController from '../controllers/OrderController'
 const activeTab = ref('products')
 const products = ref([])
 const orders = ref([])
+const users = ref([])
 const loading = ref(true)
 const error = ref(null)
 
@@ -42,6 +43,27 @@ async function loadOrders() {
     orders.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar pedidos'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadUsers() {
+  loading.value = true
+  error.value = ''
+  try {
+    // Simular un request o hacer un fetch al backend una vez que tu compañera termine
+    // const data = await api.get('/usuarios')
+    // users.value = data.data || []
+    
+    // Por ahora, datos falsos simulados hasta que el endpoint esté listo
+    await new Promise(r => setTimeout(r, 500))
+    users.value = [
+      { id: 1, username: 'admin', email: 'admin@shopsport.com', role: 'admin' },
+      { id: 2, username: 'usuario', email: 'user@shopsport.com', role: 'user' }
+    ]
+  } catch (err) {
+    error.value = err.message || 'Error al cargar usuarios'
   } finally {
     loading.value = false
   }
@@ -189,6 +211,15 @@ onUnmounted(() => {
       >
         Pedidos
       </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="activeTab === 'users'"
+        :class="{ active: activeTab === 'users' }"
+        @click="activeTab = 'users'; loadUsers()"
+      >
+        Usuarios
+      </button>
     </nav>
 
     <div
@@ -309,6 +340,47 @@ onUnmounted(() => {
               </td>
               <td>${{ Number(o.total || 0).toFixed(2) }}</td>
               <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div v-if="activeTab === 'users'" role="tabpanel" aria-label="Gestión de usuarios">
+      <div class="admin-toolbar">
+        <span class="admin-count">{{ users.length }} usuario(s)</span>
+      </div>
+
+      <div v-if="loading" class="loading" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Cargando usuarios...</p>
+      </div>
+
+      <div v-else-if="users.length === 0" class="empty-message" role="status">
+        No hay usuarios registrados o el servicio no está disponible aún.
+      </div>
+
+      <div v-else class="admin-table-wrap">
+        <table class="admin-table" aria-label="Lista de usuarios">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Rol</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="u in users" :key="u.id">
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span :class="{'role-admin': u.role === 'admin', 'role-user': u.role === 'user'}">
+                  {{ u.role === 'admin' ? 'Administrador' : 'Usuario' }}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -497,6 +569,23 @@ onUnmounted(() => {
 .stock-low {
   color: #b91c1c;
   font-weight: 600;
+}
+
+.role-admin {
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.role-user {
+  background: var(--surface-soft);
+  color: var(--ink);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .btn-action {
