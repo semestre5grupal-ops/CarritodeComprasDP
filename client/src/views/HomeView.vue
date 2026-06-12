@@ -77,10 +77,6 @@
             <h2 id="sec-coleccion">La primera capa define todo.</h2>
             <p>Una selección básica, sobria y funcional para construir looks deportivos sin ruido visual.</p>
         </div>
-        <div class="collection-switch" aria-label="Filtrar por categoría">
-            <button type="button" class="collection-chip" :aria-pressed="activeCategory === 'Mujer'" @click="setCategory('Mujer')">MUJER</button>
-            <button type="button" class="collection-chip" :aria-pressed="activeCategory === 'Hombre'" @click="setCategory('Hombre')">HOMBRE</button>
-        </div>
     </section>
 
     <!-- ===== DESCUENTO CTA ===== -->
@@ -117,21 +113,13 @@ const slides = [
 function nextSlide() { activeSlide.value = (activeSlide.value + 1) % slides.length }
 function prevSlide() { activeSlide.value = (activeSlide.value - 1 + slides.length) % slides.length }
 
-const activeCategory = ref('Mujer') // Used for visual highlight
 const productos = ref([])
 const loading = ref(true)
 const error = ref(null)
 
 const filteredProducts = computed(() => {
-  if (activeCategory.value) {
-    return productos.value.filter(p => p.categoria === activeCategory.value).slice(0, 8)
-  }
   return productos.value.slice(0, 8)
 })
-
-function setCategory(cat) {
-  activeCategory.value = cat
-}
 
 function handleAddToCart(product) {
   addProduct(product, 1)
