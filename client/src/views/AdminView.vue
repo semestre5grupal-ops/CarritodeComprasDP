@@ -86,6 +86,7 @@ async function saveProduct() {
   }
 
   if (!body.nombre) { formError.value = 'El nombre es obligatorio.'; return }
+  if (!body.categoria) { formError.value = 'Debes seleccionar una categoría.'; return }
   if (isNaN(body.precio) || body.precio <= 0) { formError.value = 'Precio debe ser un número positivo.'; return }
   if (isNaN(body.stock) || body.stock < 0) { formError.value = 'Stock debe ser un número válido.'; return }
 

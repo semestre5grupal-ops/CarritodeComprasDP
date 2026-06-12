@@ -47,6 +47,8 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
   try {
+    console.log('--- CREATE PRODUCTO ---')
+    console.log('req.body:', req.body)
     const { nombre, precio, stock, categoria, imagen } = req.body
 
     // Buscar dependencias por defecto creadas por el seed
@@ -54,6 +56,7 @@ async function create(req, res, next) {
     const temporada = await ProductoModel.getFirstTemporada() || { id_temporada: 1 }
     const unidad = await ProductoModel.getFirstUnidad() || { id_unidadmedida: 1 }
     const cat = await ProductoModel.getOrCreateCategoria(categoria)
+    console.log('Categoria resultante:', cat)
     const material = await ProductoModel.getFirstMaterial() || { id_material: 1 }
 
     const producto = await ProductoModel.create({
