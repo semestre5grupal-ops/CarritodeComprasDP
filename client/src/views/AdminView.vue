@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
 
@@ -52,6 +52,7 @@ function openCreateForm() {
   productForm.value = { nombre: '', precio: '', stock: '', categoria: '', imagen: '', talla: '' }
   formError.value = ''
   formDialog.value?.showModal()
+  nextTick(() => document.getElementById('af-nombre')?.focus())
 }
 
 async function openEditForm(product) {
@@ -66,6 +67,7 @@ async function openEditForm(product) {
   }
   formError.value = ''
   formDialog.value?.showModal()
+  nextTick(() => document.getElementById('af-nombre')?.focus())
 }
 
 function closeForm() {
@@ -75,12 +77,12 @@ function closeForm() {
 async function saveProduct() {
   formError.value = ''
   const body = {
-    nombre: productForm.value.nombre.trim(),
+    nombre: productForm.value.nombre.trim().replace(/<[^>]*>?/gm, ''),
     precio: parseFloat(productForm.value.precio),
     stock: parseInt(productForm.value.stock, 10),
     categoria: productForm.value.categoria,
-    imagen: productForm.value.imagen || undefined,
-    talla: productForm.value.talla || undefined,
+    imagen: productForm.value.imagen?.trim().replace(/<[^>]*>?/gm, '') || undefined,
+    talla: productForm.value.talla?.trim().replace(/<[^>]*>?/gm, '') || undefined,
   }
 
   if (!body.nombre) { formError.value = 'El nombre es obligatorio.'; return }
@@ -127,8 +129,34 @@ async function executeDelete() {
   }
 }
 
+function trapFocus(e) {
+  if (e.key === 'Tab' && formDialog.value?.open) {
+    const focusable = formDialog.value.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        last.focus()
+        e.preventDefault()
+      }
+    } else {
+      if (document.activeElement === last) {
+        first.focus()
+        e.preventDefault()
+      }
+    }
+  }
+}
+
 onMounted(() => {
   loadProducts()
+  document.addEventListener('keydown', trapFocus)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', trapFocus)
 })
 </script>
 
@@ -303,7 +331,7 @@ onMounted(() => {
 
         <div class="form-group">
           <label for="af-nombre">Nombre</label>
-          <input id="af-nombre" v-model="productForm.nombre" type="text" maxlength="100" required />
+          <input id="af-nombre" v-model.trim="productForm.nombre" type="text" maxlength="100" required />
         </div>
 
         <div class="form-group">
@@ -327,12 +355,12 @@ onMounted(() => {
 
         <div class="form-group">
           <label for="af-imagen">Ruta de imagen (opcional)</label>
-          <input id="af-imagen" v-model="productForm.imagen" type="text" placeholder="../view/assets/images/producto.jpg" />
+          <input id="af-imagen" v-model.trim="productForm.imagen" type="text" placeholder="../view/assets/images/producto.jpg" />
         </div>
 
         <div class="form-group">
           <label for="af-talla">Tallas (opcional, separadas por " - ")</label>
-          <input id="af-talla" v-model="productForm.talla" type="text" placeholder="S - M - L - XL" />
+          <input id="af-talla" v-model.trim="productForm.talla" type="text" placeholder="S - M - L - XL" />
         </div>
 
         <div class="dialog-actions">
@@ -557,6 +585,10 @@ onMounted(() => {
   width: calc(100% - 2rem);
   background: var(--surface);
   box-shadow: var(--shadow);
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .admin-dialog::backdrop {

@@ -10,6 +10,15 @@ class OrderController {
     }
   }
 
+  async getMyOrders() {
+    try {
+      const response = await api.get('/pedidos/mis-pedidos')
+      return response.data || []
+    } catch (error) {
+      throw new Error(error.message || 'Error al cargar mis pedidos')
+    }
+  }
+
   async create(data) {
     try {
       const response = await api.post('/pedidos', data)
