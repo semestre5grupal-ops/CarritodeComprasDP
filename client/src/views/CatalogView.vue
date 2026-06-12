@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
 import { useCart } from '../models/useCart'
@@ -129,6 +129,11 @@ function scrollCarousel(event, direction) {
 
 onMounted(() => {
   loadProducts()
+  window.addEventListener('order-completed', loadProducts)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('order-completed', loadProducts)
 })
 </script>
 

@@ -95,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
 import ContactForm from '../components/ContactForm.vue'
@@ -141,6 +141,11 @@ async function loadProducts() {
 
 onMounted(() => {
   loadProducts()
+  window.addEventListener('order-completed', loadProducts)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('order-completed', loadProducts)
 })
 </script>
 

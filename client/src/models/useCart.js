@@ -109,11 +109,13 @@ async function submitOrder(router) {
   if (navigator.onLine) {
     const data = await OrderController.create({ detalles })
     clearCart()
+    window.dispatchEvent(new Event('order-completed'))
     return data
   }
 
   await addToQueue({ detalles })
   clearCart()
+  window.dispatchEvent(new Event('order-completed'))
   return { offline: true }
 }
 
