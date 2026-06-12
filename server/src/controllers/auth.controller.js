@@ -16,11 +16,18 @@ async function register(req, res, next) {
     const { username, email, password } = req.body
 
     const existingUser = await AuthModel.findByUsername(username)
-
     if (existingUser) {
       return res.status(409).json({
         error: 'DUPLICATE_ENTRY',
-        message: `El username ya está registrado`,
+        message: 'El usuario ya existe',
+      })
+    }
+
+    const existingEmail = await AuthModel.findByEmail(email)
+    if (existingEmail) {
+      return res.status(409).json({
+        error: 'DUPLICATE_ENTRY',
+        message: 'El correo ya está registrado',
       })
     }
 

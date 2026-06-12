@@ -12,6 +12,17 @@ class AuthModel {
     })
   }
 
+  async findByEmail(email) {
+    return prisma.usuarios.findFirst({
+      where: { 
+        usu_nombrereal: {
+          equals: email,
+          mode: 'insensitive'
+        }
+      },
+    })
+  }
+
   async findById(id) {
     return prisma.usuarios.findFirst({
       where: { id_usuario: id },
