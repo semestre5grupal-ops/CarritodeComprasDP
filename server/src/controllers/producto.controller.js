@@ -53,7 +53,7 @@ async function create(req, res, next) {
     const marca = await ProductoModel.getFirstMarca() || { id_marca: 1 }
     const temporada = await ProductoModel.getFirstTemporada() || { id_temporada: 1 }
     const unidad = await ProductoModel.getFirstUnidad() || { id_unidadmedida: 1 }
-    let cat = await ProductoModel.getFirstCategoria()
+    const cat = await ProductoModel.getOrCreateCategoria(categoria)
     const material = await ProductoModel.getFirstMaterial() || { id_material: 1 }
 
     const producto = await ProductoModel.create({
@@ -63,7 +63,7 @@ async function create(req, res, next) {
       id_temporada: temporada.id_temporada,
       id_unidadmedida: unidad.id_unidadmedida,
       uni_id_unidadmedida: unidad.id_unidadmedida,
-      id_categoria: cat ? cat.id_categoria : 1,
+      id_categoria: cat.id_categoria,
       id_material: material.id_material,
       pro_factor_conversion_: 1,
       pro_genero_: 'U',
@@ -72,15 +72,15 @@ async function create(req, res, next) {
     })
 
     // Crear variante e inventario si tenemos dependencias
-    const color = await ProductoModel.getFirstColor()
-    const talla = await ProductoModel.getFirstTalla()
-    const bodega = await ProductoModel.getFirstBodega()
+    const colorEntity = await ProductoModel.getOrCreateColor(req.body.color || 'Negro')
+    const tallaEntity = await ProductoModel.getOrCreateTalla(req.body.talla || 'M')
+    const bodega = await ProductoModel.getFirstBodega() || { id_bodega: 1 }
 
-    if (color && talla && bodega) {
+    if (colorEntity && tallaEntity && bodega) {
       const variante = await ProductoModel.createVariante({
         id_producto: producto.id_producto,
-        id_color: color.id_color,
-        id_talla: talla.id_talla,
+        id_color: colorEntity.id_color,
+        id_talla: tallaEntity.id_talla,
         var_cod_barras: '0000',
         var_precio_venta: precio,
         var_estado: 'ACT'

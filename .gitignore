@@ -1,8 +1,7 @@
-node_modules
 node_modules/
-.env
-.env.local
-dist
 dist/
-client/node_modules
-server/node_modules
+**/.env
+**/.env.*
+.vite/
+*.log
+.DS_Store
