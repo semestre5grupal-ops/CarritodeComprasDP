@@ -115,8 +115,8 @@ async function saveProduct() {
 
   if (!body.nombre) { formError.value = 'El nombre es obligatorio.'; return }
   if (!body.categoria) { formError.value = 'Debes seleccionar una categoría.'; return }
-  if (isNaN(body.precio) || body.precio <= 0) { formError.value = 'Precio debe ser un número positivo.'; return }
-  if (isNaN(body.stock) || body.stock < 0) { formError.value = 'Stock debe ser un número válido.'; return }
+  if (isNaN(body.precio) || body.precio <= 0 || body.precio > 9999.99) { formError.value = 'Precio debe estar entre 0.01 y 9999.99'; return }
+  if (isNaN(body.stock) || body.stock < 0 || body.stock > 2147483647) { formError.value = 'Stock debe ser un número válido entre 0 y 2147483647'; return }
 
   saving.value = true
   try {
@@ -564,11 +564,11 @@ onUnmounted(() => {
         <div class="form-row">
           <div class="form-group">
             <label for="af-precio">Precio ($)</label>
-            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
+            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" max="9999.99" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
           </div>
           <div class="form-group">
             <label for="af-stock">Stock</label>
-            <input id="af-stock" v-model="productForm.stock" type="number" min="0" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
+            <input id="af-stock" v-model="productForm.stock" type="number" min="0" max="2147483647" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
           </div>
         </div>
 
