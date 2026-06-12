@@ -39,12 +39,12 @@ ON CONFLICT ("id_talla") DO UPDATE SET "tal_descripcion" = EXCLUDED."tal_descrip
     (Asumiendo id_marca=1, id_temporada=1, id_unidadmedida=1, id_material=1)
 =================================================================*/
 INSERT INTO "productos" ("id_producto", "id_marca", "id_temporada", "id_unidadmedida", "id_categoria", "uni_id_unidadmedida", "id_material", "pro_descripcion", "pro_factor_conversion_", "pro_valor_compra", "pro_genero_", "pro_estado", "pro_imagen") VALUES 
-(1, 1, 1, 1, 1, 1, 1, 'Pro Fit Tank', 1, 25.00, 'U', 'ACT', '/images/2011c388_401_gm_ft_glb.jpg'),
-(3, 1, 1, 1, 3, 1, 1, 'Short Deportivo 1', 1, 20.00, 'U', 'ACT', '/images/gf89h-58637b.1.jpg'),
-(4, 1, 1, 1, 3, 1, 1, 'Camiseta Athletic', 1, 22.00, 'U', 'ACT', '/images/gp08h-g61_p1.jpg'),
-(5, 1, 1, 1, 3, 1, 1, 'Short Deportivo 2', 1, 20.00, 'U', 'ACT', '/images/gt18h-586plb.5.jpg'),
-(7, 1, 1, 1, 3, 1, 1, 'Pantalón Deportivo 1', 1, 30.00, 'U', 'ACT', '/images/m4802-586644.2.jpg'),
-(8, 1, 1, 1, 3, 1, 1, 'Pantalón Deportivo 2', 1, 30.00, 'U', 'ACT', '/images/m7129-ch-001.1.jpg'),
+(1, 1, 1, 1, 1, 1, 1, 'Short Deportivo Azul', 1, 25.00, 'U', 'ACT', '/images/2011c388_401_gm_ft_glb.jpg'),
+(3, 1, 1, 1, 3, 1, 1, 'Sudadera Gris Champion', 1, 20.00, 'U', 'ACT', '/images/gf89h-58637b.1.jpg'),
+(4, 1, 1, 1, 3, 1, 1, 'Jogger Gris Oscuro', 1, 22.00, 'U', 'ACT', '/images/gp08h-g61_p1.jpg'),
+(5, 1, 1, 1, 3, 1, 1, 'Camiseta Champion Beige', 1, 20.00, 'U', 'ACT', '/images/gt18h-586plb.5.jpg'),
+(7, 1, 1, 1, 3, 1, 1, 'Jogger Menta', 1, 30.00, 'U', 'ACT', '/images/m4802-586644.2.jpg'),
+(8, 1, 1, 1, 3, 1, 1, 'Short Negro Deportivo', 1, 30.00, 'U', 'ACT', '/images/m7129-ch-001.1.jpg'),
 (9, 1, 1, 1, 2, 1, 1, 'Camiseta Blanca 1', 1, 25.00, 'U', 'ACT', '/images/ma6399a_wht-nlo_4_1.jpg'),
 (10, 1, 1, 1, 2, 1, 1, 'Camiseta Negra 1', 1, 25.00, 'U', 'ACT', '/images/ma6400a_blk-sil_3.jpg'),
 (11, 1, 1, 1, 2, 1, 1, 'Camiseta Negra 2', 1, 25.00, 'U', 'ACT', '/images/mr7427a_blk-blk_2.jpg'),
@@ -59,7 +59,7 @@ INSERT INTO "productos" ("id_producto", "id_marca", "id_temporada", "id_unidadme
 (26, 1, 1, 1, 2, 1, 1, 'Top Blanco', 1, 25.00, 'U', 'ACT', '/images/sport-top-blanco-mujer.jpg'),
 (27, 1, 1, 1, 2, 1, 1, 'Top Negro', 1, 15.00, 'U', 'ACT', '/images/sport-top-negro-mujer.jpg'),
 (28, 1, 1, 1, 2, 1, 1, 'Top Vino', 1, 15.00, 'U', 'ACT', '/images/top-mujer-vino.webp'),
-(29, 1, 1, 1, 3, 1, 1, 'Zapatos Deportivos', 1, 80.00, 'U', 'ACT', '/images/w6693-ch-100.1.jpg'),
+(29, 1, 1, 1, 3, 1, 1, 'Top Blanco Deportivo', 1, 80.00, 'U', 'ACT', '/images/w6693-ch-100.1.jpg'),
 (30, 1, 1, 1, 1, 1, 1, 'Camiseta Gris', 1, 25.00, 'U', 'ACT', '/images/wa6401a_blk-sil_1.jpg'),
 (31, 1, 1, 1, 1, 1, 1, 'Camiseta Azul Oscuro', 1, 25.00, 'U', 'ACT', '/images/wa6907b_mdn-mdn_4.jpg');
 
