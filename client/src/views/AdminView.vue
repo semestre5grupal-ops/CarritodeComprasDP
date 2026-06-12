@@ -66,8 +66,8 @@ async function loadUsers() {
   loading.value = true
   error.value = ''
   try {
-    const data = await api.get('/usuarios')
-    users.value = data || []
+    const response = await api.get('/usuarios')
+    users.value = response.data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar usuarios'
   } finally {
