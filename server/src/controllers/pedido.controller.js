@@ -2,7 +2,7 @@ const PedidoModel = require('../models/pedido.model')
 
 async function create(req, res, next) {
   try {
-    const { detalles } = req.body
+    const { detalles, clienteDatos } = req.body
     const userId = req.user.id // This is id_usuario
 
     let total = 0
@@ -33,7 +33,29 @@ async function create(req, res, next) {
 
     const vendedor = await PedidoModel.getFirstVendedor() || { id_vendedor: 1 }
     let cliente = await PedidoModel.findClienteByEmail(req.user.email)
-    if (!cliente) {
+    
+    if (clienteDatos) {
+      if (cliente) {
+        cliente = await PedidoModel.updateCliente(cliente.id_cliente, {
+          cli_nombre: clienteDatos.nombre || cliente.cli_nombre,
+          cli_ciruc: clienteDatos.cedula,
+          cli_celular: clienteDatos.celular,
+          cli_telefono: clienteDatos.telefono || '0000000000'
+        })
+      } else {
+        const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
+        cliente = await PedidoModel.createCliente({
+          id_ciudad: ciudad.id_ciudad,
+          cli_nombre: clienteDatos.nombre || req.user.username || 'Cliente Final',
+          cli_ciruc: clienteDatos.cedula,
+          cli_celular: clienteDatos.celular,
+          cli_telefono: clienteDatos.telefono || '0000000000',
+          cli_correo: req.user.email || 'correo@correo.com',
+          cli_categoria: 1,
+          cli_estado: true
+        }).catch(e => ({ id_cliente: req.user.id }))
+      }
+    } else if (!cliente) {
       const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
       cliente = await PedidoModel.createCliente({
         id_ciudad: ciudad.id_ciudad,
