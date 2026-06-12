@@ -24,8 +24,7 @@ const createRules = [
   body('imagen')
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('La ruta de imagen no puede exceder 255 caracteres')
-    .escape(),
+    .isLength({ max: 255 }).withMessage('La ruta de imagen no puede exceder 255 caracteres'),
 ]
 
 const updateRules = [
@@ -54,8 +53,7 @@ const updateRules = [
 
   body('imagen')
     .optional()
-    .trim()
-    .escape(),
+    .trim(),
 ]
 
 const idRule = [
