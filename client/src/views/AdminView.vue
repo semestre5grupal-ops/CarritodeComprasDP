@@ -579,7 +579,7 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="af-talla">Tallas (opcional, separadas por " - ")</label>
-          <input id="af-talla" v-model.trim="productForm.talla" type="text" placeholder="S - M - L - XL" />
+          <input id="af-talla" v-model.trim="productForm.talla" @input="productForm.talla = productForm.talla.replace(/[^a-zA-Z\s-]/g, '').toUpperCase()" type="text" placeholder="S - M - L - XL" />
         </div>
 
         <div class="dialog-actions">
