@@ -5,7 +5,7 @@ import { useCart } from '../models/useCart'
 import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
-const { items, itemCount, subtotal, total, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
+const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
 const { isAuthenticated } = useAuth()
 
 const overlay = ref(null)
@@ -295,6 +295,20 @@ function closeAlert() {
               <span>Subtotal</span>
               <span>${{ subtotal.toFixed(2) }}</span>
             </div>
+            <div class="coupon-section">
+              <input
+                id="cart-coupon"
+                type="text"
+                v-model="couponCode"
+                placeholder="Ingresa cupón (ej: DEPORTE20)"
+                class="coupon-input"
+                aria-label="Cupón de descuento"
+              />
+            </div>
+            <div v-if="discount > 0" class="summary-row discount-row">
+              <span>Descuento (20%)</span>
+              <span>-${{ discount.toFixed(2) }}</span>
+            </div>
             <div class="summary-row summary-total">
               <span>Total</span>
               <span>${{ total.toFixed(2) }}</span>
@@ -583,6 +597,28 @@ function closeAlert() {
   justify-content: space-between;
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.coupon-section {
+  margin: 0.25rem 0;
+}
+.coupon-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface-soft);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.coupon-input:focus {
+  border-color: var(--accent);
+}
+.discount-row {
+  color: #10b981;
+  font-weight: 600;
 }
 
 .summary-total {

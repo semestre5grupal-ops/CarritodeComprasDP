@@ -21,7 +21,7 @@ class PedidoModel {
     return prisma.clientes.create({ data })
   }
 
-  async createTransaction(items, clienteId, vendedorId, total) {
+  async createTransaction(items, clienteId, vendedorId, total, descuento = 0) {
     return prisma.$transaction(async (tx) => {
       // 1. Descontar stock
       for (const item of items) {
@@ -41,6 +41,8 @@ class PedidoModel {
 
       // 2. Crear documento
       const subtotal = Math.round(total * 100) / 100
+      const descVal = Math.round(descuento * 100) / 100
+      const totalVal = Math.round((subtotal - descVal) * 100) / 100
       const doc = await tx.documentos.create({
         data: {
           id_cliente: clienteId,
@@ -50,8 +52,8 @@ class PedidoModel {
           doc_descripcion: 'Compra online Carrito',
           doc_subtotal: subtotal,
           doc_iva: 0,
-          doc_descuento: 0,
-          doc_total: subtotal,
+          doc_descuento: descVal,
+          doc_total: totalVal,
           doc_estado: 'ACT',
           productosxdocumento: {
             create: items.map(item => ({

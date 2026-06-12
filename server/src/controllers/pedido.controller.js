@@ -2,7 +2,7 @@ const PedidoModel = require('../models/pedido.model')
 
 async function create(req, res, next) {
   try {
-    const { detalles } = req.body
+    const { detalles, cupon } = req.body
     const userId = req.user.id // This is id_usuario
 
     let total = 0
@@ -47,7 +47,12 @@ async function create(req, res, next) {
       }).catch(e => ({ id_cliente: req.user.id }))
     }
 
-    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total)
+    let descuento = 0
+    if (cupon && cupon.trim().toUpperCase() === 'DEPORTE20') {
+      descuento = Math.round(total * 0.2 * 100) / 100
+    }
+
+    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento)
 
     // Formatear respuesta al formato original esperado por frontend
     const formatPedido = {
