@@ -14,6 +14,8 @@ class UsuarioModel {
         id_usuario: 'asc',
       },
     })
+  }
+
   async create(data) {
     return prisma.usuarios.create({
       data: {
