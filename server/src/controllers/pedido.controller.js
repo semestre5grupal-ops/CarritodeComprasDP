@@ -77,8 +77,13 @@ async function create(req, res, next) {
 
 async function getMyOrders(req, res, next) {
   try {
-    // Buscar los documentos del cliente usando req.user.id (asumiendo mapeo id_cliente = id_usuario)
-    const documentos = await PedidoModel.findAllMyOrders(req.user.id)
+    // Map the user to their corresponding cliente by email
+    const cliente = await PedidoModel.findClienteByEmail(req.user.email)
+    if (!cliente) {
+      return res.json({ data: [] }) // No ha hecho compras aún, por tanto no es cliente
+    }
+
+    const documentos = await PedidoModel.findAllMyOrders(cliente.id_cliente)
 
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
