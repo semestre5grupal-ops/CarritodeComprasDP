@@ -11,7 +11,7 @@ const { isAuthenticated, user, fetchProfile } = useAuth()
 const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
-const offlineAlertOpen = ref(false)
+const alertState = ref(null) // 'offline' or 'success'
 const submitting = ref(false)
 const submitError = ref('')
 
@@ -55,9 +55,9 @@ function handleKeydown(evt) {
   if (!drawerOpen.value) return
 
   if (evt.key === 'Escape') {
-    if (offlineAlertOpen.value) {
+    if (alertState.value) {
       dialog.value?.close()
-      offlineAlertOpen.value = false
+      alertState.value = null
       return
     }
     closeDrawer()
@@ -189,9 +189,9 @@ async function handleCheckout() {
   }
 }
 
-function closeOfflineAlert() {
+function closeAlert() {
   dialog.value?.close()
-  offlineAlertOpen.value = false
+  alertState.value = null
 }
 </script>
 
@@ -345,6 +345,25 @@ function closeOfflineAlert() {
               <span>Subtotal</span>
               <span>${{ subtotal.toFixed(2) }}</span>
             </div>
+            <div class="coupon-section">
+              <input
+                id="cart-coupon"
+                type="text"
+                v-model="couponCode"
+                @input="sanitizeCoupon"
+                maxlength="9"
+                placeholder="Ingresa cupón (ej: DEPORTE20)"
+                class="coupon-input"
+                aria-label="Cupón de descuento"
+              />
+              <div v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'" class="coupon-error">
+                Cupón inválido
+              </div>
+            </div>
+            <div v-if="discount > 0" class="summary-row discount-row">
+              <span>Descuento (20%)</span>
+              <span>-${{ discount.toFixed(2) }}</span>
+            </div>
             <div class="summary-row summary-total">
               <span>Total</span>
               <span>${{ total.toFixed(2) }}</span>
@@ -398,12 +417,19 @@ function closeOfflineAlert() {
       aria-labelledby="offline-dialog-title"
       aria-describedby="offline-dialog-desc"
     >
-      <h2 id="offline-dialog-title">Pedido guardado</h2>
+      <h2 id="offline-dialog-title">
+        {{ alertState === 'offline' ? 'Pedido guardado' : '¡Pedido exitoso!' }}
+      </h2>
       <p id="offline-dialog-desc">
-        No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
-        y se procesará automáticamente cuando vuelva la conexión.
+        <template v-if="alertState === 'offline'">
+          No hay conexión a internet. Tu pedido se ha guardado en la cola de tareas pendientes
+          y se procesará automáticamente cuando vuelva la conexión.
+        </template>
+        <template v-else>
+          Tu pedido ha sido procesado correctamente y ya se encuentra registrado en nuestro sistema. ¡Gracias por tu compra!
+        </template>
       </p>
-        <button type="button" class="btn btn-primary" @click="closeOfflineAlert(); closeDrawer()" autofocus>
+      <button type="button" class="btn btn-primary" @click="closeAlert(); closeDrawer()" autofocus>
         Entendido
       </button>
     </dialog>
@@ -646,6 +672,35 @@ function closeOfflineAlert() {
   justify-content: space-between;
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.coupon-section {
+  margin: 0.25rem 0;
+}
+.coupon-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface-soft);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.coupon-input:focus {
+  border-color: var(--accent);
+}
+.discount-row {
+  color: #10b981;
+  font-weight: 600;
+}
+.coupon-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  font-weight: 500;
 }
 
 .summary-total {
