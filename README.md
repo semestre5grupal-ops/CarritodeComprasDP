@@ -211,18 +211,30 @@ CarritodeComprasDP/
 
 ## Seguridad OWASP Implementada
 
-| Práctica | Implementación |
-|----------|---------------|
-| **Autenticación segura** | JWT con 8h de expiración, bcrypt con 12 rounds de sal |
-| **Control de acceso (RBAC)** | Middleware `role.js`: admin vs user por endpoint |
-| **Validación de entrada** | `express-validator` en todos los endpoints + regex client-side |
-| **Protección CSRF** | SameSite cookies + JWT en header (no cookies) |
-| **Rate Limiting** | express-rate-limit configurado globalmente |
-| **HTTP Security Headers** | Helmet middleware activado |
-| **CORS restringido** | Solo orígenes permitidos en desarrollo |
-| **Error handling seguro** | ErrorHandler centralizado sin leak de stack traces |
-| **Prevención XSS** | Helmet, escape de input en frontend, Content-Type validado |
-| **Sanitización SQL** | Prisma ORM previene inyección (queries parametrizadas) |
+Como parte de los requerimientos de seguridad, se han identificado y mitigado los siguientes **3 riesgos del OWASP Top 10**:
+
+### 1. A01:2021-Broken Access Control (Pérdida de Control de Acceso)
+- **Riesgo:** Un usuario común podría intentar acceder a endpoints administrativos (como crear o eliminar productos, o ver los pedidos de otros).
+- **Mitigación:** Implementación del middleware `role.js` en el backend. Todas las rutas de administración están protegidas con la función `requireAdmin`, que verifica el campo de rol dentro del JWT. Si un usuario sin el rol adecuado intenta acceder, el servidor responde con un código `403 Forbidden`. En el frontend, las vistas y botones de administración no se renderizan para usuarios sin privilegios.
+
+### 2. A03:2021-Injection (Inyección)
+- **Riesgo:** Atacantes podrían enviar caracteres maliciosos o comandos SQL a través de los formularios de login, registro o creación de productos para manipular la base de datos o ejecutar scripts cruzados (XSS).
+- **Mitigación:** 
+  - **Inyección SQL:** Se mitigó completamente delegando el acceso a datos al **ORM Prisma**, el cual parametriza automáticamente todas las consultas a PostgreSQL.
+  - **Cross-Site Scripting (XSS):** Se implementó la librería `express-validator` en todas las rutas POST/PUT para validar tipos de datos y escapar (sanitize) los inputs, evitando que etiquetas HTML peligrosas lleguen a la BD. En el frontend, Vue 3 neutraliza automáticamente el contenido interpolado.
+
+### 3. A07:2021-Identification and Authentication Failures (Fallos de Identificación y Autenticación)
+- **Riesgo:** Robo de credenciales mediante ataques de fuerza bruta, interceptación o exposición de contraseñas en texto plano en la base de datos.
+- **Mitigación:** 
+  - **Hashing:** Las contraseñas NUNCA se guardan en texto plano. Se utiliza `bcrypt` para crear un hash con su respectiva sal al momento de registro.
+  - **Autenticación sin estado:** Se utiliza **JSON Web Tokens (JWT)** firmados en lugar de cookies de sesión, los cuales tienen un tiempo de expiración y viajan en el header `Authorization`.
+  - **Rate Limiting:** El middleware `express-rate-limit` bloquea intentos repetitivos y masivos de login (fuerza bruta).
+
+| Prácticas Adicionales | Implementación |
+|-----------------------|---------------|
+| **HTTP Security Headers** | Helmet middleware activado para mitigar Clickjacking y MIME sniffing |
+| **CORS restringido** | Middleware CORS para permitir solicitudes únicamente desde el dominio del frontend confiable |
+| **Error handling seguro** | Middleware de error centralizado que evita exponer los `stack traces` internos al usuario final |
 
 ---
 
