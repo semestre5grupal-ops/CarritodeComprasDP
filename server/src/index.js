@@ -9,6 +9,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler')
 const authRoutes = require('./routes/auth.routes')
 const productoRoutes = require('./routes/producto.routes')
 const pedidoRoutes = require('./routes/pedido.routes')
+const usuarioRoutes = require('./routes/usuario.routes')
 
 const app = express()
 
@@ -44,6 +45,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/productos', productoRoutes)
 app.use('/api/pedidos', pedidoRoutes)
+app.use('/api/usuarios', usuarioRoutes)
 
 app.use(notFoundHandler)
 app.use(errorHandler)
