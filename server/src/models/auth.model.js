@@ -3,7 +3,12 @@ const prisma = require('../lib/prisma')
 class AuthModel {
   async findByUsername(username) {
     return prisma.usuarios.findFirst({
-      where: { usu_nombre: username },
+      where: { 
+        usu_nombre: {
+          equals: username,
+          mode: 'insensitive'
+        }
+      },
     })
   }
 
