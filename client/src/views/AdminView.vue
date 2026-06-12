@@ -219,6 +219,11 @@ function openUserEditForm(user) {
 function closeUserForm() { userFormDialog.value?.close() }
 async function saveUser() {
   savingUser.value = true; userFormError.value = ''
+  
+  // Sanitización adicional antes de enviar
+  userForm.value.username = userForm.value.username.trim().replace(/<[^>]*>?/gm, '')
+  userForm.value.email = userForm.value.email.trim().replace(/<[^>]*>?/gm, '')
+
   if (!userForm.value.username || !userForm.value.email) {
     userFormError.value = 'Usuario y correo son obligatorios'
     savingUser.value = false
@@ -644,17 +649,37 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="uf-username">Nombre de Usuario</label>
-          <input id="uf-username" v-model.trim="userForm.username" type="text" required />
+          <input 
+            id="uf-username" 
+            v-model.trim="userForm.username" 
+            @input="userForm.username = userForm.username.replace(/[^a-zA-Z0-9_ \-]/g, '')"
+            type="text" 
+            maxlength="50"
+            required 
+          />
         </div>
 
         <div class="form-group">
           <label for="uf-email">Correo Electrónico</label>
-          <input id="uf-email" v-model.trim="userForm.email" type="email" required />
+          <input 
+            id="uf-email" 
+            v-model.trim="userForm.email" 
+            @input="userForm.email = userForm.email.replace(/\s/g, '')"
+            type="email" 
+            maxlength="100"
+            required 
+          />
         </div>
 
         <div class="form-group">
           <label for="uf-password">Contraseña {{ editingUserId ? '(Dejar en blanco para no cambiar)' : '' }}</label>
-          <input id="uf-password" v-model="userForm.password" type="password" :required="!editingUserId" />
+          <input 
+            id="uf-password" 
+            v-model="userForm.password" 
+            type="password" 
+            maxlength="100"
+            :required="!editingUserId" 
+          />
         </div>
 
         <div class="form-group">
