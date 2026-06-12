@@ -92,11 +92,14 @@ async function saveProduct() {
 
   saving.value = true
   try {
+    console.log('[DEBUG] Enviando al backend:', body)
+    let resData;
     if (editingId.value) {
-      await ProductController.update(editingId.value, body)
+      resData = await ProductController.update(editingId.value, body)
     } else {
-      await ProductController.create(body)
+      resData = await ProductController.create(body)
     }
+    console.log('[DEBUG] Respuesta del backend:', resData)
     closeForm()
     await loadProducts()
   } catch (err) {
