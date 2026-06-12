@@ -11,18 +11,14 @@ const password = ref('')
 const errors = ref({})
 const serverError = ref('')
 
-const USERNAME_RE = /^[a-zA-Z0-9_]{3,30}$/
-const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,50}$/
 
 function validateField(field) {
   if (field === 'username') {
     if (!username.value) errors.value.username = 'El usuario es obligatorio.'
-    else if (!USERNAME_RE.test(username.value)) errors.value.username = '3-30 caracteres. Solo letras, números y guion bajo.'
     else delete errors.value.username
   }
   if (field === 'password') {
     if (!password.value) errors.value.password = 'La contraseña es obligatoria.'
-    else if (!PASSWORD_RE.test(password.value)) errors.value.password = 'Mín. 6 caracteres, mayúscula, minúscula y número.'
     else delete errors.value.password
   }
 }

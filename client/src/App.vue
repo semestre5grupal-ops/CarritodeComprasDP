@@ -15,7 +15,18 @@ function handleAuthExpired() {
   alert('Su sesión ha expirado. Por favor, inicie sesión nuevamente.')
 }
 
+const showLogoutModal = ref(false)
+
+function confirmLogout() {
+  showLogoutModal.value = true
+}
+
+function cancelLogout() {
+  showLogoutModal.value = false
+}
+
 function handleLogout() {
+  showLogoutModal.value = false
   logout()
   router.push('/')
 }
@@ -73,6 +84,17 @@ onUnmounted(() => {
 
   <CartDrawer />
 
+  <div v-if="showLogoutModal" class="modal-overlay" @click="cancelLogout">
+    <div class="modal-content" @click.stop>
+      <h3>Cerrar sesión</h3>
+      <p>¿Está seguro que desea cerrar su sesión?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" @click="cancelLogout">Cancelar</button>
+        <button type="button" class="btn btn-dark" @click="handleLogout">Sí, salir</button>
+      </div>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="nav-bar wrap-wide">
       <h1 class="brand">
@@ -90,24 +112,23 @@ onUnmounted(() => {
 
       <div class="nav-actions" aria-label="Acciones rápidas">
         <template v-if="isAuthenticated">
-          <span class="nav-pill btn-user" style="pointer-events: none;">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span class="user-text">{{ user?.username }}</span>
-          </span>
-          <button type="button" class="nav-pill btn-user" style="cursor: pointer;" @click="handleLogout" aria-label="Cerrar sesión">
-            Salir
-          </button>
-          <router-link
-            v-if="isAdmin"
-            to="/admin"
-            class="nav-pill"
-            aria-label="Panel de administración"
-          >
-            Admin
-          </router-link>
+          <div class="user-dropdown-container">
+            <span class="nav-pill btn-user" style="cursor: pointer;">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span class="user-text">{{ user?.username }}</span>
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </span>
+            <div class="user-dropdown-menu">
+              <router-link to="/mis-pedidos" class="dropdown-item">Mis Pedidos</router-link>
+              <router-link v-if="isAdmin" to="/admin" class="dropdown-item">Admin</router-link>
+              <button type="button" class="dropdown-item" @click="confirmLogout">Salir</button>
+            </div>
+          </div>
         </template>
         <template v-else>
           <router-link
@@ -194,4 +215,112 @@ onUnmounted(() => {
 .promo-banner button:hover {
   opacity: 1;
 }
+
+/* User Dropdown Menu */
+.user-dropdown-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.user-dropdown-container .nav-pill {
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+
+.chevron {
+  margin-left: 4px;
+  transition: transform 0.2s;
+}
+
+.user-dropdown-container:hover .chevron {
+  transform: rotate(180deg);
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border-radius: 0.8rem;
+  box-shadow: 0 10px 25px rgba(21, 33, 42, 0.1);
+  border: 1px solid var(--line);
+  padding: 0.5rem;
+  min-width: 150px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.user-dropdown-container:hover .user-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.6rem 1rem;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s, color 0.15s;
+  font-size: 0.85rem;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(97, 168, 184, 0.1);
+  color: var(--accent);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(21, 33, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--surface);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-content p {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
 </style>
