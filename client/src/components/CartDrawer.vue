@@ -108,10 +108,21 @@ function decreaseQty(item) {
   }
 }
 
+function sanitizeCoupon(e) {
+  couponCode.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 9)
+}
+
 async function handleCheckout() {
   if (submitting.value) return
   submitting.value = true
   submitError.value = ''
+
+  if (couponCode.value.trim() !== '' && couponCode.value.trim().toUpperCase() !== 'DEPORTE20') {
+    submitError.value = 'Cupón inválido'
+    submitting.value = false
+    return
+  }
+
   try {
     if (!isAuthenticated.value) {
       closeDrawer()
@@ -300,10 +311,15 @@ function closeAlert() {
                 id="cart-coupon"
                 type="text"
                 v-model="couponCode"
+                @input="sanitizeCoupon"
+                maxlength="9"
                 placeholder="Ingresa cupón (ej: DEPORTE20)"
                 class="coupon-input"
                 aria-label="Cupón de descuento"
               />
+              <div v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'" class="coupon-error">
+                Cupón inválido
+              </div>
             </div>
             <div v-if="discount > 0" class="summary-row discount-row">
               <span>Descuento (20%)</span>
@@ -619,6 +635,13 @@ function closeAlert() {
 .discount-row {
   color: #10b981;
   font-weight: 600;
+}
+.coupon-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  font-weight: 500;
 }
 
 .summary-total {

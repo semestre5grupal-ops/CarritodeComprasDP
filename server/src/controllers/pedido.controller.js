@@ -48,8 +48,18 @@ async function create(req, res, next) {
     }
 
     let descuento = 0
-    if (cupon && cupon.trim().toUpperCase() === 'DEPORTE20') {
-      descuento = Math.round(total * 0.2 * 100) / 100
+    if (cupon !== undefined && cupon !== null && cupon !== '') {
+      if (typeof cupon !== 'string') {
+        return res.status(400).json({ error: 'INVALID_COUPON', message: 'Cupón inválido' })
+      }
+      const trimmed = cupon.trim()
+      if (trimmed !== '') {
+        const isAlphanumeric = /^[a-zA-Z0-9]+$/.test(trimmed)
+        if (!isAlphanumeric || trimmed.length > 9 || trimmed.toUpperCase() !== 'DEPORTE20') {
+          return res.status(400).json({ error: 'INVALID_COUPON', message: 'Cupón inválido' })
+        }
+        descuento = Math.round(total * 0.2 * 100) / 100
+      }
     }
 
     const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento)
