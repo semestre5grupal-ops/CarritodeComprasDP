@@ -235,6 +235,7 @@ Como parte de los requerimientos de seguridad, se han identificado y mitigado lo
 | **HTTP Security Headers** | Helmet middleware activado para mitigar Clickjacking y MIME sniffing |
 | **CORS restringido** | Middleware CORS para permitir solicitudes únicamente desde el dominio del frontend confiable |
 | **Error handling seguro** | Middleware de error centralizado que evita exponer los `stack traces` internos al usuario final |
+| **HTTPS (Puntos Extra)** | El tráfico se encripta end-to-end (SSL/TLS) de manera nativa utilizando los reverse proxies de Vercel (Frontend) y Render (Backend) |
 
 ---
 
