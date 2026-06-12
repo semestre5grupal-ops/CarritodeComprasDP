@@ -90,17 +90,14 @@ onUnmounted(() => {
 
       <div class="nav-actions" aria-label="Acciones rápidas">
         <template v-if="isAuthenticated">
-          <span class="nav-pill btn-user" style="cursor: default;">
+          <span class="nav-pill btn-user" style="pointer-events: none;">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
             <span class="user-text">{{ user?.username }}</span>
           </span>
-          <router-link to="/mis-pedidos" class="nav-pill" aria-label="Ver mis pedidos">
-            Mis Pedidos
-          </router-link>
-          <button type="button" class="nav-pill" @click="handleLogout" aria-label="Cerrar sesión" style="background: none; border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
+          <button type="button" class="nav-pill btn-user" style="cursor: pointer;" @click="handleLogout" aria-label="Cerrar sesión">
             Salir
           </button>
           <router-link
