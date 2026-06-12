@@ -1,0 +1,41 @@
+-- Script para insertar productos en PostgreSQL
+-- Ojo: Asume que las tablas relacionadas (marcas, temporadas, etc.) ya tienen el ID 1 creado.
+
+INSERT INTO "productos" (
+  "id_marca", "id_temporada", "id_unidadmedida", "id_categoria", 
+  "uni_id_unidadmedida", "id_material", "pro_descripcion", 
+  "pro_factor_conversion_", "pro_valor_compra", "pro_genero_", 
+  "pro_estado", "pro_imagen"
+) VALUES 
+(1, 1, 1, 1, 1, 1, 'Pro Fit Tank', 1, 25.00, 'U', 'ACT', '/images/2011c388_401_gm_ft_glb.jpg'),
+(1, 1, 1, 1, 1, 1, 'Chompa Hombre', 1, 35.00, 'U', 'ACT', '/images/chompa-hombre.jpg'),
+(1, 1, 1, 1, 1, 1, 'Short Deportivo 1', 1, 20.00, 'U', 'ACT', '/images/gf89h-58637b.1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Athletic', 1, 22.00, 'U', 'ACT', '/images/gp08h-g61_p1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Short Deportivo 2', 1, 20.00, 'U', 'ACT', '/images/gt18h-586plb.5.jpg'),
+(1, 1, 1, 1, 1, 1, 'Gym Wear', 1, 40.00, 'U', 'ACT', '/images/gym-wear.jpg'),
+(1, 1, 1, 1, 1, 1, 'Pantalón Deportivo 1', 1, 30.00, 'U', 'ACT', '/images/m4802-586644.2.jpg'),
+(1, 1, 1, 1, 1, 1, 'Pantalón Deportivo 2', 1, 30.00, 'U', 'ACT', '/images/m7129-ch-001.1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Blanca 1', 1, 25.00, 'U', 'ACT', '/images/ma6399a_wht-nlo_4_1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Negra 1', 1, 25.00, 'U', 'ACT', '/images/ma6400a_blk-sil_3.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Negra 2', 1, 25.00, 'U', 'ACT', '/images/mr7427a_blk-blk_2.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Azul', 1, 25.00, 'U', 'ACT', '/images/mr7427a_ind-ind_5.jpg'),
+(1, 1, 1, 1, 1, 1, 'Mujer Correr', 1, 45.00, 'U', 'ACT', '/images/mujer-correr.webp'),
+(1, 1, 1, 1, 1, 1, 'Mujer Movimiento', 1, 45.00, 'U', 'ACT', '/images/mujer-movimiento.jpg'),
+(1, 1, 1, 1, 1, 1, 'Persona Yoga', 1, 40.00, 'U', 'ACT', '/images/persona-yoga.webp'),
+(1, 1, 1, 1, 1, 1, 'Personas Corriendo 1', 1, 50.00, 'U', 'ACT', '/images/personas-corriendo.png'),
+(1, 1, 1, 1, 1, 1, 'Personas Corriendo 2', 1, 50.00, 'U', 'ACT', '/images/personas-corriendo.webp'),
+(1, 1, 1, 1, 1, 1, 'Running Color Negro', 1, 55.00, 'U', 'ACT', '/images/running-color-negro.webp'),
+(1, 1, 1, 1, 1, 1, 'Conjunto Negro Mujer', 1, 60.00, 'U', 'ACT', '/images/sport-conjunto-negro-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Leggins Azul Deslavado', 1, 35.00, 'U', 'ACT', '/images/sport-leggins-azul-deslavado-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Short Blanco', 1, 20.00, 'U', 'ACT', '/images/sport-short-blanco.jpg'),
+(1, 1, 1, 1, 1, 1, 'Short Negro Mujer', 1, 20.00, 'U', 'ACT', '/images/sport-short-negro-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Azul Deslavado', 1, 15.00, 'U', 'ACT', '/images/sport-top-azul-deslavado-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Azul', 1, 15.00, 'U', 'ACT', '/images/sport-top-azul-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Azul Oscuro', 1, 15.00, 'U', 'ACT', '/images/sport-top-azul-oscuro-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Blanco', 1, 15.00, 'U', 'ACT', '/images/sport-top-blanco-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Negro', 1, 15.00, 'U', 'ACT', '/images/sport-top-negro-mujer.jpg'),
+(1, 1, 1, 1, 1, 1, 'Top Vino', 1, 15.00, 'U', 'ACT', '/images/top-mujer-vino.webp'),
+(1, 1, 1, 1, 1, 1, 'Zapatos Deportivos', 1, 80.00, 'U', 'ACT', '/images/w6693-ch-100.1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Gris', 1, 25.00, 'U', 'ACT', '/images/wa6401a_blk-sil_1.jpg'),
+(1, 1, 1, 1, 1, 1, 'Camiseta Azul Oscuro', 1, 25.00, 'U', 'ACT', '/images/wa6907b_mdn-mdn_4.jpg'),
+(1, 1, 1, 1, 1, 1, 'Yoga Mujer', 1, 40.00, 'U', 'ACT', '/images/yoga-mujer.avif');
