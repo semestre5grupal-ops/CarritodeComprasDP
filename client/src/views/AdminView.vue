@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
-import UserController from '../controllers/UserController'
 
 const activeTab = ref('products')
 const products = ref([])
@@ -53,8 +52,16 @@ async function loadUsers() {
   loading.value = true
   error.value = ''
   try {
-    const data = await UserController.getAll()
-    users.value = data || []
+    // Simular un request o hacer un fetch al backend una vez que tu compañera termine
+    // const data = await api.get('/usuarios')
+    // users.value = data.data || []
+    
+    // Por ahora, datos falsos simulados hasta que el endpoint esté listo
+    await new Promise(r => setTimeout(r, 500))
+    users.value = [
+      { id: 1, username: 'admin', email: 'admin@shopsport.com', role: 'admin' },
+      { id: 2, username: 'usuario', email: 'user@shopsport.com', role: 'user' }
+    ]
   } catch (err) {
     error.value = err.message || 'Error al cargar usuarios'
   } finally {
@@ -340,7 +347,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Users Tab -->
-    <div v-if="activeTab === 'users'" role="tabpanel" aria-label="Gestión de usuarios y estados">
+    <div v-if="activeTab === 'users'" role="tabpanel" aria-label="Gestión de usuarios">
       <div class="admin-toolbar">
         <span class="admin-count">{{ users.length }} usuario(s)</span>
       </div>
@@ -351,33 +358,27 @@ onUnmounted(() => {
       </div>
 
       <div v-else-if="users.length === 0" class="empty-message" role="status">
-        No hay usuarios registrados.
+        No hay usuarios registrados o el servicio no está disponible aún.
       </div>
 
       <div v-else class="admin-table-wrap">
-        <table class="admin-table" aria-label="Lista de usuarios y estados">
+        <table class="admin-table" aria-label="Lista de usuarios">
           <thead>
             <tr>
               <th scope="col">ID</th>
-              <th scope="col">Usuario</th>
-              <th scope="col">Correo Electrónico</th>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
               <th scope="col">Rol</th>
-              <th scope="col">Estado</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="u in users" :key="u.id_usuario">
-              <td>{{ u.id_usuario }}</td>
-              <td>{{ u.usu_nombre }}</td>
-              <td>{{ u.usu_nombrereal }}</td>
+            <tr v-for="u in users" :key="u.id">
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
               <td>
-                <span class="user-role-badge" :class="u.usu_rol">
-                  {{ u.usu_rol }}
-                </span>
-              </td>
-              <td>
-                <span class="user-status-badge" :class="u.usu_estado_ ? u.usu_estado_.toLowerCase() : ''">
-                  {{ u.usu_estado_ || 'Inactivo' }}
+                <span :class="{'role-admin': u.role === 'admin', 'role-user': u.role === 'user'}">
+                  {{ u.role === 'admin' ? 'Administrador' : 'Usuario' }}
                 </span>
               </td>
             </tr>
@@ -570,6 +571,23 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
+.role-admin {
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.role-user {
+  background: var(--surface-soft);
+  color: var(--ink);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
 .btn-action {
   background: none;
   border: 1px solid var(--line);
@@ -737,39 +755,5 @@ onUnmounted(() => {
   .form-row {
     grid-template-columns: 1fr;
   }
-}
-
-.user-role-badge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  border-radius: 0.25rem;
-}
-.user-role-badge.admin {
-  background-color: rgba(12, 77, 99, 0.15);
-  color: var(--accent);
-}
-.user-role-badge.user {
-  background-color: rgba(100, 116, 139, 0.15);
-  color: #64748b;
-}
-
-.user-status-badge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  border-radius: 0.25rem;
-}
-.user-status-badge.activo {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-.user-status-badge.inactivo {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
 }
 </style>
