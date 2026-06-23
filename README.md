@@ -211,18 +211,29 @@ CarritodeComprasDP/
 
 ## Seguridad OWASP Implementada
 
-| Práctica | Implementación |
-|----------|---------------|
-| **Autenticación segura** | JWT con 8h de expiración, bcrypt con 12 rounds de sal |
-| **Control de acceso (RBAC)** | Middleware `role.js`: admin vs user por endpoint |
-| **Validación de entrada** | `express-validator` en todos los endpoints + regex client-side |
-| **Protección CSRF** | SameSite cookies + JWT en header (no cookies) |
-| **Rate Limiting** | express-rate-limit configurado globalmente |
-| **HTTP Security Headers** | Helmet middleware activado |
-| **CORS restringido** | Solo orígenes permitidos en desarrollo |
-| **Error handling seguro** | ErrorHandler centralizado sin leak de stack traces |
-| **Prevención XSS** | Helmet, escape de input en frontend, Content-Type validado |
-| **Sanitización SQL** | Prisma ORM previene inyección (queries parametrizadas) |
+Para cumplir con las mejores prácticas y lineamientos de seguridad, se han mitigado los siguientes riesgos principales del OWASP Top 10:
+
+### 1. A01:2021-Broken Access Control (Control de Acceso Quebrado)
+- **Riesgo:** Un usuario común podría acceder a funciones de administrador o modificar información de otros usuarios si los permisos no se verifican en el servidor.
+- **Mitigación:** Implementación del middleware `role.js` (RBAC) en el backend. Las rutas de creación, edición y eliminación de productos (`/api/productos`) así como la visualización de todos los pedidos (`GET /api/pedidos`) están estrictamente bloqueadas y solo permiten el paso si el JWT decodificado contiene el rol `admin`.
+
+### 2. A03:2021-Injection (Inyección SQL / XSS)
+- **Riesgo:** Atacantes podrían enviar scripts maliciosos (XSS) o comandos SQL mediante los formularios de login, registro o creación de productos.
+- **Mitigación:** 
+  - **Inyección SQL:** Evitada totalmente gracias al uso de **Prisma ORM**, el cual parametriza todas las consultas por debajo, impidiendo que el texto plano altere la estructura de la consulta a PostgreSQL.
+  - **XSS y validación de entrada:** Uso riguroso de `express-validator` en las rutas para sanitizar el input y expresiones regulares estrictas en el cliente. Además, se utiliza `helmet` para configurar las cabeceras HTTP de seguridad.
+
+### 3. A07:2021-Identification and Authentication Failures (Fallos de Autenticación)
+- **Riesgo:** Almacenamiento inseguro de contraseñas, tokens fáciles de interceptar o robar, o ataques de fuerza bruta.
+- **Mitigación:**
+  - Las contraseñas nunca se guardan en texto plano. Se procesan con un hash fuerte usando `bcrypt` (12 rounds de sal) al momento de registrar el usuario.
+  - La autenticación utiliza **JWT** de corta duración (8h de expiración), transmitido siempre en la cabecera `Authorization: Bearer <token>`.
+  - Se configuró `express-rate-limit` a nivel global para bloquear repetidos intentos de inicio de sesión fallidos, mitigando la fuerza bruta.
+
+| Otras implementaciones | Detalles |
+|------------------------|----------|
+| **CORS restringido** | Orígenes validados en `app.js`, bloqueando accesos cruzados de dominios no autorizados. |
+| **Error Handling Seguro** | Middleware centralizado que atrapa todas las excepciones y devuelve JSON limpio (`error`, `message`) sin exponer los *stack traces* del servidor. |
 
 ---
 
