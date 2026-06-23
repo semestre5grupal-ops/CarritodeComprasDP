@@ -211,29 +211,31 @@ CarritodeComprasDP/
 
 ## Seguridad OWASP Implementada
 
-Para cumplir con las mejores prácticas y lineamientos de seguridad, se han mitigado los siguientes riesgos principales del OWASP Top 10:
+Como parte de los requerimientos de seguridad, se han identificado y mitigado los siguientes **3 riesgos del OWASP Top 10**:
 
-### 1. A01:2021-Broken Access Control (Control de Acceso Quebrado)
-- **Riesgo:** Un usuario común podría acceder a funciones de administrador o modificar información de otros usuarios si los permisos no se verifican en el servidor.
-- **Mitigación:** Implementación del middleware `role.js` (RBAC) en el backend. Las rutas de creación, edición y eliminación de productos (`/api/productos`) así como la visualización de todos los pedidos (`GET /api/pedidos`) están estrictamente bloqueadas y solo permiten el paso si el JWT decodificado contiene el rol `admin`.
+### 1. A01:2021-Broken Access Control (Pérdida de Control de Acceso)
+- **Riesgo:** Un usuario común podría intentar acceder a endpoints administrativos (como crear o eliminar productos, o ver los pedidos de otros).
+- **Mitigación:** Implementación del middleware `role.js` en el backend. Todas las rutas de administración están protegidas con la función `requireAdmin`, que verifica el campo de rol dentro del JWT. Si un usuario sin el rol adecuado intenta acceder, el servidor responde con un código `403 Forbidden`. En el frontend, las vistas y botones de administración no se renderizan para usuarios sin privilegios.
 
-### 2. A03:2021-Injection (Inyección SQL / XSS)
-- **Riesgo:** Atacantes podrían enviar scripts maliciosos (XSS) o comandos SQL mediante los formularios de login, registro o creación de productos.
+### 2. A03:2021-Injection (Inyección)
+- **Riesgo:** Atacantes podrían enviar caracteres maliciosos o comandos SQL a través de los formularios de login, registro o creación de productos para manipular la base de datos o ejecutar scripts cruzados (XSS).
 - **Mitigación:** 
-  - **Inyección SQL:** Evitada totalmente gracias al uso de **Prisma ORM**, el cual parametriza todas las consultas por debajo, impidiendo que el texto plano altere la estructura de la consulta a PostgreSQL.
-  - **XSS y validación de entrada:** Uso riguroso de `express-validator` en las rutas para sanitizar el input y expresiones regulares estrictas en el cliente. Además, se utiliza `helmet` para configurar las cabeceras HTTP de seguridad.
+  - **Inyección SQL:** Se mitigó completamente delegando el acceso a datos al **ORM Prisma**, el cual parametriza automáticamente todas las consultas a PostgreSQL.
+  - **Cross-Site Scripting (XSS):** Se implementó la librería `express-validator` en todas las rutas POST/PUT para validar tipos de datos y escapar (sanitize) los inputs, evitando que etiquetas HTML peligrosas lleguen a la BD. En el frontend, Vue 3 neutraliza automáticamente el contenido interpolado.
 
-### 3. A07:2021-Identification and Authentication Failures (Fallos de Autenticación)
-- **Riesgo:** Almacenamiento inseguro de contraseñas, tokens fáciles de interceptar o robar, o ataques de fuerza bruta.
-- **Mitigación:**
-  - Las contraseñas nunca se guardan en texto plano. Se procesan con un hash fuerte usando `bcrypt` (12 rounds de sal) al momento de registrar el usuario.
-  - La autenticación utiliza **JWT** de corta duración (8h de expiración), transmitido siempre en la cabecera `Authorization: Bearer <token>`.
-  - Se configuró `express-rate-limit` a nivel global para bloquear repetidos intentos de inicio de sesión fallidos, mitigando la fuerza bruta.
+### 3. A07:2021-Identification and Authentication Failures (Fallos de Identificación y Autenticación)
+- **Riesgo:** Robo de credenciales mediante ataques de fuerza bruta, interceptación o exposición de contraseñas en texto plano en la base de datos.
+- **Mitigación:** 
+  - **Hashing:** Las contraseñas NUNCA se guardan en texto plano. Se utiliza `bcrypt` para crear un hash con su respectiva sal al momento de registro.
+  - **Autenticación sin estado:** Se utiliza **JSON Web Tokens (JWT)** firmados en lugar de cookies de sesión, los cuales tienen un tiempo de expiración y viajan en el header `Authorization`.
+  - **Rate Limiting:** El middleware `express-rate-limit` bloquea intentos repetitivos y masivos de login (fuerza bruta).
 
-| Otras implementaciones | Detalles |
-|------------------------|----------|
-| **CORS restringido** | Orígenes validados en `app.js`, bloqueando accesos cruzados de dominios no autorizados. |
-| **Error Handling Seguro** | Middleware centralizado que atrapa todas las excepciones y devuelve JSON limpio (`error`, `message`) sin exponer los *stack traces* del servidor. |
+| Prácticas Adicionales | Implementación |
+|-----------------------|---------------|
+| **HTTP Security Headers** | Helmet middleware activado para mitigar Clickjacking y MIME sniffing |
+| **CORS restringido** | Middleware CORS para permitir solicitudes únicamente desde el dominio del frontend confiable |
+| **Error handling seguro** | Middleware de error centralizado que evita exponer los `stack traces` internos al usuario final |
+| **HTTPS (Puntos Extra)** | El tráfico se encripta end-to-end (SSL/TLS) de manera nativa utilizando los reverse proxies de Vercel (Frontend) y Render (Backend) |
 
 ---
 

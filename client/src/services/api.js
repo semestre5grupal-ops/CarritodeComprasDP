@@ -53,8 +53,10 @@ async function request(method, path, body = null) {
   }
 
   if (response.status === 401) {
-    clearAuth()
-    window.dispatchEvent(new CustomEvent('auth:expired'))
+    if (path !== '/auth/login') {
+      clearAuth()
+      window.dispatchEvent(new CustomEvent('auth:expired'))
+    }
     const data = await response.json().catch(() => ({}))
     throw { ...data, status: 401 }
   }

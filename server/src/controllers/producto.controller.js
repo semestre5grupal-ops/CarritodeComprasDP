@@ -141,7 +141,8 @@ async function update(req, res, next) {
       }
 
       if (stock !== undefined && variante.inventario_bodegas && variante.inventario_bodegas[0]) {
-        await ProductoModel.updateInventario(variante.inventario_bodegas[0].id_inventario_bodegas, {
+        const inv = variante.inventario_bodegas[0];
+        await ProductoModel.updateInventario(inv.id_bodega, inv.id_variante, inv.inv_periodo, {
           inv_saldo_final: parseInt(stock, 10)
         })
       }

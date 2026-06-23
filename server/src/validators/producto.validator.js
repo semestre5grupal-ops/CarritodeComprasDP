@@ -9,11 +9,11 @@ const createRules = [
 
   body('precio')
     .notEmpty().withMessage('El precio es obligatorio')
-    .isFloat({ min: 0.01 }).withMessage('El precio debe ser un número positivo'),
+    .isFloat({ min: 0.01, max: 9999.99 }).withMessage('El precio debe estar entre 0.01 y 9999.99'),
 
   body('stock')
     .optional()
-    .isInt({ min: 0 }).withMessage('El stock debe ser un número entero no negativo'),
+    .isInt({ min: 0, max: 2147483647 }).withMessage('El stock debe ser entre 0 y 2147483647'),
 
   body('categoria')
     .optional()
@@ -24,8 +24,7 @@ const createRules = [
   body('imagen')
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('La ruta de imagen no puede exceder 255 caracteres')
-    .escape(),
+    .isLength({ max: 255 }).withMessage('La ruta de imagen no puede exceder 255 caracteres'),
 ]
 
 const updateRules = [
@@ -40,11 +39,11 @@ const updateRules = [
 
   body('precio')
     .optional()
-    .isFloat({ min: 0.01 }).withMessage('El precio debe ser un número positivo'),
+    .isFloat({ min: 0.01, max: 9999.99 }).withMessage('El precio debe estar entre 0.01 y 9999.99'),
 
   body('stock')
     .optional()
-    .isInt({ min: 0 }).withMessage('El stock debe ser un número entero no negativo'),
+    .isInt({ min: 0, max: 2147483647 }).withMessage('El stock debe ser entre 0 y 2147483647'),
 
   body('categoria')
     .optional()
@@ -54,8 +53,7 @@ const updateRules = [
 
   body('imagen')
     .optional()
-    .trim()
-    .escape(),
+    .trim(),
 ]
 
 const idRule = [

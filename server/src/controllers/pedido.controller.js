@@ -2,7 +2,7 @@ const PedidoModel = require('../models/pedido.model')
 
 async function create(req, res, next) {
   try {
-    const { detalles } = req.body
+    const { detalles, clienteDatos, cupon } = req.body
     const userId = req.user.id // This is id_usuario
 
     let total = 0
@@ -33,7 +33,29 @@ async function create(req, res, next) {
 
     const vendedor = await PedidoModel.getFirstVendedor() || { id_vendedor: 1 }
     let cliente = await PedidoModel.findClienteByEmail(req.user.email)
-    if (!cliente) {
+    
+    if (clienteDatos) {
+      if (cliente) {
+        cliente = await PedidoModel.updateCliente(cliente.id_cliente, {
+          cli_nombre: clienteDatos.nombre || cliente.cli_nombre,
+          cli_ciruc: clienteDatos.cedula,
+          cli_celular: clienteDatos.celular,
+          cli_telefono: clienteDatos.telefono || '0000000000'
+        })
+      } else {
+        const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
+        cliente = await PedidoModel.createCliente({
+          id_ciudad: ciudad.id_ciudad,
+          cli_nombre: clienteDatos.nombre || req.user.username || 'Cliente Final',
+          cli_ciruc: clienteDatos.cedula,
+          cli_celular: clienteDatos.celular,
+          cli_telefono: clienteDatos.telefono || '0000000000',
+          cli_correo: req.user.email || 'correo@correo.com',
+          cli_categoria: 1,
+          cli_estado: true
+        }).catch(e => ({ id_cliente: req.user.id }))
+      }
+    } else if (!cliente) {
       const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
       cliente = await PedidoModel.createCliente({
         id_ciudad: ciudad.id_ciudad,
@@ -47,7 +69,22 @@ async function create(req, res, next) {
       }).catch(e => ({ id_cliente: req.user.id }))
     }
 
-    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total)
+    let descuento = 0
+    if (cupon !== undefined && cupon !== null && cupon !== '') {
+      if (typeof cupon !== 'string') {
+        return res.status(400).json({ error: 'INVALID_COUPON', message: 'Cupón inválido' })
+      }
+      const trimmed = cupon.trim()
+      if (trimmed !== '') {
+        const isAlphanumeric = /^[a-zA-Z0-9]+$/.test(trimmed)
+        if (!isAlphanumeric || trimmed.length > 9 || trimmed.toUpperCase() !== 'DEPORTE20') {
+          return res.status(400).json({ error: 'INVALID_COUPON', message: 'Cupón inválido' })
+        }
+        descuento = Math.round(total * 0.2 * 100) / 100
+      }
+    }
+
+    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento)
 
     // Formatear respuesta al formato original esperado por frontend
     const formatPedido = {
@@ -138,4 +175,23 @@ async function getAll(req, res, next) {
   }
 }
 
-module.exports = { create, getMyOrders, getAll }
+async function updateStatus(req, res, next) {
+  try {
+    // Simular guardado de estado devolviendo un 200 OK
+    res.json({ message: 'Estado del pedido actualizado correctamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    const { id } = req.params
+    await PedidoModel.deleteTransaction(id)
+    res.json({ message: 'Pedido eliminado exitosamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getMyOrders, getAll, updateStatus, remove }

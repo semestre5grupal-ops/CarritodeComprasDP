@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
 import { useCart } from '../models/useCart'
@@ -26,11 +26,21 @@ function defaultFilters() {
 function resetFilters() {
   Object.assign(filters, defaultFilters())
   sessionStorage.removeItem(SESSION_KEY)
+  mobileFiltersOpen.value = false // Auto-close on clear
 }
 
 watch(filters, () => {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(filters))
 }, { deep: true })
+
+// Lock body scroll when mobile filters are open
+watch(mobileFiltersOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.classList.add('mobile-filters-open')
+  } else {
+    document.body.classList.remove('mobile-filters-open')
+  }
+})
 
 const priceRanges = [
   { label: '$0 - $20',   min: 0,   max: 20, value: '0-20'  },
@@ -89,13 +99,41 @@ const filtered = computed(() => {
   return list
 })
 
+const groupedProducts = computed(() => {
+  const groups = {}
+  filtered.value.forEach(p => {
+    const cat = p.categoria || 'Otros'
+    if (!groups[cat]) groups[cat] = []
+    groups[cat].push(p)
+  })
+  
+  // Sort categories alphabetically or keeping a fixed order if preferred
+  // We'll just return the object, Vue iterates it reasonably well
+  return groups
+})
+
 function handleAddToCart(product) {
   addProduct(product, 1)
   openDrawer()
 }
 
+function scrollCarousel(event, direction) {
+  const row = event.target.closest('.mobile-category-row')
+  if (!row) return
+  const carousel = row.querySelector('.mobile-carousel')
+  if (carousel) {
+    const scrollAmount = 240 + 16 // card width + gap
+    carousel.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' })
+  }
+}
+
 onMounted(() => {
   loadProducts()
+  window.addEventListener('order-completed', loadProducts)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('order-completed', loadProducts)
 })
 </script>
 
@@ -187,7 +225,9 @@ onMounted(() => {
                 <div class="filter-info" role="status" aria-live="polite" aria-atomic="true">
                     <p id="filter-count">Mostrando {{ filtered.length }} productos</p>
                 </div>
-                <ul id="product-grid" class="product-grid" aria-label="Catálogo de productos" :aria-busy="loading" aria-live="polite">
+
+                <!-- Desktop Grid (hidden on mobile) -->
+                <ul id="product-grid" class="product-grid desktop-only" aria-label="Catálogo de productos" :aria-busy="loading" aria-live="polite">
                     <li v-if="loading" class="loading">
                       <div class="spinner" aria-hidden="true"></div>
                       <p>Cargando productos...</p>
@@ -196,6 +236,29 @@ onMounted(() => {
                     <li v-else-if="filtered.length === 0" style="grid-column: 1/-1; text-align: center; padding: 2rem;">No se encontraron productos con estos filtros.</li>
                     <ProductCard v-else v-for="p in filtered" :key="p.id" :product="p" @add-to-cart="handleAddToCart" />
                 </ul>
+
+                <!-- Mobile Carousels (hidden on desktop) -->
+                <div class="mobile-only categories-container" aria-label="Catálogo agrupado por categoría">
+                    <div v-if="loading" class="loading">
+                      <div class="spinner" aria-hidden="true"></div>
+                      <p>Cargando productos...</p>
+                    </div>
+                    <div v-else-if="error" class="error-message">Error: {{ error }}</div>
+                    <div v-else-if="filtered.length === 0" style="text-align: center; padding: 2rem;">No se encontraron productos con estos filtros.</div>
+                    
+                    <div v-else v-for="(prods, cat) in groupedProducts" :key="cat" class="mobile-category-row">
+                        <div class="mobile-category-header">
+                            <h3 class="mobile-category-title">{{ cat }}</h3>
+                            <div class="mobile-carousel-controls">
+                                <button type="button" class="mobile-carousel-arrow" @click="scrollCarousel($event, -1)" aria-label="Desplazar a la izquierda">&#10094;</button>
+                                <button type="button" class="mobile-carousel-arrow" @click="scrollCarousel($event, 1)" aria-label="Desplazar a la derecha">&#10095;</button>
+                            </div>
+                        </div>
+                        <ul class="mobile-carousel">
+                            <ProductCard v-for="p in prods" :key="p.id" :product="p" @add-to-cart="handleAddToCart" />
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

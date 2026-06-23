@@ -21,7 +21,14 @@ class PedidoModel {
     return prisma.clientes.create({ data })
   }
 
-  async createTransaction(items, clienteId, vendedorId, total) {
+  async updateCliente(id, data) {
+    return prisma.clientes.update({
+      where: { id_cliente: parseInt(id) },
+      data
+    })
+  }
+
+  async createTransaction(items, clienteId, vendedorId, total, descuento = 0) {
     return prisma.$transaction(async (tx) => {
       // 1. Descontar stock
       for (const item of items) {
@@ -41,6 +48,8 @@ class PedidoModel {
 
       // 2. Crear documento
       const subtotal = Math.round(total * 100) / 100
+      const descVal = Math.round(descuento * 100) / 100
+      const totalVal = Math.round((subtotal - descVal) * 100) / 100
       const doc = await tx.documentos.create({
         data: {
           id_cliente: clienteId,
@@ -50,8 +59,8 @@ class PedidoModel {
           doc_descripcion: 'Compra online Carrito',
           doc_subtotal: subtotal,
           doc_iva: 0,
-          doc_descuento: 0,
-          doc_total: subtotal,
+          doc_descuento: descVal,
+          doc_total: totalVal,
           doc_estado: 'ACT',
           productosxdocumento: {
             create: items.map(item => ({
@@ -98,6 +107,26 @@ class PedidoModel {
         }
       },
       orderBy: { doc_emision: 'desc' },
+    })
+  }
+  async deleteTransaction(id) {
+    return prisma.$transaction(async (tx) => {
+      const doc = await tx.documentos.findUnique({
+        where: { id_documento: parseInt(id) },
+        include: { productosxdocumento: true }
+      });
+
+      if (!doc) throw new Error('Pedido no encontrado');
+
+      await tx.productosxdocumento.deleteMany({
+        where: { id_documento: parseInt(id) }
+      });
+
+      await tx.documentos.delete({
+        where: { id_documento: parseInt(id) }
+      });
+
+      return true;
     })
   }
 }

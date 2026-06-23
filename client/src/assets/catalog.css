@@ -1,4 +1,4 @@
-﻿/* =========================================
+/* =========================================
    Catalog Page ΓÇö Filtros y Layout
    Separado de catalog.html para correcta
    modularidad del proyecto (MVC / estructura)
@@ -142,7 +142,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem 0.2rem;
+    padding: 0.85rem 0.5rem; /* Increased padding for better touch targets */
     border-radius: 14px;
     transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -251,7 +251,7 @@
     font-size: 1rem;
 }
 
-/* Encabezado de p├ígina del cat├ílogo */
+/* Encabezado de página del catálogo */
 .catalog-page-header {
     padding-top: 2rem;
     margin-bottom: 2rem;
@@ -268,8 +268,105 @@
     font-size: 1rem;
 }
 
-/* ΓöÇΓöÇ Breakpoint Tablet (768px) ΓöÇΓöÇ */
+/* =========================================
+   Responsive Display Classes
+   ========================================= */
+.desktop-only {
+    display: none !important;
+}
+
+.mobile-only {
+    display: block !important;
+}
+
+/* =========================================
+   Mobile Horizontal Carousels
+   ========================================= */
+.categories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.mobile-category-row {
+    max-width: 100%;
+}
+
+.mobile-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+.mobile-category-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-left: 0.5rem;
+    border-left: 4px solid var(--accent);
+}
+
+.mobile-carousel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mobile-carousel-arrow {
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 1rem;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.mobile-carousel-arrow:active {
+    transform: scale(0.9);
+}
+
+.mobile-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+
+.mobile-carousel::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.mobile-carousel > * {
+    flex: 0 0 auto;
+    width: 240px; /* Ancho fijo para las tarjetas en carrusel móvil */
+    scroll-snap-align: center;
+}
+
+/* ── Breakpoint Tablet (768px) ── */
 @media (min-width: 768px) {
+    .desktop-only {
+        display: grid !important;
+    }
+    
+    .mobile-only {
+        display: none !important;
+    }
+
     .mobile-filter-open-btn,
     .mobile-filter-backdrop,
     .filter-toggle-btn {
@@ -305,14 +402,16 @@
 @media (max-width: 767px) {
     .mobile-filter-open-btn {
         position: fixed;
-        bottom: 1rem;
-        right: 1rem;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
         z-index: 1100;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.95rem 1.1rem;
+        padding: 0.95rem 1.5rem;
         border-radius: 999px;
         border: 1px solid rgba(12, 77, 99, 0.18);
         background: #ffffff;

@@ -2,10 +2,12 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
+import api from '../services/api'
 
 const activeTab = ref('products')
 const products = ref([])
 const orders = ref([])
+const users = ref([])
 const loading = ref(true)
 const error = ref(null)
 
@@ -16,8 +18,21 @@ const formError = ref('')
 const saving = ref(false)
 
 const deleteDialog = ref(null)
+const deleteType = ref('') // 'product' | 'order' | 'user'
 const deletingId = ref(null)
 const deleteName = ref('')
+
+const userFormDialog = ref(null)
+const editingUserId = ref(null)
+const userForm = ref({ username: '', email: '', password: '', role: 'user' })
+const userFormError = ref('')
+const savingUser = ref(false)
+
+const orderFormDialog = ref(null)
+const editingOrderId = ref(null)
+const orderForm = ref({ status: 'Pendiente' })
+const orderFormError = ref('')
+const savingOrder = ref(false)
 
 const categorias = ['Mujer', 'Hombre', 'Unisex']
 
@@ -42,6 +57,19 @@ async function loadOrders() {
     orders.value = data || []
   } catch (err) {
     error.value = err.message || 'Error al cargar pedidos'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadUsers() {
+  loading.value = true
+  error.value = ''
+  try {
+    const response = await api.get('/usuarios')
+    users.value = response.data || []
+  } catch (err) {
+    error.value = err.message || 'Error al cargar usuarios'
   } finally {
     loading.value = false
   }
@@ -87,15 +115,16 @@ async function saveProduct() {
 
   if (!body.nombre) { formError.value = 'El nombre es obligatorio.'; return }
   if (!body.categoria) { formError.value = 'Debes seleccionar una categoría.'; return }
-  if (isNaN(body.precio) || body.precio <= 0) { formError.value = 'Precio debe ser un número positivo.'; return }
-  if (isNaN(body.stock) || body.stock < 0) { formError.value = 'Stock debe ser un número válido.'; return }
+  if (isNaN(body.precio) || body.precio <= 0 || body.precio > 9999.99) { formError.value = 'Precio debe estar entre 0.01 y 9999.99'; return }
+  if (isNaN(body.stock) || body.stock < 0 || body.stock > 2147483647) { formError.value = 'Stock debe ser un número válido entre 0 y 2147483647'; return }
 
   saving.value = true
   try {
+    let resData;
     if (editingId.value) {
-      await ProductController.update(editingId.value, body)
+      resData = await ProductController.update(editingId.value, body)
     } else {
-      await ProductController.create(body)
+      resData = await ProductController.create(body)
     }
     closeForm()
     await loadProducts()
@@ -106,9 +135,10 @@ async function saveProduct() {
   }
 }
 
-function confirmDelete(product) {
-  deletingId.value = product.id
-  deleteName.value = product.nombre
+function confirmDelete(id, name, type) {
+  deletingId.value = id
+  deleteName.value = name
+  deleteType.value = type
   deleteDialog.value?.showModal()
 }
 
@@ -116,23 +146,102 @@ function closeDelete() {
   deleteDialog.value?.close()
   deletingId.value = null
   deleteName.value = ''
+  deleteType.value = ''
 }
 
 async function executeDelete() {
   if (!deletingId.value) return
   try {
-    await ProductController.remove(deletingId.value)
+    if (deleteType.value === 'product') {
+      await ProductController.remove(deletingId.value)
+      await loadProducts()
+    } else if (deleteType.value === 'order') {
+      await api.delete(`/pedidos/${deletingId.value}`)
+      await loadOrders()
+    } else if (deleteType.value === 'user') {
+      await api.delete(`/usuarios/${deletingId.value}`)
+      await loadUsers()
+    }
     closeDelete()
-    await loadProducts()
   } catch (err) {
-    error.value = err.message || 'Error al eliminar producto.'
+    error.value = err.message || 'Error al eliminar.'
     closeDelete()
   }
 }
 
+// --- Orders Functions ---
+function openOrderEditForm(order) {
+  editingOrderId.value = order.id
+  orderForm.value.status = order.status || 'Pendiente'
+  orderFormError.value = ''
+  orderFormDialog.value?.showModal()
+}
+function closeOrderForm() { orderFormDialog.value?.close() }
+async function saveOrder() {
+  savingOrder.value = true; orderFormError.value = ''
+  try {
+    await api.put(`/pedidos/${editingOrderId.value}/status`, { status: orderForm.value.status })
+    
+    // Mutate local state for visual feedback
+    const orderIndex = orders.value.findIndex(o => o.id === editingOrderId.value)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex].status = orderForm.value.status
+    }
+    
+    closeOrderForm()
+  } catch (err) { orderFormError.value = err.message || 'Error al guardar pedido' }
+  finally { savingOrder.value = false }
+}
+
+// --- Users Functions ---
+function openUserCreateForm() {
+  editingUserId.value = null
+  userForm.value = { username: '', email: '', password: '', role: 'user' }
+  userFormError.value = ''
+  userFormDialog.value?.showModal()
+  nextTick(() => document.getElementById('uf-username')?.focus())
+}
+function openUserEditForm(user) {
+  editingUserId.value = user.id
+  userForm.value = { username: user.username, email: user.email, password: '', role: user.role }
+  userFormError.value = ''
+  userFormDialog.value?.showModal()
+  nextTick(() => document.getElementById('uf-username')?.focus())
+}
+function closeUserForm() { userFormDialog.value?.close() }
+async function saveUser() {
+  savingUser.value = true; userFormError.value = ''
+  
+  // Sanitización adicional antes de enviar
+  userForm.value.username = userForm.value.username.trim().replace(/<[^>]*>?/gm, '')
+  userForm.value.email = userForm.value.email.trim().replace(/<[^>]*>?/gm, '')
+
+  if (!userForm.value.username || !userForm.value.email) {
+    userFormError.value = 'Usuario y correo son obligatorios'
+    savingUser.value = false
+    return
+  }
+  try {
+    const payload = { ...userForm.value }
+    if (editingUserId.value) {
+      if (!payload.password) delete payload.password
+      await api.put(`/usuarios/${editingUserId.value}`, payload)
+    } else {
+      await api.post('/usuarios', payload)
+    }
+
+    closeUserForm()
+    await loadUsers()
+  } catch (err) { userFormError.value = err.message || 'Error al guardar usuario' }
+  finally { savingUser.value = false }
+}
+
 function trapFocus(e) {
-  if (e.key === 'Tab' && formDialog.value?.open) {
-    const focusable = formDialog.value.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+  const activeDialog = formDialog.value?.open ? formDialog.value : 
+                       (orderFormDialog.value?.open ? orderFormDialog.value : 
+                       (userFormDialog.value?.open ? userFormDialog.value : null))
+  if (e.key === 'Tab' && activeDialog) {
+    const focusable = activeDialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
     if (focusable.length === 0) return
     const first = focusable[0]
     const last = focusable[focusable.length - 1]
@@ -185,6 +294,15 @@ onUnmounted(() => {
         @click="activeTab = 'orders'; loadOrders()"
       >
         Pedidos
+      </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="activeTab === 'users'"
+        :class="{ active: activeTab === 'users' }"
+        @click="activeTab = 'users'; loadUsers()"
+      >
+        Usuarios
       </button>
     </nav>
 
@@ -251,7 +369,7 @@ onUnmounted(() => {
                 <button
                   type="button"
                   class="btn-action btn-action--delete"
-                  @click="confirmDelete(p)"
+                  @click="confirmDelete(p.id, p.nombre, 'product')"
                   :aria-label="`Eliminar ${p.nombre}`"
                 >
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -289,7 +407,9 @@ onUnmounted(() => {
               <th scope="col">Usuario</th>
               <th scope="col">Productos</th>
               <th scope="col">Total</th>
+              <th scope="col">Estado</th>
               <th scope="col">Fecha</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -305,7 +425,105 @@ onUnmounted(() => {
                 <span v-else class="muted">—</span>
               </td>
               <td>${{ Number(o.total || 0).toFixed(2) }}</td>
+              <td>
+                <span class="status-badge" :class="'status-' + (o.status?.toLowerCase() || 'pendiente')">
+                  {{ o.status || 'Pendiente' }}
+                </span>
+              </td>
               <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
+              <td class="actions-cell">
+                <button
+                  type="button"
+                  class="btn-action btn-action--edit"
+                  @click="openOrderEditForm(o)"
+                  :aria-label="`Modificar estado del pedido ${o.id}`"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn-action btn-action--delete"
+                  @click="confirmDelete(o.id, `Pedido #${o.id}`, 'order')"
+                  :aria-label="`Eliminar pedido ${o.id}`"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div v-if="activeTab === 'users'" role="tabpanel" aria-label="Gestión de usuarios">
+      <div class="admin-toolbar">
+        <span class="admin-count">{{ users.length }} usuario(s)</span>
+        <button type="button" class="btn btn-primary" @click="openUserCreateForm">
+          + Nuevo usuario
+        </button>
+      </div>
+
+      <div v-if="loading" class="loading" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Cargando usuarios...</p>
+      </div>
+
+      <div v-else-if="users.length === 0" class="empty-message" role="status">
+        No hay usuarios registrados o el servicio no está disponible aún.
+      </div>
+
+      <div v-else class="admin-table-wrap">
+        <table class="admin-table" aria-label="Lista de usuarios">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="u in users" :key="u.id">
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span :class="{'role-admin': u.role === 'admin', 'role-user': u.role === 'user'}">
+                  {{ u.role === 'admin' ? 'Administrador' : 'Usuario' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  type="button"
+                  class="btn-action btn-action--edit"
+                  @click="openUserEditForm(u)"
+                  :aria-label="`Editar usuario ${u.username}`"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn-action btn-action--delete"
+                  @click="confirmDelete(u.id, u.username, 'user')"
+                  :aria-label="`Eliminar usuario ${u.username}`"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -346,11 +564,11 @@ onUnmounted(() => {
         <div class="form-row">
           <div class="form-group">
             <label for="af-precio">Precio ($)</label>
-            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
+            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" max="9999.99" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
           </div>
           <div class="form-group">
             <label for="af-stock">Stock</label>
-            <input id="af-stock" v-model="productForm.stock" type="number" min="0" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
+            <input id="af-stock" v-model="productForm.stock" type="number" min="0" max="2147483647" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
           </div>
         </div>
 
@@ -361,7 +579,7 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="af-talla">Tallas (opcional, separadas por " - ")</label>
-          <input id="af-talla" v-model.trim="productForm.talla" type="text" placeholder="S - M - L - XL" />
+          <input id="af-talla" v-model.trim="productForm.talla" @input="productForm.talla = productForm.talla.replace(/[^a-zA-Z\s-]/g, '').toUpperCase()" type="text" placeholder="S - M - L - XL" />
         </div>
 
         <div class="dialog-actions">
@@ -370,6 +588,118 @@ onUnmounted(() => {
           </button>
           <button type="submit" class="btn btn-primary" :disabled="saving">
             {{ saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Order Form Dialog -->
+    <dialog
+      ref="orderFormDialog"
+      class="admin-dialog"
+      aria-labelledby="order-form-title"
+    >
+      <form @submit.prevent="saveOrder" novalidate>
+        <h2 id="order-form-title">Modificar Estado del Pedido</h2>
+
+        <div
+          v-if="orderFormError"
+          class="form-alert form-alert--error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ orderFormError }}
+        </div>
+
+        <div class="form-group">
+          <label for="of-status">Estado</label>
+          <select id="of-status" v-model="orderForm.status" required>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Procesando">Procesando</option>
+            <option value="Enviado">Enviado</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary" @click="closeOrderForm" :disabled="savingOrder">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" :disabled="savingOrder">
+            {{ savingOrder ? 'Guardando...' : 'Actualizar Estado' }}
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- User Form Dialog -->
+    <dialog
+      ref="userFormDialog"
+      class="admin-dialog"
+      aria-labelledby="user-form-title"
+    >
+      <form @submit.prevent="saveUser" novalidate>
+        <h2 id="user-form-title">{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+
+        <div
+          v-if="userFormError"
+          class="form-alert form-alert--error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ userFormError }}
+        </div>
+
+        <div class="form-group">
+          <label for="uf-username">Nombre de Usuario</label>
+          <input 
+            id="uf-username" 
+            v-model.trim="userForm.username" 
+            @input="userForm.username = userForm.username.replace(/[^a-zA-Z0-9_ \-]/g, '')"
+            type="text" 
+            maxlength="50"
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="uf-email">Correo Electrónico</label>
+          <input 
+            id="uf-email" 
+            v-model.trim="userForm.email" 
+            @input="userForm.email = userForm.email.replace(/\s/g, '')"
+            type="email" 
+            maxlength="100"
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="uf-password">Contraseña {{ editingUserId ? '(Dejar en blanco para no cambiar)' : '' }}</label>
+          <input 
+            id="uf-password" 
+            v-model="userForm.password" 
+            type="password" 
+            maxlength="100"
+            :required="!editingUserId" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="uf-role">Rol</label>
+          <select id="uf-role" v-model="userForm.role" required>
+            <option value="user">Usuario normal</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary" @click="closeUserForm" :disabled="savingUser">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" :disabled="savingUser">
+            {{ savingUser ? 'Guardando...' : editingUserId ? 'Actualizar' : 'Crear' }}
           </button>
         </div>
       </form>
@@ -495,6 +825,39 @@ onUnmounted(() => {
   color: #b91c1c;
   font-weight: 600;
 }
+
+.role-admin {
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.role-user {
+  background: var(--surface-soft);
+  color: var(--ink);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.status-pendiente { background: #fef08a; color: #854d0e; }
+.status-procesando { background: #bae6fd; color: #0369a1; }
+.status-enviado { background: #ddd6fe; color: #5b21b6; }
+.status-entregado { background: #bbf7d0; color: #166534; }
+.status-cancelado { background: #fecaca; color: #991b1b; }
 
 .btn-action {
   background: none;
