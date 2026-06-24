@@ -6,7 +6,7 @@ class OrderController {
       const response = await api.get('/pedidos')
       return response.data || []
     } catch (error) {
-      throw new Error(error.message || 'Error al cargar pedidos')
+      throw new Error(error.message || 'Error al cargar pedidos', { cause: error })
     }
   }
 
@@ -15,7 +15,7 @@ class OrderController {
       const response = await api.get('/pedidos/mis-pedidos')
       return response.data || []
     } catch (error) {
-      throw new Error(error.message || 'Error al cargar mis pedidos')
+      throw new Error(error.message || 'Error al cargar mis pedidos', { cause: error })
     }
   }
 
@@ -24,7 +24,7 @@ class OrderController {
       const response = await api.post('/pedidos', data)
       return response.data
     } catch (error) {
-      throw new Error(error.message || 'Error al crear pedido')
+      throw new Error(error.message || 'Error al crear pedido', { cause: error })
     }
   }
 }

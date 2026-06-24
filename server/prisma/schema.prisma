@@ -562,13 +562,13 @@ model productos {
   pro_valor_compra                                           Decimal              @db.Decimal(7, 3)
   pro_genero_                                                String               @db.VarChar(150)
   pro_estado                                                 String               @db.VarChar(150)
-  pro_imagen                                                 String?              @db.Text
-  unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida?        @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
-  unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida?        @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
-  categoria                                                  categoria?            @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
-  marcas                                                     marcas?               @relation(fields: [id_marca], references: [id_marca], onUpdate: Restrict, map: "fk_producto_relations_marcas")
-  materiales                                                 materiales?           @relation(fields: [id_material], references: [id_material], onUpdate: Restrict, map: "fk_producto_relations_material")
-  temporadas                                                 temporadas?           @relation(fields: [id_temporada], references: [id_temporada], onUpdate: Restrict, map: "fk_producto_relations_temporad")
+  pro_imagen                                                 String?
+  unidad_medida_productos_id_unidadmedidaTounidad_medida     unidad_medida?       @relation("productos_id_unidadmedidaTounidad_medida", fields: [id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emple_unidad_m")
+  unidad_medida_productos_uni_id_unidadmedidaTounidad_medida unidad_medida?       @relation("productos_uni_id_unidadmedidaTounidad_medida", fields: [uni_id_unidadmedida], references: [id_unidadmedida], onUpdate: Restrict, map: "fk_producto_emplea_unidad_m")
+  categoria                                                  categoria?           @relation(fields: [id_categoria], references: [id_categoria], onUpdate: Restrict, map: "fk_producto_pertenece_categori")
+  marcas                                                     marcas?              @relation(fields: [id_marca], references: [id_marca], onUpdate: Restrict, map: "fk_producto_relations_marcas")
+  materiales                                                 materiales?          @relation(fields: [id_material], references: [id_material], onUpdate: Restrict, map: "fk_producto_relations_material")
+  temporadas                                                 temporadas?          @relation(fields: [id_temporada], references: [id_temporada], onUpdate: Restrict, map: "fk_producto_relations_temporad")
   variantes_producto                                         variantes_producto[]
 
   @@index([id_unidadmedida], map: "emple_fk")

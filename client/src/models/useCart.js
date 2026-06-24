@@ -1,6 +1,4 @@
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '../services/api'
 import { addToQueue } from '../services/db'
 import { useAuth } from './useAuth'
 

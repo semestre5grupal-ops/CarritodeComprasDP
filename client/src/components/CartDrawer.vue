@@ -5,7 +5,7 @@ import { useCart } from '../models/useCart'
 import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
-const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, clearCart, submitOrder } = useCart()
+const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, submitOrder } = useCart()
 const { isAuthenticated, user, fetchProfile } = useAuth()
 
 const overlay = ref(null)

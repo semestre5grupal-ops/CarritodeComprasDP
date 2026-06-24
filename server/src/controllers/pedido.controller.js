@@ -53,7 +53,7 @@ async function create(req, res, next) {
           cli_correo: req.user.email || 'correo@correo.com',
           cli_categoria: 1,
           cli_estado: true
-        }).catch(e => ({ id_cliente: req.user.id }))
+        }).catch(_e => ({ id_cliente: req.user.id }))
       }
     } else if (!cliente) {
       const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
@@ -66,7 +66,7 @@ async function create(req, res, next) {
         cli_correo: req.user.email || 'correo@correo.com',
         cli_categoria: 1,
         cli_estado: true
-      }).catch(e => ({ id_cliente: req.user.id }))
+      }).catch(_e => ({ id_cliente: req.user.id }))
     }
 
     let descuento = 0
@@ -147,8 +147,6 @@ async function getMyOrders(req, res, next) {
 
 async function getAll(req, res, next) {
   try {
-    const { role } = req.user
-
     const documentos = await PedidoModel.findAllOrders()
 
     const pedidos = documentos.map(doc => ({

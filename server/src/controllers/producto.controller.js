@@ -123,7 +123,7 @@ async function update(req, res, next) {
       catData = await ProductoModel.getOrCreateCategoria(categoria)
     }
 
-    const producto = await ProductoModel.update(id, {
+    await ProductoModel.update(id, {
       ...(nombre !== undefined && { pro_descripcion: nombre }),
       ...(precio !== undefined && { pro_valor_compra: precio }),
       ...(imagen !== undefined && { pro_imagen: imagen }),

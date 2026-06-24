@@ -116,7 +116,7 @@ class PedidoModel {
         include: { productosxdocumento: true }
       });
 
-      if (!doc) throw new Error('Pedido no encontrado');
+      if (!doc) { throw new Error('Pedido no encontrado'); }
 
       await tx.productosxdocumento.deleteMany({
         where: { id_documento: parseInt(id) }

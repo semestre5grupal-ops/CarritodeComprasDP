@@ -1,4 +1,17 @@
-﻿:root {
+/* ─── Tailwind CSS v3 ──────────────────────────────────────────────────────────
+   Las tres directivas de Tailwind deben ir al inicio del archivo CSS principal.
+   - @tailwind base: aplica Preflight (reset/normalización de estilos).
+   - @tailwind components: carga componentes reutilizables de Tailwind.
+   - @tailwind utilities: pone a disposición todas las clases utilitarias.
+   El CSS personalizado definido abajo coexiste perfectamente con Tailwind.
+   ─────────────────────────────────────────────────────────────────────────── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Variables de diseño Shop Sport (Design Tokens) ─────────────────────── */
+:root {
+
     --bg: #f3efe8;
     --surface: #ffffff;
     --surface-soft: #f8f4ee;
