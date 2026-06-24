@@ -48,7 +48,7 @@ async function request(method, path, body = null) {
   let response
   try {
     response = await fetch(url, options)
-  } catch (err) {
+  } catch {
     throw { error: 'NETWORK_ERROR', message: 'Error de conexión. Verifique su conexión a internet.', status: 0 }
   }
 

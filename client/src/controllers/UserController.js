@@ -6,7 +6,7 @@ class UserController {
       const response = await api.get('/usuarios')
       return response.data || []
     } catch (error) {
-      throw new Error(error.message || 'Error al cargar usuarios')
+      throw new Error(error.message || 'Error al cargar usuarios', { cause: error })
     }
   }
 }

@@ -6,7 +6,7 @@ class ProductController {
       const response = await api.get('/productos')
       return response.data || []
     } catch (error) {
-      throw new Error(error.message || 'Error al cargar productos')
+      throw new Error(error.message || 'Error al cargar productos', { cause: error })
     }
   }
 
@@ -15,7 +15,7 @@ class ProductController {
       const response = await api.post('/productos', data)
       return response.data
     } catch (error) {
-      throw new Error(error.message || 'Error al crear producto')
+      throw new Error(error.message || 'Error al crear producto', { cause: error })
     }
   }
 
@@ -24,7 +24,7 @@ class ProductController {
       const response = await api.put(`/productos/${id}`, data)
       return response.data
     } catch (error) {
-      throw new Error(error.message || 'Error al actualizar producto')
+      throw new Error(error.message || 'Error al actualizar producto', { cause: error })
     }
   }
 
@@ -33,7 +33,7 @@ class ProductController {
       await api.delete(`/productos/${id}`)
       return true
     } catch (error) {
-      throw new Error(error.message || 'Error al eliminar producto')
+      throw new Error(error.message || 'Error al eliminar producto', { cause: error })
     }
   }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
 import api from '../services/api'
@@ -120,11 +120,10 @@ async function saveProduct() {
 
   saving.value = true
   try {
-    let resData;
     if (editingId.value) {
-      resData = await ProductController.update(editingId.value, body)
+      await ProductController.update(editingId.value, body)
     } else {
-      resData = await ProductController.create(body)
+      await ProductController.create(body)
     }
     closeForm()
     await loadProducts()
