@@ -27,8 +27,9 @@ async function sendMessage() {
   scrollToBottom()
 
   try {
-    // Preparar el historial para que la IA tenga contexto (excluyendo mensajes de error de red si los hay)
-    const history = conversation.value.map(msg => ({
+    // Preparar el historial (tomando solo los últimos 6 mensajes para no consumir excesivos tokens ni sobrepasar límites)
+    const recentConversation = conversation.value.slice(-6);
+    const history = recentConversation.map(msg => ({
       role: msg.sender === 'user' ? 'user' : 'assistant',
       content: msg.text
     }));
