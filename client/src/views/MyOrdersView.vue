@@ -44,9 +44,19 @@ function downloadInvoice(order) {
 
   // Datos de la factura
   doc.setFontSize(11)
+  doc.setTextColor(50, 50, 50)
   doc.text(`ID Pedido: #${order.id}`, 14, 45)
-  doc.text(`Fecha: ${new Date(order.createdAt).toLocaleDateString('es-EC')}`, 14, 52)
-  doc.text(`Estado: Pagado`, 14, 59)
+  doc.text(`Fecha: ${new Date(order.createdAt).toLocaleDateString('es-EC')}`, 14, 50)
+  doc.text(`Estado: Pagado`, 14, 55)
+
+  // Datos del Cliente
+  const cli = order.clienteDatos || {}
+  const isFinal = !cli.cedula || cli.cedula === '9999999999999'
+  doc.text(`Cliente: ${isFinal ? 'Consumidor Final' : (cli.nombre || 'Consumidor Final')}`, 120, 45)
+  doc.text(`Cédula/RUC: ${isFinal ? '9999999999999' : (cli.cedula || '')}`, 120, 50)
+  if (!isFinal && cli.celular) {
+    doc.text(`Celular: ${cli.celular}`, 120, 55)
+  }
 
   // Tabla
   const tableColumn = ["Producto", "Cantidad", "Precio Unit.", "Subtotal"]

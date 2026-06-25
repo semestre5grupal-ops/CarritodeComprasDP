@@ -16,6 +16,7 @@ const submitting = ref(false)
 const submitError = ref('')
 
 const showCheckoutForm = ref(false)
+const consumidorFinal = ref(false)
 const checkoutForm = ref({
   nombre: '',
   cedula: '',
@@ -47,6 +48,27 @@ const allSelected = computed({
       selectedIds.value = new Set()
     }
   },
+})
+
+watch(total, (newTotal) => {
+  if (newTotal > 50.00 && consumidorFinal.value) {
+    consumidorFinal.value = false
+  }
+})
+
+watch(consumidorFinal, (isFinal) => {
+  if (isFinal) {
+    checkoutForm.value.nombre = 'Consumidor Final'
+    checkoutForm.value.cedula = '9999999999999'
+    checkoutForm.value.celular = '9999999999'
+    checkoutForm.value.telefono = ''
+  } else {
+    // Restaurar si el usuario lo desmarca (se dejará vacío para que llene)
+    checkoutForm.value.nombre = ''
+    checkoutForm.value.cedula = ''
+    checkoutForm.value.celular = ''
+    checkoutForm.value.telefono = ''
+  }
 })
 
 let previousFocus = null
@@ -171,14 +193,14 @@ async function handleCheckout() {
   submitError.value = ''
   try {
     if (!navigator.onLine) {
-      await submitOrder(router)
+      await submitOrder(router, checkoutForm.value)
       alertState.value = 'offline'
       await nextTick()
       dialog.value?.showModal()
       return
     }
 
-    await submitOrder(router)
+    await submitOrder(router, checkoutForm.value)
     alertState.value = 'success'
     await nextTick()
     dialog.value?.showModal()
@@ -381,21 +403,35 @@ function closeAlert() {
 
           <div v-if="showCheckoutForm" class="checkout-form-container">
             <h3 class="checkout-form-title">Datos de Facturación</h3>
+
+            <div class="form-group consumidor-final-check" v-if="total <= 50">
+              <label class="cf-label">
+                <input type="checkbox" v-model="consumidorFinal" />
+                Facturar como Consumidor Final
+              </label>
+            </div>
+            <div class="form-group consumidor-final-check text-muted" v-else>
+              <label class="cf-label" style="opacity: 0.6;" title="Solo disponible para compras hasta $50">
+                <input type="checkbox" disabled />
+                Facturar como Consumidor Final (Solo <= $50)
+              </label>
+            </div>
+
             <div class="form-group">
               <label for="cf-nombre">Nombre y Apellido *</label>
-              <input id="cf-nombre" v-model="checkoutForm.nombre" type="text" class="input-base" required @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')" />
+              <input id="cf-nombre" v-model="checkoutForm.nombre" type="text" class="input-base" required @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')" :disabled="consumidorFinal" />
             </div>
             <div class="form-group">
               <label for="cf-cedula">Cédula / RUC *</label>
-              <input id="cf-cedula" v-model="checkoutForm.cedula" type="text" class="input-base" required maxlength="13" @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')" />
+              <input id="cf-cedula" v-model="checkoutForm.cedula" type="text" class="input-base" required maxlength="13" @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
             </div>
             <div class="form-group">
               <label for="cf-celular">Celular *</label>
-              <input id="cf-celular" v-model="checkoutForm.celular" type="text" class="input-base" required maxlength="10" @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')" />
+              <input id="cf-celular" v-model="checkoutForm.celular" type="text" class="input-base" required maxlength="10" @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
             </div>
             <div class="form-group">
               <label for="cf-telefono">Teléfono Fijo (Opcional)</label>
-              <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" />
+              <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
             </div>
           </div>
 
@@ -788,6 +824,42 @@ function closeAlert() {
   color: var(--muted);
   line-height: 1.6;
   margin-bottom: 1.25rem;
+}
+
+.consumidor-final-check {
+  margin-bottom: 1.25rem;
+  background: var(--surface);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+}
+
+.cf-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 0.85rem !important;
+  margin: 0 !important;
+}
+
+.cf-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.input-base:disabled {
+  background: var(--surface-soft);
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* transition */

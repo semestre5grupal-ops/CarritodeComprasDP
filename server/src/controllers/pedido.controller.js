@@ -125,6 +125,12 @@ async function getMyOrders(req, res, next) {
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
       userId: req.user.id, // Fake userId para que el front no rompa
+      clienteDatos: {
+        nombre: cliente.cli_nombre,
+        cedula: cliente.cli_ciruc,
+        celular: cliente.cli_celular,
+        telefono: cliente.cli_telefono
+      },
       total: Number(doc.doc_total),
       createdAt: doc.doc_emision,
       detalles: doc.productosxdocumento.map(pxd => ({
