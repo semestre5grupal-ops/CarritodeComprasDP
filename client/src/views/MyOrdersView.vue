@@ -4,6 +4,7 @@ import OrderController from '../controllers/OrderController'
 import { useCart } from '../models/useCart'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import QrcodeVue from 'qrcode.vue'
 
 const { addProduct, openDrawer } = useCart()
 const expandedOrderId = ref(null)
@@ -121,6 +122,19 @@ function reorder(order) {
   })
   openDrawer()
 }
+
+const qrDialog = ref(null)
+const selectedOrderForQr = ref(null)
+
+function openQrModal(order) {
+  selectedOrderForQr.value = order
+  qrDialog.value?.showModal()
+}
+
+function closeQrModal() {
+  qrDialog.value?.close()
+  selectedOrderForQr.value = null
+}
 </script>
 
 <template>
@@ -176,6 +190,9 @@ function reorder(order) {
                 <button class="btn-invoice" @click.stop="downloadInvoice(o)" title="Descargar Factura PDF">
                   ⬇️ PDF
                 </button>
+                <button v-if="o.descripcion?.metodo === 'pickup'" class="btn-pickup" @click.stop="openQrModal(o)" title="Mostrar QR para Retiro en Tienda">
+                  🏪 Retirar en Local
+                </button>
                 <button class="btn-reorder" @click.stop="reorder(o)" title="Volver a Pedir">
                   🔄 Reordenar
                 </button>
@@ -183,7 +200,7 @@ function reorder(order) {
             </tr>
             <tr v-if="expandedOrderId === o.id" class="expanded-row">
               <td colspan="5">
-                <div class="stepper-container">
+                <div v-if="o.descripcion?.metodo !== 'pickup'" class="stepper-container">
                   <h4 style="margin-top: 0;">Seguimiento del Paquete</h4>
                   <div class="stepper">
                     <div class="step" :class="{ active: getOrderStatus(o.createdAt) >= 1 }">
@@ -202,6 +219,11 @@ function reorder(order) {
                     </div>
                   </div>
                 </div>
+                <div v-else class="stepper-container" style="text-align: center;">
+                  <h4 style="margin-top: 0;">Retiro en Local</h4>
+                  <p>Has seleccionado retirar este pedido en: <strong>{{ o.descripcion?.local || 'Tienda Principal' }}</strong></p>
+                  <p class="muted">Toca el botón de "Retirar en Local" para generar tu código QR.</p>
+                </div>
               </td>
             </tr>
           </template>
@@ -209,6 +231,37 @@ function reorder(order) {
       </table>
     </div>
   </section>
+
+  <dialog
+    ref="qrDialog"
+    class="qr-modal"
+    aria-labelledby="qr-dialog-title"
+  >
+    <div class="qr-modal-content" v-if="selectedOrderForQr">
+      <h2 id="qr-dialog-title">Retiro en Tienda</h2>
+      <p class="qr-instruction">
+        Muestra este código al cajero en la sucursal para verificar y entregar tu paquete.
+      </p>
+      
+      <div class="qr-wrapper">
+        <qrcode-vue 
+          :value="JSON.stringify({ action: 'pickup', orderId: selectedOrderForQr.id, total: selectedOrderForQr.total, local: selectedOrderForQr.descripcion?.local })"
+          :size="200"
+          level="M"
+          render-as="svg"
+        />
+      </div>
+      
+      <p class="qr-order-id">Pedido #{{ selectedOrderForQr.id }}</p>
+      <p v-if="selectedOrderForQr.descripcion?.local" style="margin-top: -10px; margin-bottom: 15px; color: var(--muted); font-size: 0.9rem;">
+        Local: {{ selectedOrderForQr.descripcion.local }}
+      </p>
+      
+      <button type="button" class="btn btn-primary btn--full" @click="closeQrModal">
+        Cerrar
+      </button>
+    </div>
+  </dialog>
 </template>
 
 <style scoped>
@@ -318,7 +371,7 @@ function reorder(order) {
   border: 1px solid rgba(185, 28, 28, 0.25);
 }
 
-.btn-invoice, .btn-reorder {
+.btn-invoice, .btn-reorder, .btn-pickup {
   background: white;
   border-radius: 6px;
   cursor: pointer;
@@ -346,6 +399,15 @@ function reorder(order) {
 }
 .btn-reorder:hover {
   background: #10b981;
+  color: white;
+}
+
+.btn-pickup {
+  color: #8b5cf6;
+  border: 1px solid #8b5cf6;
+}
+.btn-pickup:hover {
+  background: #8b5cf6;
   color: white;
 }
 
@@ -432,6 +494,63 @@ function reorder(order) {
   background: #10b981;
 }
 
+/* Modal QR */
+.qr-modal {
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0;
+  max-width: 380px;
+  width: calc(100% - 2rem);
+  background: var(--surface);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  margin: auto;
+}
+
+.qr-modal::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.qr-modal-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qr-modal-content h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+.qr-instruction {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.qr-wrapper {
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-order-id {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+}
+
 /* Responsividad para móviles */
 @media (max-width: 768px) {
   .actions-col {
@@ -439,7 +558,7 @@ function reorder(order) {
     align-items: stretch;
   }
 
-  .btn-invoice, .btn-reorder {
+  .btn-invoice, .btn-reorder, .btn-pickup {
     justify-content: center;
     width: 100%;
   }

@@ -2,7 +2,7 @@ const PedidoModel = require('../models/pedido.model')
 
 async function create(req, res, next) {
   try {
-    const { detalles, clienteDatos, cupon } = req.body
+    const { detalles, clienteDatos, cupon, metodoEntrega, localRetiro } = req.body
     const userId = req.user.id // This is id_usuario
 
     let total = 0
@@ -84,12 +84,13 @@ async function create(req, res, next) {
       }
     }
 
-    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento)
+    const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento, descripcionPayload)
 
     // Formatear respuesta al formato original esperado por frontend
     const formatPedido = {
       id: pedido.id_documento,
       userId: userId,
+      descripcion: pedido.doc_descripcion ? JSON.parse(pedido.doc_descripcion) : { metodo: 'delivery' },
       total: Number(pedido.doc_total),
       createdAt: pedido.doc_emision,
       detalles: pedido.productosxdocumento.map(pxd => ({
@@ -133,6 +134,13 @@ async function getMyOrders(req, res, next) {
       },
       total: Number(doc.doc_total),
       createdAt: doc.doc_emision,
+      descripcion: (() => {
+        try {
+          return doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
+        } catch(e) {
+          return { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
+        }
+      })(),
       detalles: doc.productosxdocumento.map(pxd => ({
         productoId: pxd.variantes_producto.productos.id_producto,
         cantidad: pxd.pxd_cantidad,
@@ -161,6 +169,13 @@ async function getAll(req, res, next) {
       usuario: { id: req.user.id, username: doc.clientes.cli_nombre, email: doc.clientes.cli_correo },
       total: Number(doc.doc_total),
       createdAt: doc.doc_emision,
+      descripcion: (() => {
+        try {
+          return doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
+        } catch(e) {
+          return { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
+        }
+      })(),
       detalles: doc.productosxdocumento.map(pxd => ({
         productoId: pxd.variantes_producto.productos.id_producto,
         cantidad: pxd.pxd_cantidad,

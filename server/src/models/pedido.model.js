@@ -28,7 +28,7 @@ class PedidoModel {
     })
   }
 
-  async createTransaction(items, clienteId, vendedorId, total, descuento = 0) {
+  async createTransaction(items, clienteId, vendedorId, total, descuento = 0, descripcion = 'Compra online Carrito') {
     return prisma.$transaction(async (tx) => {
       // 1. Descontar stock
       for (const item of items) {
@@ -56,7 +56,7 @@ class PedidoModel {
           id_vendedor: vendedorId,
           doc_tipo: 'FAC',
           doc_emision: new Date(),
-          doc_descripcion: 'Compra online Carrito',
+          doc_descripcion: descripcion,
           doc_subtotal: subtotal,
           doc_iva: 0,
           doc_descuento: descVal,

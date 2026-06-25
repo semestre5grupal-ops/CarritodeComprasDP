@@ -12,64 +12,6 @@ const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
 const alertState = ref(null) // 'offline' or 'success'
-const submitting = ref(false)
-const submitError = ref('')
-
-const showCheckoutForm = ref(false)
-const consumidorFinal = ref(false)
-const checkoutForm = ref({
-  nombre: '',
-  cedula: '',
-  celular: '',
-  telefono: ''
-})
-
-function validateCheckout() {
-  if (!checkoutForm.value.nombre) return 'El Nombre es obligatorio.'
-  if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]+$/.test(checkoutForm.value.nombre)) return 'El Nombre solo puede contener letras y puntos.'
-
-  if (!checkoutForm.value.cedula) return 'La Cédula/RUC es obligatoria.'
-  if (!/^\d{10}$|^\d{13}$/.test(checkoutForm.value.cedula)) return 'La Cédula debe tener 10 dígitos o el RUC 13 dígitos numéricos.'
-
-  if (!checkoutForm.value.celular) return 'El Celular es obligatorio.'
-  if (!/^\d{10}$/.test(checkoutForm.value.celular)) return 'El Celular debe tener exactamente 10 dígitos numéricos.'
-
-  if (checkoutForm.value.telefono && !/^\d+$/.test(checkoutForm.value.telefono)) return 'El Teléfono solo puede contener números.'
-
-  return null
-}
-
-const allSelected = computed({
-  get: () => items.value.length > 0 && selectedIds.value.size === items.value.length,
-  set: (val) => {
-    if (val) {
-      selectedIds.value = new Set(items.value.map((i) => i.id))
-    } else {
-      selectedIds.value = new Set()
-    }
-  },
-})
-
-watch(total, (newTotal) => {
-  if (newTotal > 50.00 && consumidorFinal.value) {
-    consumidorFinal.value = false
-  }
-})
-
-watch(consumidorFinal, (isFinal) => {
-  if (isFinal) {
-    checkoutForm.value.nombre = 'Consumidor Final'
-    checkoutForm.value.cedula = '9999999999999'
-    checkoutForm.value.celular = '9999999999'
-    checkoutForm.value.telefono = ''
-  } else {
-    // Restaurar si el usuario lo desmarca (se dejará vacío para que llene)
-    checkoutForm.value.nombre = ''
-    checkoutForm.value.cedula = ''
-    checkoutForm.value.celular = ''
-    checkoutForm.value.telefono = ''
-  }
-})
 
 let previousFocus = null
 
@@ -115,28 +57,12 @@ watch(drawerOpen, async (open) => {
     document.body.style.overflow = 'hidden'
     await nextTick()
     drawer.value?.focus()
-    
-    if (isAuthenticated.value) {
-      await fetchProfile()
-      const cliente = user.value?.cliente
-      if (cliente && cliente.cli_ciruc && !cliente.cli_ciruc.startsWith('9999999999')) {
-        checkoutForm.value = {
-          nombre: cliente.cli_nombre || '',
-          cedula: cliente.cli_ciruc || '',
-          celular: cliente.cli_celular || '',
-          telefono: cliente.cli_telefono && !cliente.cli_telefono.startsWith('0000000000') ? cliente.cli_telefono : ''
-        }
-      }
-    }
   } else {
     document.body.style.overflow = ''
     if (previousFocus) {
       previousFocus.focus()
       previousFocus = null
     }
-    showCheckoutForm.value = false
-    checkoutForm.value = { nombre: '', cedula: '', celular: '', telefono: '' }
-    submitError.value = ''
   }
 })
 
@@ -170,45 +96,14 @@ function decreaseQty(item) {
 }
 
 async function handleCheckout() {
-  if (submitting.value) return
-  
   if (!isAuthenticated.value) {
     closeDrawer()
     router.push('/login')
     return
   }
 
-  if (!showCheckoutForm.value) {
-    showCheckoutForm.value = true
-    return
-  }
-
-  const errorMsg = validateCheckout()
-  if (errorMsg) {
-    submitError.value = errorMsg
-    return
-  }
-
-  submitting.value = true
-  submitError.value = ''
-  try {
-    if (!navigator.onLine) {
-      await submitOrder(router, checkoutForm.value)
-      alertState.value = 'offline'
-      await nextTick()
-      dialog.value?.showModal()
-      return
-    }
-
-    await submitOrder(router, checkoutForm.value)
-    alertState.value = 'success'
-    await nextTick()
-    dialog.value?.showModal()
-  } catch (err) {
-    submitError.value = err.message || 'Error al procesar el pedido.'
-  } finally {
-    submitting.value = false
-  }
+  closeDrawer()
+  router.push('/checkout')
 }
 
 function closeAlert() {
@@ -392,56 +287,13 @@ function closeAlert() {
             </div>
           </div>
 
-          <div
-            v-if="submitError"
-            class="form-alert form-alert--error"
-            role="alert"
-            aria-live="assertive"
-          >
-            {{ submitError }}
-          </div>
-
-          <div v-if="showCheckoutForm" class="checkout-form-container">
-            <h3 class="checkout-form-title">Datos de Facturación</h3>
-
-            <div class="form-group consumidor-final-check" v-if="total <= 50">
-              <label class="cf-label">
-                <input type="checkbox" v-model="consumidorFinal" />
-                Facturar como Consumidor Final
-              </label>
-            </div>
-            <div class="form-group consumidor-final-check text-muted" v-else>
-              <label class="cf-label" style="opacity: 0.6;" title="Solo disponible para compras hasta $50">
-                <input type="checkbox" disabled />
-                Facturar como Consumidor Final (Solo <= $50)
-              </label>
-            </div>
-
-            <div class="form-group">
-              <label for="cf-nombre">Nombre y Apellido *</label>
-              <input id="cf-nombre" v-model="checkoutForm.nombre" type="text" class="input-base" required @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')" :disabled="consumidorFinal" />
-            </div>
-            <div class="form-group">
-              <label for="cf-cedula">Cédula / RUC *</label>
-              <input id="cf-cedula" v-model="checkoutForm.cedula" type="text" class="input-base" required maxlength="13" @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
-            </div>
-            <div class="form-group">
-              <label for="cf-celular">Celular *</label>
-              <input id="cf-celular" v-model="checkoutForm.celular" type="text" class="input-base" required maxlength="10" @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
-            </div>
-            <div class="form-group">
-              <label for="cf-telefono">Teléfono Fijo (Opcional)</label>
-              <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
-            </div>
-          </div>
-
           <button
             type="button"
             class="btn btn-primary btn--full"
-            :disabled="submitting || items.length === 0"
+            :disabled="items.length === 0"
             @click="handleCheckout"
           >
-            {{ submitting ? 'Procesando...' : 'Completar pedido' }}
+            Ir a Pagar
           </button>
         </template>
       </aside>
@@ -747,119 +599,8 @@ function closeAlert() {
   padding-top: 0.5rem;
 }
 
-.drawer-summary + .btn--full,
-.form-alert + .btn--full {
-  margin: 0 1.25rem 1rem;
-  width: auto;
-}
-
-.drawer-summary + .form-alert {
-  margin: 0 1.25rem;
-}
-
-.checkout-form-container {
-  padding: 1rem 1.25rem;
-  background: var(--surface-soft);
-  border-top: 1px solid var(--line);
-  margin-bottom: 1rem;
-}
-
-.checkout-form-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.form-group {
-  margin-bottom: 0.75rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-bottom: 0.25rem;
-}
-
-.input-base {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 0.9rem;
-}
-
-.input-base:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.offline-dialog {
-  border: 1px solid var(--line);
-  border-radius: 1.3rem;
-  padding: 2rem;
-  max-width: 420px;
-  width: calc(100% - 2rem);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.offline-dialog::backdrop {
-  background: rgba(21, 33, 42, 0.5);
-  backdrop-filter: blur(3px);
-}
-
-.offline-dialog h2 {
-  font-size: 1.3rem;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.offline-dialog p {
-  color: var(--muted);
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
-}
-
-.consumidor-final-check {
-  margin-bottom: 1.25rem;
-  background: var(--surface);
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--line);
-}
-
-.cf-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--ink);
-  font-size: 0.85rem !important;
-  margin: 0 !important;
-}
-
-.cf-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
 .text-muted {
   color: var(--muted);
-}
-
-.input-base:disabled {
-  background: var(--surface-soft);
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 /* transition */

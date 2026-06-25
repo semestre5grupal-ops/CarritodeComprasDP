@@ -17,6 +17,8 @@ const RegisterView = () => import('./views/RegisterView.vue')
 const AdminView    = () => import('./views/AdminView.vue')
 const MyOrdersView = () => import('./views/MyOrdersView.vue')
 
+const CheckoutView = () => import('./views/CheckoutView.vue')
+
 const routes = [
   { path: '/',           name: 'home',      component: HomeView,     meta: { title: 'Inicio' } },
   { path: '/catalog',    name: 'catalog',   component: CatalogView,  meta: { title: 'Catálogo' } },
@@ -24,6 +26,7 @@ const routes = [
   { path: '/register',   name: 'register',  component: RegisterView, meta: { title: 'Crear cuenta' } },
   { path: '/admin',      name: 'admin',     component: AdminView,    meta: { title: 'Administración', requiresAdmin: true } },
   { path: '/mis-pedidos',name: 'my-orders', component: MyOrdersView, meta: { title: 'Mis Pedidos',    requiresAuth: true } },
+  { path: '/checkout',   name: 'checkout',  component: CheckoutView, meta: { title: 'Finalizar Compra', requiresAuth: true } },
 ]
 
 const router = createRouter({
