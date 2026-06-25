@@ -232,14 +232,16 @@ function goToOrders() {
     </div>
 
     <!-- Success Modal -->
-    <dialog class="success-modal" :open="showSuccessModal">
-      <div class="success-content">
-        <div class="icon-success">✅</div>
-        <h2>¡Pedido Confirmado!</h2>
-        <p>Tu pedido #{{ orderCreatedId }} se ha generado exitosamente.</p>
-        <button class="btn btn-primary" @click="goToOrders">Ver mis Pedidos</button>
+    <div class="modal-overlay fade-in" v-if="showSuccessModal">
+      <div class="success-modal">
+        <div class="success-content">
+          <div class="icon-success">✅</div>
+          <h2 style="margin-bottom: 0.5rem;">¡Pedido Confirmado!</h2>
+          <p style="color: var(--muted); margin-bottom: 1.5rem;">Tu pedido #{{ orderCreatedId }} se ha generado exitosamente.</p>
+          <button class="btn btn-primary" @click="goToOrders" style="width: 100%;">Ver mis Pedidos</button>
+        </div>
       </div>
-    </dialog>
+    </div>
   </main>
 </template>
 
@@ -346,6 +348,41 @@ function goToOrders() {
   gap: 1.25rem;
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+.input-base {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.input-base:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.input-base:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .consumidor-final-check {
   margin-bottom: 1.5rem;
   padding: 1rem;
@@ -426,19 +463,25 @@ function goToOrders() {
   text-align: center;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
 .success-modal {
+  background: white;
   border: none;
   border-radius: 1rem;
   padding: 3rem;
   max-width: 400px;
   width: 90%;
-  margin: auto;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-}
-
-.success-modal::backdrop {
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
 }
 
 .success-content {
