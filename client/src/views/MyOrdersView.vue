@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import OrderController from '../controllers/OrderController'
 import { useCart } from '../models/useCart'
 import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 
 const { addProduct, openDrawer } = useCart()
 const expandedOrderId = ref(null)
@@ -63,7 +63,7 @@ function downloadInvoice(order) {
     tableRows.push([nombre, cant, `$${precioUnit.toFixed(2)}`, `$${sub.toFixed(2)}`])
   })
 
-  doc.autoTable({
+  autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
     startY: 65,
@@ -71,7 +71,7 @@ function downloadInvoice(order) {
     headStyles: { fillColor: [44, 62, 80] }
   })
 
-  const finalY = doc.lastAutoTable.finalY || 65
+  const finalY = doc.lastAutoTable?.finalY || 65
 
   // Totales
   doc.setFontSize(12)
@@ -420,5 +420,38 @@ function reorder(order) {
 
 .step-line.active {
   background: #10b981;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+  .actions-col {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-invoice, .btn-reorder {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .stepper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .step {
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-line {
+    width: 4px;
+    height: 25px;
+    margin: 0 0 0 23px; /* Centrado con el ícono de 50px */
+    top: 0;
+  }
 }
 </style>
