@@ -52,7 +52,7 @@ Si te saludan, saluda de vuelta y preséntate como el Asistente Virtual de Shop 
     const responseText = chatCompletion.choices[0]?.message?.content || "No pude generar una respuesta.";
 
     // 4. Devolver la respuesta
-    res.json({ response: responseText });
+    res.json({ reply: responseText });
   } catch (error) {
     console.error("Error en ia.controller (Groq):", error);
     next(error);
