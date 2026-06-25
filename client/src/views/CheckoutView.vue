@@ -73,7 +73,7 @@ async function handleCheckout() {
       metodoEntrega: deliveryMethod.value,
       localRetiro: storeLocation.value
     }
-    const res = await OrderController.createOrder(data)
+    const res = await OrderController.create(data)
     
     orderCreatedId.value = res.data?.id
     emptyCart()
