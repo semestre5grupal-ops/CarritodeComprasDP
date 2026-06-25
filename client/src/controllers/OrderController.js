@@ -19,6 +19,15 @@ class OrderController {
     }
   }
 
+  async getLocales() {
+    try {
+      const response = await api.get('/pedidos/locales')
+      return response.data || []
+    } catch (error) {
+      throw new Error(error.message || 'Error al cargar locales', { cause: error })
+    }
+  }
+
   async create(data) {
     try {
       const response = await api.post('/pedidos', data)

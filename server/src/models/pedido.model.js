@@ -11,6 +11,11 @@ class PedidoModel {
   async getFirstVendedor() { return prisma.vendedores.findFirst() }
   async getFirstCliente() { return prisma.clientes.findFirst() }
   async getFirstCiudad() { return prisma.ciudad.findFirst() }
+  async findAllBodegas() {
+    return prisma.bodega.findMany({
+      where: { estado_bod: 'ACT' }
+    })
+  }
   async findClienteByEmail(email) {
     return prisma.clientes.findFirst({
       where: { cli_correo: email }

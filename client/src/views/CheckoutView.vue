@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '../models/useCart'
 import OrderController from '../controllers/OrderController'
@@ -10,12 +10,16 @@ const { items, total, clearCart } = useCart()
 const deliveryMethod = ref('delivery') // 'delivery' | 'pickup'
 const storeLocation = ref('')
 
-const stores = [
-  'Shop Sport - Mall del Sol',
-  'Shop Sport - San Marino',
-  'Shop Sport - Riocentro Ceibos',
-  'Shop Sport - Centro'
-]
+const stores = ref([])
+
+onMounted(async () => {
+  try {
+    const data = await OrderController.getLocales()
+    stores.value = data.map(b => b.bod_nombre_)
+  } catch (err) {
+    console.error('Error al cargar locales:', err)
+  }
+})
 
 const consumidorFinal = ref(false)
 const checkoutForm = ref({

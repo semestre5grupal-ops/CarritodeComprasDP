@@ -214,4 +214,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, getMyOrders, getAll, updateStatus, remove }
+async function getLocales(req, res, next) {
+  try {
+    const bodegas = await PedidoModel.findAllBodegas()
+    res.json({ data: bodegas })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getMyOrders, getAll, updateStatus, remove, getLocales }
