@@ -2,6 +2,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import ProductController from '../controllers/ProductController'
 import ProductCard from '../components/ProductCard.vue'
+import AIChatbot from '../components/AIChatbot.vue'
 import { useCart } from '../models/useCart'
 
 const { addProduct, openDrawer } = useCart()
@@ -262,6 +263,9 @@ onUnmounted(() => {
             </div>
         </div>
     </section>
+
+    <!-- Asistente de IA -->
+    <AIChatbot />
   </main>
 </template>
 
