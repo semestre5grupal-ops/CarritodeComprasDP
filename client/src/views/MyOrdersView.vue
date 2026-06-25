@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import OrderController from '../controllers/OrderController'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 const orders = ref([])
 const loading = ref(true)
@@ -22,6 +24,61 @@ async function loadOrders() {
 onMounted(() => {
   loadOrders()
 })
+
+function downloadInvoice(order) {
+  const doc = new jsPDF()
+
+  // Título
+  doc.setFontSize(22)
+  doc.setTextColor(33, 33, 33)
+  doc.text('Factura de Compra', 14, 22)
+  
+  // Subtítulo / Empresa
+  doc.setFontSize(14)
+  doc.setTextColor(100, 100, 100)
+  doc.text('Shop Sport', 14, 30)
+
+  // Datos de la factura
+  doc.setFontSize(11)
+  doc.text(`ID Pedido: #${order.id}`, 14, 45)
+  doc.text(`Fecha: ${new Date(order.createdAt).toLocaleDateString('es-EC')}`, 14, 52)
+  doc.text(`Estado: Pagado`, 14, 59)
+
+  // Tabla
+  const tableColumn = ["Producto", "Cantidad", "Precio Unit.", "Subtotal"]
+  const tableRows = []
+
+  let subtotalFactura = 0;
+
+  order.detalles?.forEach(d => {
+    const nombre = d.producto?.nombre || `Producto #${d.productoId}`
+    const cant = d.cantidad
+    const precioUnit = Number(d.precio_unitario || d.precio_historico || (order.total / cant) || 0)
+    const sub = cant * precioUnit
+    subtotalFactura += sub
+    tableRows.push([nombre, cant, `$${precioUnit.toFixed(2)}`, `$${sub.toFixed(2)}`])
+  })
+
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 65,
+    theme: 'striped',
+    headStyles: { fillColor: [44, 62, 80] }
+  })
+
+  const finalY = doc.lastAutoTable.finalY || 65
+
+  // Totales
+  doc.setFontSize(12)
+  doc.setTextColor(0, 0, 0)
+  doc.text(`Subtotal: $${subtotalFactura.toFixed(2)}`, 140, finalY + 10)
+  doc.text(`IVA (0%): $0.00`, 140, finalY + 18)
+  doc.setFontSize(14)
+  doc.text(`Total: $${Number(order.total || 0).toFixed(2)}`, 140, finalY + 28)
+
+  doc.save(`Factura_ShopSport_Pedido_${order.id}.pdf`)
+}
 </script>
 
 <template>
@@ -56,6 +113,7 @@ onMounted(() => {
             <th scope="col">Fecha</th>
             <th scope="col">Productos</th>
             <th scope="col">Total</th>
+            <th scope="col">Factura</th>
           </tr>
         </thead>
         <tbody>
@@ -71,6 +129,11 @@ onMounted(() => {
               <span v-else class="muted">—</span>
             </td>
             <td style="font-weight: 600;">${{ Number(o.total || 0).toFixed(2) }}</td>
+            <td>
+              <button class="btn-invoice" @click="downloadInvoice(o)" title="Descargar Factura PDF">
+                ⬇️ PDF
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -183,5 +246,27 @@ onMounted(() => {
   background: rgba(185, 28, 28, 0.1);
   color: #b91c1c;
   border: 1px solid rgba(185, 28, 28, 0.25);
+}
+
+.btn-invoice {
+  background: white;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-invoice:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 </style>
