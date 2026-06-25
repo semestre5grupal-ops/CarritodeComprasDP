@@ -27,7 +27,14 @@ async function sendMessage() {
   scrollToBottom()
 
   try {
-    const response = await api.post('/ia/chat', { message: text })
+    // Preparar el historial (tomando solo los últimos 6 mensajes para no consumir excesivos tokens ni sobrepasar límites)
+    const recentConversation = conversation.value.slice(-6);
+    const history = recentConversation.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+
+    const response = await api.post('/ia/chat', { history })
     conversation.value.push({ sender: 'bot', text: response.reply || 'No pude entender tu solicitud.' })
   } catch (err) {
     conversation.value.push({ sender: 'bot', text: 'Ocurrió un error de conexión con mi servidor. Intenta de nuevo más tarde.' })

@@ -1,19 +1,19 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 const ProductoModel = require("../models/producto.model");
-const { GEMINI_API_KEY } = process.env;
+const { GROQ_API_KEY } = process.env;
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || "dummy_key");
+const groq = new Groq({ apiKey: GROQ_API_KEY || "dummy_key" });
 
 async function chat(req, res, next) {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ error: "BAD_REQUEST", message: "El mensaje es requerido." });
+    if (!message && (!history || history.length === 0)) {
+      return res.status(400).json({ error: "BAD_REQUEST", message: "El mensaje o historial es requerido." });
     }
 
-    if (!GEMINI_API_KEY) {
-      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "La API Key de Gemini no está configurada en el servidor." });
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "La API Key de Groq no está configurada en el servidor." });
     }
 
     // 1. Obtener todos los productos para el contexto
@@ -26,30 +26,48 @@ async function chat(req, res, next) {
     }).join("\n");
 
     // 2. Construir el prompt del sistema
-    const prompt = `Eres un asistente de ventas virtual para la tienda de ropa deportiva "Shop Sport".
-Tu trabajo es responder las dudas de los clientes basándote ÚNICAMENTE en el siguiente catálogo de productos:
+    const systemPrompt = `Eres el asistente virtual de la tienda "Shop Sport".
+Tu único objetivo es ayudar a los clientes a encontrar ropa deportiva en el inventario y resolver sus dudas sobre los productos disponibles.
+Usa respuestas claras y amables.
 
+Inventario actual:
 ${inventarioTexto}
 
-Instrucciones:
-- Sé amable, conciso y persuasivo.
-- Si te preguntan por un producto que no está en la lista, diles amablemente que por el momento no contamos con él.
-- Si te preguntan el precio o recomendaciones, usa los datos del catálogo provisto.
-- No inventes productos ni precios.
-- Si la pregunta no está relacionada con la tienda o ropa deportiva, indica educadamente que solo puedes asistir con temas de la tienda.
+REGLAS ESTRICTAS:
+1. NO puedes realizar compras, no puedes procesar pagos, ni procesar carritos de compra. Si el usuario te pide comprar, dile amablemente que debe añadir los productos al carrito y usar el botón de pago en la página web.
+2. Solo puedes ofrecer productos del inventario con Stock > 0.
+3. Si el usuario pregunta cosas que no tienen que ver con ropa deportiva o la tienda, dile educadamente que tu función es solo asistir en la tienda.
+4. NO repitas "Hola" ni te presentes constantemente (recuerda la conversación).
+5. Responde con naturalidad basándote en el hilo de la conversación.`;
 
-Pregunta del cliente: "${message}"`;
+    // 3. Preparar el array de mensajes con el historial
+    let finalMessages = [{ role: "system", content: systemPrompt }];
+    
+    if (history && history.length > 0) {
+      finalMessages = finalMessages.concat(history);
+    } else if (message) {
+      finalMessages.push({ role: "user", content: message });
+    }
 
-    // 3. Llamar a Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    // 4. Llamar a Groq (LLaMA 3)
+    const chatCompletion = await groq.chat.completions.create({
+      messages: finalMessages,
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.7,
+      max_tokens: 1024,
+      top_p: 1,
+    });
 
+    const responseText = chatCompletion.choices[0]?.message?.content || "No pude generar una respuesta.";
+
+    // 4. Devolver la respuesta
     res.json({ reply: responseText });
-  } catch (err) {
-    console.error("Error en ia.controller:", err);
-    next(err);
+  } catch (error) {
+    console.error("Error en ia.controller (Groq):", error);
+    next(error);
   }
 }
 
-module.exports = { chat };
+module.exports = {
+  chat
+};
