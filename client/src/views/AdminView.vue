@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
+import ReportController from '../controllers/ReportController'
 import api from '../services/api'
 
 const activeTab = ref('products')
@@ -35,6 +36,96 @@ const orderFormError = ref('')
 const savingOrder = ref(false)
 
 const categorias = ['Mujer', 'Hombre', 'Unisex']
+
+// ─── Estado del panel de Reportes ───────────────────────────────────────────
+const report = ref(null)
+const reportLoading = ref(false)
+const reportError = ref('')
+const selectedRange = ref('mes_actual') // preset activo
+const customFrom = ref('')
+const customTo = ref('')
+
+const rangePresets = [
+  { key: 'mes_actual', label: 'Mes actual' },
+  { key: 'mes_pasado', label: 'Mes pasado' },
+  { key: '3meses', label: 'Últimos 3 meses' },
+  { key: '6meses', label: 'Últimos 6 meses' },
+  { key: 'anio', label: 'Último año' },
+  { key: 'personalizado', label: 'Personalizado' },
+]
+
+function toYMD(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+// Traduce el preset seleccionado a un par { from, to } en formato 'YYYY-MM-DD'.
+function resolveRange(key) {
+  const now = new Date()
+  if (key === 'personalizado') {
+    return { from: customFrom.value || null, to: customTo.value || null }
+  }
+  if (key === 'mes_actual') {
+    return { from: toYMD(new Date(now.getFullYear(), now.getMonth(), 1)), to: toYMD(now) }
+  }
+  if (key === 'mes_pasado') {
+    const first = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const last = new Date(now.getFullYear(), now.getMonth(), 0)
+    return { from: toYMD(first), to: toYMD(last) }
+  }
+  const months = { '3meses': 3, '6meses': 6, anio: 12 }[key] || 1
+  const from = new Date(now)
+  from.setMonth(from.getMonth() - months)
+  return { from: toYMD(from), to: toYMD(now) }
+}
+
+const reportSummary = computed(() => report.value?.resumen || null)
+const reportSeries = computed(() => report.value?.series || [])
+const reportTop = computed(() => report.value?.topProductos || [])
+const maxSerieTotal = computed(() => Math.max(1, ...reportSeries.value.map((s) => s.total)))
+const maxTopCantidad = computed(() => Math.max(1, ...reportTop.value.map((p) => p.cantidad)))
+
+function formatSerieLabel(label) {
+  // 'YYYY-MM-DD' -> 'DD/MM' ; 'YYYY-MM' -> 'MM/YYYY'
+  const parts = label.split('-')
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}`
+  return `${parts[1]}/${parts[0]}`
+}
+
+function formatMoney(value) {
+  return `$${Number(value || 0).toFixed(2)}`
+}
+
+async function loadReport() {
+  if (selectedRange.value === 'personalizado' && (!customFrom.value || !customTo.value)) {
+    reportError.value = 'Selecciona una fecha de inicio y una de fin.'
+    return
+  }
+  if (selectedRange.value === 'personalizado' && customFrom.value > customTo.value) {
+    reportError.value = 'La fecha de inicio no puede ser mayor que la fecha de fin.'
+    return
+  }
+  reportLoading.value = true
+  reportError.value = ''
+  try {
+    const { from, to } = resolveRange(selectedRange.value)
+    report.value = await ReportController.getVentas(from, to)
+  } catch (err) {
+    reportError.value = err.message || 'Error al cargar el reporte'
+    report.value = null
+  } finally {
+    reportLoading.value = false
+  }
+}
+
+function selectRange(key) {
+  selectedRange.value = key
+  if (key !== 'personalizado') {
+    loadReport()
+  }
+}
 
 async function loadProducts() {
   loading.value = true
@@ -303,6 +394,15 @@ onUnmounted(() => {
       >
         Usuarios
       </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="activeTab === 'reports'"
+        :class="{ active: activeTab === 'reports' }"
+        @click="activeTab = 'reports'; loadReport()"
+      >
+        Reportes
+      </button>
     </nav>
 
     <div
@@ -527,6 +627,129 @@ onUnmounted(() => {
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Reports Tab -->
+    <div v-if="activeTab === 'reports'" role="tabpanel" aria-label="Reportes de ventas">
+      <div class="report-filters">
+        <div class="range-presets" role="group" aria-label="Rango de fechas">
+          <button
+            v-for="preset in rangePresets"
+            :key="preset.key"
+            type="button"
+            class="range-chip"
+            :class="{ active: selectedRange === preset.key }"
+            :aria-pressed="selectedRange === preset.key"
+            @click="selectRange(preset.key)"
+          >
+            {{ preset.label }}
+          </button>
+        </div>
+
+        <div v-if="selectedRange === 'personalizado'" class="custom-range">
+          <div class="form-group">
+            <label for="rep-from">Desde</label>
+            <input id="rep-from" v-model="customFrom" type="date" :max="customTo || undefined" />
+          </div>
+          <div class="form-group">
+            <label for="rep-to">Hasta</label>
+            <input id="rep-to" v-model="customTo" type="date" :min="customFrom || undefined" />
+          </div>
+          <button type="button" class="btn btn-primary" @click="loadReport">Aplicar</button>
+        </div>
+      </div>
+
+      <div
+        v-if="reportError"
+        class="form-alert form-alert--error"
+        role="alert"
+        aria-live="assertive"
+      >
+        {{ reportError }}
+      </div>
+
+      <div v-if="reportLoading" class="loading" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Cargando reporte...</p>
+      </div>
+
+      <template v-else-if="reportSummary">
+        <!-- Tarjetas resumen -->
+        <div class="report-cards">
+          <div class="report-card">
+            <span class="report-card__label">Ventas totales</span>
+            <strong class="report-card__value">{{ formatMoney(reportSummary.totalVentas) }}</strong>
+          </div>
+          <div class="report-card">
+            <span class="report-card__label">Pedidos</span>
+            <strong class="report-card__value">{{ reportSummary.numPedidos }}</strong>
+          </div>
+          <div class="report-card">
+            <span class="report-card__label">Productos vendidos</span>
+            <strong class="report-card__value">{{ reportSummary.totalProductos }}</strong>
+          </div>
+          <div class="report-card">
+            <span class="report-card__label">Ticket promedio</span>
+            <strong class="report-card__value">{{ formatMoney(reportSummary.ticketPromedio) }}</strong>
+          </div>
+        </div>
+
+        <!-- Gráfico de ventas en el tiempo -->
+        <div class="report-block">
+          <h3 class="report-block__title">Ventas en el periodo</h3>
+          <div v-if="reportSeries.length === 0" class="empty-message">Sin datos en el rango seleccionado.</div>
+          <div v-else class="bar-chart" role="img" aria-label="Gráfico de ventas por periodo">
+            <div
+              v-for="s in reportSeries"
+              :key="s.label"
+              class="bar-chart__col"
+              :title="`${formatSerieLabel(s.label)} · ${formatMoney(s.total)} · ${s.pedidos} pedido(s)`"
+            >
+              <span class="bar-chart__value">{{ s.total > 0 ? formatMoney(s.total) : '' }}</span>
+              <div
+                class="bar-chart__bar"
+                :style="{ height: Math.round((s.total / maxSerieTotal) * 100) + '%' }"
+              ></div>
+              <span class="bar-chart__label">{{ formatSerieLabel(s.label) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Productos más comprados -->
+        <div class="report-block">
+          <h3 class="report-block__title">Productos más comprados</h3>
+          <div v-if="reportTop.length === 0" class="empty-message">Sin productos vendidos en el rango.</div>
+          <div v-else class="admin-table-wrap">
+            <table class="admin-table" aria-label="Productos más comprados">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Unidades</th>
+                  <th scope="col">Popularidad</th>
+                  <th scope="col">Ingresos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(p, index) in reportTop" :key="p.id">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ p.nombre }}</td>
+                  <td>{{ p.cantidad }}</td>
+                  <td>
+                    <div class="rank-bar">
+                      <div
+                        class="rank-bar__fill"
+                        :style="{ width: Math.round((p.cantidad / maxTopCantidad) * 100) + '%' }"
+                      ></div>
+                    </div>
+                  </td>
+                  <td>{{ formatMoney(p.ingresos) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
     </div>
 
     <!-- Product Form Dialog -->
@@ -1025,5 +1248,159 @@ onUnmounted(() => {
   .form-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Panel de Reportes ───────────────────────────────────────────────── */
+.report-filters {
+  margin-bottom: 1.5rem;
+}
+
+.range-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.range-chip {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.range-chip:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.range-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.custom-range {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--surface-soft);
+}
+
+.custom-range .form-group {
+  margin-bottom: 0;
+}
+
+.report-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.report-card {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface-soft);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.report-card__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.report-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.report-block {
+  margin-bottom: 2rem;
+}
+
+.report-block__title {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 240px;
+  padding: 1.5rem 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface-soft);
+  overflow-x: auto;
+}
+
+.bar-chart__col {
+  flex: 1 0 32px;
+  min-width: 32px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.bar-chart__bar {
+  width: 70%;
+  max-width: 46px;
+  min-height: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-3, var(--accent)));
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.bar-chart__value {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.bar-chart__label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.rank-bar {
+  width: 100%;
+  min-width: 80px;
+  height: 8px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.rank-bar__fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
 }
 </style>
