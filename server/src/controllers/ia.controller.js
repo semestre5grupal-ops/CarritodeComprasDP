@@ -41,7 +41,7 @@ Instrucciones:
 Pregunta del cliente: "${message}"`;
 
     // 3. Llamar a Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
