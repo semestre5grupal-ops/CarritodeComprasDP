@@ -1,8 +1,8 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 const ProductoModel = require("../models/producto.model");
-const { GEMINI_API_KEY } = process.env;
+const { GROQ_API_KEY } = process.env;
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || "dummy_key");
+const groq = new Groq({ apiKey: GROQ_API_KEY || "dummy_key" });
 
 async function chat(req, res, next) {
   try {
@@ -12,8 +12,8 @@ async function chat(req, res, next) {
       return res.status(400).json({ error: "BAD_REQUEST", message: "El mensaje es requerido." });
     }
 
-    if (!GEMINI_API_KEY) {
-      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "La API Key de Gemini no está configurada en el servidor." });
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "La API Key de Groq no está configurada en el servidor." });
     }
 
     // 1. Obtener todos los productos para el contexto
@@ -26,30 +26,39 @@ async function chat(req, res, next) {
     }).join("\n");
 
     // 2. Construir el prompt del sistema
-    const prompt = `Eres un asistente de ventas virtual para la tienda de ropa deportiva "Shop Sport".
-Tu trabajo es responder las dudas de los clientes basándote ÚNICAMENTE en el siguiente catálogo de productos:
+    const systemPrompt = `Eres un asistente virtual experto en ventas para la tienda de ropa deportiva "Shop Sport".
+Tu objetivo principal es ayudar a los clientes a encontrar productos, responder preguntas y convencerlos de comprar de manera amable y profesional.
+Usa respuestas cortas (máximo 3-4 líneas por párrafo). Sé entusiasta.
 
+Inventario actual de la tienda:
 ${inventarioTexto}
 
-Instrucciones:
-- Sé amable, conciso y persuasivo.
-- Si te preguntan por un producto que no está en la lista, diles amablemente que por el momento no contamos con él.
-- Si te preguntan el precio o recomendaciones, usa los datos del catálogo provisto.
-- No inventes productos ni precios.
-- Si la pregunta no está relacionada con la tienda o ropa deportiva, indica educadamente que solo puedes asistir con temas de la tienda.
+Solo puedes ofrecer productos que estén en este inventario y que tengan Stock mayor a 0.
+Si el usuario pregunta por un producto que no está en el inventario o sin stock, dile amablemente que no lo tenemos disponible por ahora pero ofrécele una alternativa similar del inventario.
+Si te saludan, saluda de vuelta y preséntate como el Asistente Virtual de Shop Sport.`;
 
-Pregunta del cliente: "${message}"`;
+    // 3. Llamar a Groq (LLaMA 3)
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
+      model: "llama3-8b-8192",
+      temperature: 0.7,
+      max_tokens: 1024,
+      top_p: 1,
+    });
 
-    // 3. Llamar a Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = chatCompletion.choices[0]?.message?.content || "No pude generar una respuesta.";
 
-    res.json({ reply: responseText });
-  } catch (err) {
-    console.error("Error en ia.controller:", err);
-    next(err);
+    // 4. Devolver la respuesta
+    res.json({ response: responseText });
+  } catch (error) {
+    console.error("Error en ia.controller (Groq):", error);
+    next(error);
   }
 }
 
-module.exports = { chat };
+module.exports = {
+  chat
+};
