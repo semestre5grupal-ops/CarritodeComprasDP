@@ -6,10 +6,10 @@ const groq = new Groq({ apiKey: GROQ_API_KEY || "dummy_key" });
 
 async function chat(req, res, next) {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ error: "BAD_REQUEST", message: "El mensaje es requerido." });
+    if (!message && (!history || history.length === 0)) {
+      return res.status(400).json({ error: "BAD_REQUEST", message: "El mensaje o historial es requerido." });
     }
 
     if (!GROQ_API_KEY) {
@@ -26,25 +26,32 @@ async function chat(req, res, next) {
     }).join("\n");
 
     // 2. Construir el prompt del sistema
-    const systemPrompt = `Eres el asistente virtual experto en ventas de la tienda "Shop Sport".
-Tu objetivo es ayudar a los clientes a encontrar productos y responder preguntas de forma amable y directa.
-Usa respuestas cortas (máximo 3 líneas). 
+    const systemPrompt = `Eres el asistente virtual de la tienda "Shop Sport".
+Tu único objetivo es ayudar a los clientes a encontrar ropa deportiva en el inventario y resolver sus dudas sobre los productos disponibles.
+Usa respuestas claras y amables.
 
 Inventario actual:
 ${inventarioTexto}
 
 REGLAS ESTRICTAS:
-1. Solo puedes ofrecer productos del inventario con Stock > 0.
-2. Si piden algo sin stock, ofrece una alternativa similar del inventario.
-3. NO repitas "Hola" ni te presentes en tus respuestas (ya te presentaste antes). Ve directo al grano.
-4. Responde de forma muy natural y conversacional.`;
+1. NO puedes realizar compras, no puedes procesar pagos, ni procesar carritos de compra. Si el usuario te pide comprar, dile amablemente que debe añadir los productos al carrito y usar el botón de pago en la página web.
+2. Solo puedes ofrecer productos del inventario con Stock > 0.
+3. Si el usuario pregunta cosas que no tienen que ver con ropa deportiva o la tienda, dile educadamente que tu función es solo asistir en la tienda.
+4. NO repitas "Hola" ni te presentes constantemente (recuerda la conversación).
+5. Responde con naturalidad basándote en el hilo de la conversación.`;
 
-    // 3. Llamar a Groq (LLaMA 3)
+    // 3. Preparar el array de mensajes con el historial
+    let finalMessages = [{ role: "system", content: systemPrompt }];
+    
+    if (history && history.length > 0) {
+      finalMessages = finalMessages.concat(history);
+    } else if (message) {
+      finalMessages.push({ role: "user", content: message });
+    }
+
+    // 4. Llamar a Groq (LLaMA 3)
     const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
+      messages: finalMessages,
       model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 1024,

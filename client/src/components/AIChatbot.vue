@@ -27,7 +27,13 @@ async function sendMessage() {
   scrollToBottom()
 
   try {
-    const response = await api.post('/ia/chat', { message: text })
+    // Preparar el historial para que la IA tenga contexto (excluyendo mensajes de error de red si los hay)
+    const history = conversation.value.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+
+    const response = await api.post('/ia/chat', { history })
     conversation.value.push({ sender: 'bot', text: response.reply || 'No pude entender tu solicitud.' })
   } catch (err) {
     conversation.value.push({ sender: 'bot', text: 'Ocurrió un error de conexión con mi servidor. Intenta de nuevo más tarde.' })
