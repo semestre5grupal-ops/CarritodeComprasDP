@@ -1,8 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import OrderController from '../controllers/OrderController'
+import { useCart } from '../models/useCart'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
+
+const { addProduct, openDrawer } = useCart()
+const expandedOrderId = ref(null)
 
 const orders = ref([])
 const loading = ref(true)
@@ -79,6 +83,34 @@ function downloadInvoice(order) {
 
   doc.save(`Factura_ShopSport_Pedido_${order.id}.pdf`)
 }
+
+function toggleRow(id) {
+  expandedOrderId.value = expandedOrderId.value === id ? null : id
+}
+
+function getOrderStatus(createdAt) {
+  const diffTime = Math.abs(new Date() - new Date(createdAt))
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  if (diffDays <= 1) return 1 // Preparando
+  if (diffDays <= 3) return 2 // En camino
+  return 3 // Entregado
+}
+
+function reorder(order) {
+  if (!order.detalles) return
+  order.detalles.forEach(d => {
+    if (d.productoId) {
+      addProduct({
+        id: d.productoId,
+        nombre: d.producto?.nombre || `Producto #${d.productoId}`,
+        precio: Number(d.precio_unitario || d.precio_historico || 0),
+        imagen: '',
+        stock: 99
+      }, d.cantidad)
+    }
+  })
+  openDrawer()
+}
 </script>
 
 <template>
@@ -117,24 +149,52 @@ function downloadInvoice(order) {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="o in orders" :key="o.id">
-            <td>#{{ o.id }}</td>
-            <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
-            <td>
-              <ul class="order-detail-list" v-if="o.detalles?.length">
-                <li v-for="(d, index) in o.detalles" :key="'det-' + index">
-                  {{ d.producto?.nombre || `Producto #${d.productoId}` }} x{{ d.cantidad }}
-                </li>
-              </ul>
-              <span v-else class="muted">—</span>
-            </td>
-            <td style="font-weight: 600;">${{ Number(o.total || 0).toFixed(2) }}</td>
-            <td>
-              <button class="btn-invoice" @click="downloadInvoice(o)" title="Descargar Factura PDF">
-                ⬇️ PDF
-              </button>
-            </td>
-          </tr>
+          <template v-for="o in orders" :key="o.id">
+            <tr class="order-row" @click="toggleRow(o.id)">
+              <td>#{{ o.id }}</td>
+              <td>{{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</td>
+              <td>
+                <ul class="order-detail-list" v-if="o.detalles?.length">
+                  <li v-for="(d, index) in o.detalles" :key="'det-' + index">
+                    {{ d.producto?.nombre || `Producto #${d.productoId}` }} x{{ d.cantidad }}
+                  </li>
+                </ul>
+                <span v-else class="muted">—</span>
+              </td>
+              <td style="font-weight: 600;">${{ Number(o.total || 0).toFixed(2) }}</td>
+              <td class="actions-col">
+                <button class="btn-invoice" @click.stop="downloadInvoice(o)" title="Descargar Factura PDF">
+                  ⬇️ PDF
+                </button>
+                <button class="btn-reorder" @click.stop="reorder(o)" title="Volver a Pedir">
+                  🔄 Reordenar
+                </button>
+              </td>
+            </tr>
+            <tr v-if="expandedOrderId === o.id" class="expanded-row">
+              <td colspan="5">
+                <div class="stepper-container">
+                  <h4 style="margin-top: 0;">Seguimiento del Paquete</h4>
+                  <div class="stepper">
+                    <div class="step" :class="{ active: getOrderStatus(o.createdAt) >= 1 }">
+                      <div class="step-icon">📦</div>
+                      <p>Preparando</p>
+                    </div>
+                    <div class="step-line" :class="{ active: getOrderStatus(o.createdAt) >= 2 }"></div>
+                    <div class="step" :class="{ active: getOrderStatus(o.createdAt) >= 2 }">
+                      <div class="step-icon">🚚</div>
+                      <p>En camino</p>
+                    </div>
+                    <div class="step-line" :class="{ active: getOrderStatus(o.createdAt) >= 3 }"></div>
+                    <div class="step" :class="{ active: getOrderStatus(o.createdAt) >= 3 }">
+                      <div class="step-icon">✅</div>
+                      <p>Entregado</p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -248,11 +308,8 @@ function downloadInvoice(order) {
   border: 1px solid rgba(185, 28, 28, 0.25);
 }
 
-.btn-invoice {
+.btn-invoice, .btn-reorder {
   background: white;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 0.4rem 0.8rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
@@ -261,12 +318,107 @@ function downloadInvoice(order) {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  padding: 0.4rem 0.6rem;
 }
 
+.btn-invoice {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
 .btn-invoice:hover {
   background: var(--accent);
   color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-reorder {
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+.btn-reorder:hover {
+  background: #10b981;
+  color: white;
+}
+
+.actions-col {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.order-row {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.expanded-row td {
+  background: #fdfdfd;
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.stepper-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.4;
+  transition: opacity 0.4s ease;
+}
+
+.step.active {
+  opacity: 1;
+}
+
+.step-icon {
+  font-size: 1.8rem;
+  background: var(--surface-soft);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.step.active .step-icon {
+  background: #e6f7f2;
+  border-color: #10b981;
+}
+
+.step p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.step-line {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-soft);
+  margin: 0 1rem;
+  border-radius: 2px;
+  position: relative;
+  top: -15px;
+  transition: background 0.4s ease;
+}
+
+.step-line.active {
+  background: #10b981;
 }
 </style>
