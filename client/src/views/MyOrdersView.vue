@@ -203,7 +203,10 @@ function closeQrModal() {
             <tr v-if="expandedOrderId === o.id" class="expanded-row">
               <td colspan="5">
                 <div v-if="o.descripcion?.metodo !== 'pickup'" class="stepper-container">
-                  <h4 style="margin-top: 0;">Seguimiento del Paquete</h4>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin-top: 0; margin-bottom: 0;">Seguimiento del Paquete</h4>
+                    <span v-if="o.descripcion?.direccion" style="font-size: 0.9rem; color: var(--muted);">📍 Entregando a: {{ o.descripcion.direccion }}</span>
+                  </div>
                   <div class="stepper">
                     <div class="step" :class="{ active: getOrderStatus(o.createdAt) >= 1 }">
                       <div class="step-icon">📦</div>

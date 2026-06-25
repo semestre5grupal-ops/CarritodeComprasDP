@@ -5,7 +5,7 @@ import { useCart } from '../models/useCart'
 import OrderController from '../controllers/OrderController'
 
 const router = useRouter()
-const { items, total, emptyCart } = useCart()
+const { items, total, clearCart } = useCart()
 
 const deliveryMethod = ref('delivery') // 'delivery' | 'pickup'
 const storeLocation = ref('')
@@ -22,7 +22,8 @@ const checkoutForm = ref({
   nombre: '',
   cedula: '',
   celular: '',
-  telefono: ''
+  telefono: '',
+  direccion: ''
 })
 
 const submitError = ref('')
@@ -39,6 +40,11 @@ const isFormValid = computed(() => {
   if (!checkoutForm.value.nombre || !checkoutForm.value.cedula || !checkoutForm.value.celular) {
     return false
   }
+  
+  if (deliveryMethod.value === 'delivery' && !checkoutForm.value.direccion) {
+    return false
+  }
+  
   return true
 })
 
@@ -71,12 +77,13 @@ async function handleCheckout() {
       })),
       clienteDatos: checkoutForm.value,
       metodoEntrega: deliveryMethod.value,
-      localRetiro: storeLocation.value
+      localRetiro: storeLocation.value,
+      direccionEntrega: checkoutForm.value.direccion
     }
     const res = await OrderController.create(data)
     
     orderCreatedId.value = res.data?.id
-    emptyCart()
+    clearCart()
     showSuccessModal.value = true
   } catch (err) {
     submitError.value = err.message || 'Error al procesar el pago'
@@ -137,9 +144,9 @@ function goToOrders() {
           </div>
         </section>
 
-        <!-- Paso 2: Datos de Facturación -->
+        <!-- Paso 2: Datos de Facturación / Envío -->
         <section class="checkout-card">
-          <h2>2. Datos de Facturación</h2>
+          <h2>2. Datos de {{ deliveryMethod === 'delivery' ? 'Envío y Facturación' : 'Facturación' }}</h2>
 
           <div class="form-group consumidor-final-check" v-if="total <= 50">
             <label class="cf-label">
@@ -170,6 +177,10 @@ function goToOrders() {
             <div class="form-group">
               <label for="cf-telefono">Teléfono Fijo (Opcional)</label>
               <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
+            </div>
+            <div class="form-group" v-if="deliveryMethod === 'delivery'" style="grid-column: 1 / -1;">
+              <label for="cf-direccion">Dirección de Entrega *</label>
+              <textarea id="cf-direccion" v-model="checkoutForm.direccion" class="input-base" required rows="2" placeholder="Ej: Av. Francisco de Orellana, Guayaquil. Edificio World Trade Center, Piso 3"></textarea>
             </div>
           </div>
         </section>
