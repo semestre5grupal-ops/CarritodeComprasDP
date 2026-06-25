@@ -5,8 +5,10 @@ import { useCart } from '../models/useCart'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import QrcodeVue from 'qrcode.vue'
+import { useRouter } from 'vue-router'
 
-const { addProduct, openDrawer } = useCart()
+const { addProduct } = useCart()
+const router = useRouter()
 const expandedOrderId = ref(null)
 
 const orders = ref([])
@@ -114,13 +116,13 @@ function reorder(order) {
       addProduct({
         id: d.productoId,
         nombre: d.producto?.nombre || `Producto #${d.productoId}`,
-        precio: Number(d.precio_unitario || d.precio_historico || 0),
+        precio: Number(d.precioUnitario || 0),
         imagen: '',
         stock: 99
       }, d.cantidad)
     }
   })
-  openDrawer()
+  router.push('/checkout')
 }
 
 const qrDialog = ref(null)

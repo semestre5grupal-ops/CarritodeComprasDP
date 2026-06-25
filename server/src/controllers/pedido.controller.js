@@ -84,6 +84,7 @@ async function create(req, res, next) {
       }
     }
 
+    const descripcionPayload = JSON.stringify({ metodo: metodoEntrega || 'delivery', local: localRetiro || null })
     const pedido = await PedidoModel.createTransaction(items, cliente.id_cliente, vendedor.id_vendedor, total, descuento, descripcionPayload)
 
     // Formatear respuesta al formato original esperado por frontend
