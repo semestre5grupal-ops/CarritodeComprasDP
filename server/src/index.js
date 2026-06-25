@@ -11,6 +11,7 @@ const productoRoutes = require('./routes/producto.routes')
 const pedidoRoutes = require('./routes/pedido.routes')
 const usuarioRoutes = require('./routes/usuario.routes')
 const iaRoutes = require('./routes/ia.routes')
+const reporteRoutes = require('./routes/reporte.routes')
 
 const app = express()
 
@@ -48,6 +49,7 @@ app.use('/api/productos', productoRoutes)
 app.use('/api/pedidos', pedidoRoutes)
 app.use('/api/usuarios', usuarioRoutes)
 app.use('/api/ia', iaRoutes)
+app.use('/api/reportes', reporteRoutes)
 
 app.use(notFoundHandler)
 app.use(errorHandler)
