@@ -15,9 +15,18 @@ const stores = ref([])
 onMounted(async () => {
   try {
     const data = await OrderController.getLocales()
-    stores.value = data.map(b => b.bod_nombre_)
+    if (data && data.length > 0) {
+      stores.value = data.map(b => b.bod_nombre_)
+    } else {
+      throw new Error("Sin locales en DB")
+    }
   } catch (err) {
-    console.error('Error al cargar locales:', err)
+    console.error('Error al cargar locales, usando fallback:', err)
+    stores.value = [
+      'Shop Sport - Mall del Sol (Fallback)',
+      'Shop Sport - San Marino (Fallback)',
+      'Shop Sport - Riocentro Ceibos (Fallback)'
+    ]
   }
 })
 
