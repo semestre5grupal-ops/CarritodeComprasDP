@@ -120,9 +120,9 @@ function closeAlert() {
         ref="overlay"
         class="cart-overlay"
         :class="{ 'active': drawerOpen }"
-        @click="handleOverlayClick"
         aria-hidden="true"
-      ></div>
+        @click="handleOverlayClick"
+      />
     </Transition>
 
     <Transition name="drawer-slide">
@@ -139,56 +139,99 @@ function closeAlert() {
         <header class="drawer-header">
           <h2 id="cart-drawer-title">
             Carrito
-            <span class="drawer-count" aria-hidden="true">({{ itemCount }})</span>
+            <span
+              class="drawer-count"
+              aria-hidden="true"
+            >({{ itemCount }})</span>
           </h2>
           <button
             type="button"
             class="drawer-close"
-            @click="closeDrawer"
             aria-label="Cerrar carrito"
+            @click="closeDrawer"
           >
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+            <svg
+              aria-hidden="true"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line
+                x1="18"
+                y1="6"
+                x2="6"
+                y2="18"
+              />
+              <line
+                x1="6"
+                y1="6"
+                x2="18"
+                y2="18"
+              />
             </svg>
           </button>
         </header>
 
-        <div v-if="items.length === 0" class="drawer-empty" role="status">
+        <div
+          v-if="items.length === 0"
+          class="drawer-empty"
+          role="status"
+        >
           <p>Tu carrito está vacío.</p>
-          <button type="button" class="btn btn-primary" @click="closeDrawer">
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="closeDrawer"
+          >
             Seguir comprando
           </button>
         </div>
 
         <template v-else>
-          <div class="drawer-bulk" v-if="items.length > 0">
+          <div
+            v-if="items.length > 0"
+            class="drawer-bulk"
+          >
             <label class="bulk-toggle">
               <input
                 type="checkbox"
                 :checked="allSelected"
                 :indeterminate="selectedIds.size > 0 && selectedIds.size < items.length"
-                @change="allSelected = !allSelected"
                 aria-label="Seleccionar todos los productos"
-              />
+                @change="allSelected = !allSelected"
+              >
               <span>Seleccionar todos</span>
             </label>
             <button
               v-if="selectedIds.size > 0"
               type="button"
               class="btn-bulk-delete"
-              @click="removeSelected"
               :aria-label="`Eliminar ${selectedIds.size} producto(s) seleccionados`"
+              @click="removeSelected"
             >
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
               Eliminar ({{ selectedIds.size }})
             </button>
           </div>
 
-          <ul class="drawer-items" aria-label="Productos en el carrito">
+          <ul
+            class="drawer-items"
+            aria-label="Productos en el carrito"
+          >
             <li
               v-for="item in items"
               :key="item.id"
@@ -199,9 +242,9 @@ function closeAlert() {
                 <input
                   type="checkbox"
                   :checked="selectedIds.has(item.id)"
-                  @change="toggleSelected(item.id)"
                   :aria-label="`Seleccionar ${item.nombre}`"
-                />
+                  @change="toggleSelected(item.id)"
+                >
               </label>
 
               <div
@@ -209,36 +252,79 @@ function closeAlert() {
                 role="img"
                 :aria-label="`Imagen de ${item.nombre}`"
                 :style="{ backgroundImage: item.imagen ? `url(${item.imagen.replace(/^\.\.\/view\/assets\//, '/')})` : 'none' }"
-              ></div>
+              />
 
               <div class="item-details">
-                <p class="item-name">{{ item.nombre }}</p>
-                <p class="item-price">${{ Number(item.precio || 0).toFixed(2) }}</p>
+                <p class="item-name">
+                  {{ item.nombre }}
+                </p>
+                <p class="item-price">
+                  ${{ Number(item.precio || 0).toFixed(2) }}
+                </p>
               </div>
 
-              <div class="item-qty" role="group" :aria-label="`Cantidad de ${item.nombre}`">
+              <div
+                class="item-qty"
+                role="group"
+                :aria-label="`Cantidad de ${item.nombre}`"
+              >
                 <button
                   type="button"
                   class="qty-btn"
-                  @click="decreaseQty(item)"
                   :aria-label="`Reducir cantidad de ${item.nombre}`"
                   :disabled="item.cantidad <= 1 && false"
+                  @click="decreaseQty(item)"
                 >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <svg
+                    aria-hidden="true"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line
+                      x1="5"
+                      y1="12"
+                      x2="19"
+                      y2="12"
+                    />
                   </svg>
                 </button>
-                <span class="qty-value" aria-live="polite" aria-atomic="true">{{ item.cantidad }}</span>
+                <span
+                  class="qty-value"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >{{ item.cantidad }}</span>
                 <button
                   type="button"
                   class="qty-btn"
-                  @click="increaseQty(item)"
                   :aria-label="`Aumentar cantidad de ${item.nombre}`"
                   :disabled="item.cantidad >= item.stock"
+                  @click="increaseQty(item)"
                 >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <svg
+                    aria-hidden="true"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line
+                      x1="12"
+                      y1="5"
+                      x2="12"
+                      y2="19"
+                    />
+                    <line
+                      x1="5"
+                      y1="12"
+                      x2="19"
+                      y2="12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -246,12 +332,30 @@ function closeAlert() {
               <button
                 type="button"
                 class="item-remove"
-                @click="removeProduct(item.id)"
                 :aria-label="`Eliminar ${item.nombre} del carrito`"
+                @click="removeProduct(item.id)"
               >
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line
+                    x1="18"
+                    y1="6"
+                    x2="6"
+                    y2="18"
+                  />
+                  <line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"
+                  />
                 </svg>
               </button>
             </li>
@@ -265,19 +369,25 @@ function closeAlert() {
             <div class="coupon-section">
               <input
                 id="cart-coupon"
-                type="text"
                 v-model="couponCode"
-                @input="sanitizeCoupon"
+                type="text"
                 maxlength="9"
                 placeholder="Ingresa cupón (ej: DEPORTE20)"
                 class="coupon-input"
                 aria-label="Cupón de descuento"
-              />
-              <div v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'" class="coupon-error">
+                @input="sanitizeCoupon"
+              >
+              <div
+                v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'"
+                class="coupon-error"
+              >
                 Cupón inválido
               </div>
             </div>
-            <div v-if="discount > 0" class="summary-row discount-row">
+            <div
+              v-if="discount > 0"
+              class="summary-row discount-row"
+            >
               <span>Descuento (20%)</span>
               <span>-${{ discount.toFixed(2) }}</span>
             </div>
@@ -317,7 +427,12 @@ function closeAlert() {
           Tu pedido ha sido procesado correctamente y ya se encuentra registrado en nuestro sistema. ¡Gracias por tu compra!
         </template>
       </p>
-      <button type="button" class="btn btn-primary" @click="closeAlert(); closeDrawer()" autofocus>
+      <button
+        type="button"
+        class="btn btn-primary"
+        autofocus
+        @click="closeAlert(); closeDrawer()"
+      >
         Entendido
       </button>
     </dialog>

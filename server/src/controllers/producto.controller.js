@@ -2,7 +2,7 @@ const ProductoModel = require('../models/producto.model')
 
 // Función auxiliar para formatear producto a lo que espera el frontend
 function formatProducto(p) {
-  const variante = p.variantes_producto?.[0];
+  const variante = p.variantes_producto?.[0]
   return {
     id: p.id_producto,
     nombre: p.pro_descripcion,
@@ -118,7 +118,7 @@ async function update(req, res, next) {
 
     const { nombre, precio, imagen, categoria, talla, stock } = req.body
 
-    let catData = undefined;
+    let catData = undefined
     if (categoria) {
       catData = await ProductoModel.getOrCreateCategoria(categoria)
     }
@@ -141,7 +141,7 @@ async function update(req, res, next) {
       }
 
       if (stock !== undefined && variante.inventario_bodegas && variante.inventario_bodegas[0]) {
-        const inv = variante.inventario_bodegas[0];
+        const inv = variante.inventario_bodegas[0]
         await ProductoModel.updateInventario(inv.id_bodega, inv.id_variante, inv.inv_periodo, {
           inv_saldo_final: parseInt(stock, 10)
         })

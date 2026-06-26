@@ -375,12 +375,21 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="admin-section wrap-wide" aria-labelledby="admin-title">
+  <section
+    class="admin-section wrap-wide"
+    aria-labelledby="admin-title"
+  >
     <div class="section-heading">
-      <h2 id="admin-title">Panel de Administración</h2>
+      <h2 id="admin-title">
+        Panel de Administración
+      </h2>
     </div>
 
-    <nav class="admin-tabs" role="tablist" aria-label="Secciones de administración">
+    <nav
+      class="admin-tabs"
+      role="tablist"
+      aria-label="Secciones de administración"
+    >
       <button
         type="button"
         role="tab"
@@ -429,37 +438,78 @@ onUnmounted(() => {
     </div>
 
     <!-- Products Tab -->
-    <div v-if="activeTab === 'products'" role="tabpanel" aria-label="Gestión de productos">
+    <div
+      v-if="activeTab === 'products'"
+      role="tabpanel"
+      aria-label="Gestión de productos"
+    >
       <div class="admin-toolbar">
         <span class="admin-count">{{ products.length }} producto(s)</span>
-        <button type="button" class="btn btn-primary" @click="openCreateForm">
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="openCreateForm"
+        >
           + Nuevo producto
         </button>
       </div>
 
-      <div v-if="loading" class="loading" role="status" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
+      <div
+        v-if="loading"
+        class="loading"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="spinner"
+          aria-hidden="true"
+        />
         <p>Cargando productos...</p>
       </div>
 
-      <div v-else-if="products.length === 0" class="empty-message" role="status">
+      <div
+        v-else-if="products.length === 0"
+        class="empty-message"
+        role="status"
+      >
         No hay productos registrados.
       </div>
 
-      <div v-else class="admin-table-wrap">
-        <table class="admin-table" aria-label="Lista de productos">
+      <div
+        v-else
+        class="admin-table-wrap"
+      >
+        <table
+          class="admin-table"
+          aria-label="Lista de productos"
+        >
           <thead>
             <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Categoría</th>
-              <th scope="col">Precio</th>
-              <th scope="col">Stock</th>
-              <th scope="col">Acciones</th>
+              <th scope="col">
+                ID
+              </th>
+              <th scope="col">
+                Nombre
+              </th>
+              <th scope="col">
+                Categoría
+              </th>
+              <th scope="col">
+                Precio
+              </th>
+              <th scope="col">
+                Stock
+              </th>
+              <th scope="col">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="p in products" :key="p.id">
+            <tr
+              v-for="p in products"
+              :key="p.id"
+            >
               <td>{{ p.id }}</td>
               <td>{{ p.nombre }}</td>
               <td>{{ p.categoria }}</td>
@@ -471,23 +521,39 @@ onUnmounted(() => {
                 <button
                   type="button"
                   class="btn-action btn-action--edit"
-                  @click="openEditForm(p)"
                   :aria-label="`Editar ${p.nombre}`"
+                  @click="openEditForm(p)"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
                 <button
                   type="button"
                   class="btn-action btn-action--delete"
-                  @click="confirmDelete(p.id, p.nombre, 'product')"
                   :aria-label="`Eliminar ${p.nombre}`"
+                  @click="confirmDelete(p.id, p.nombre, 'product')"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                 </button>
               </td>
@@ -498,48 +564,99 @@ onUnmounted(() => {
     </div>
 
     <!-- Orders Tab -->
-    <div v-if="activeTab === 'orders'" role="tabpanel" aria-label="Gestión de pedidos">
+    <div
+      v-if="activeTab === 'orders'"
+      role="tabpanel"
+      aria-label="Gestión de pedidos"
+    >
       <div class="admin-toolbar">
         <span class="admin-count">{{ orders.length }} pedido(s)</span>
       </div>
 
-      <div v-if="loading" class="loading" role="status" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
+      <div
+        v-if="loading"
+        class="loading"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="spinner"
+          aria-hidden="true"
+        />
         <p>Cargando pedidos...</p>
       </div>
 
-      <div v-else-if="orders.length === 0" class="empty-message" role="status">
+      <div
+        v-else-if="orders.length === 0"
+        class="empty-message"
+        role="status"
+      >
         No hay pedidos registrados.
       </div>
 
-      <div v-else class="admin-table-wrap">
-        <table class="admin-table" aria-label="Lista de pedidos">
+      <div
+        v-else
+        class="admin-table-wrap"
+      >
+        <table
+          class="admin-table"
+          aria-label="Lista de pedidos"
+        >
           <thead>
             <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Usuario</th>
-              <th scope="col">Productos</th>
-              <th scope="col">Total</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Fecha</th>
-              <th scope="col">Acciones</th>
+              <th scope="col">
+                ID
+              </th>
+              <th scope="col">
+                Usuario
+              </th>
+              <th scope="col">
+                Productos
+              </th>
+              <th scope="col">
+                Total
+              </th>
+              <th scope="col">
+                Estado
+              </th>
+              <th scope="col">
+                Fecha
+              </th>
+              <th scope="col">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="o in orders" :key="o.id">
+            <tr
+              v-for="o in orders"
+              :key="o.id"
+            >
               <td>{{ o.id }}</td>
               <td>{{ o.usuario?.username || o.userId }}</td>
               <td>
-                <ul class="order-detail-list" v-if="o.detalles?.length">
-                  <li v-for="(d, index) in o.detalles" :key="'det-' + index">
+                <ul
+                  v-if="o.detalles?.length"
+                  class="order-detail-list"
+                >
+                  <li
+                    v-for="(d, index) in o.detalles"
+                    :key="'det-' + index"
+                  >
                     {{ d.producto?.nombre || `Producto #${d.productoId}` }} x{{ d.cantidad }}
                   </li>
                 </ul>
-                <span v-else class="muted">—</span>
+                <span
+                  v-else
+                  class="muted"
+                >—</span>
               </td>
               <td>${{ Number(o.total || 0).toFixed(2) }}</td>
               <td>
-                <span class="status-badge" :class="'status-' + (o.status?.replace(/ /g, '-').toLowerCase() || 'pendiente')">
+                <span
+                  class="status-badge"
+                  :class="'status-' + (o.status?.replace(/ /g, '-').toLowerCase() || 'pendiente')"
+                >
                   {{ o.status || 'Pendiente' }}
                 </span>
               </td>
@@ -548,23 +665,39 @@ onUnmounted(() => {
                 <button
                   type="button"
                   class="btn-action btn-action--edit"
-                  @click="openOrderEditForm(o)"
                   :aria-label="`Modificar estado del pedido ${o.id}`"
+                  @click="openOrderEditForm(o)"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
                 <button
                   type="button"
                   class="btn-action btn-action--delete"
-                  @click="confirmDelete(o.id, `Pedido #${o.id}`, 'order')"
                   :aria-label="`Eliminar pedido ${o.id}`"
+                  @click="confirmDelete(o.id, `Pedido #${o.id}`, 'order')"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                 </button>
               </td>
@@ -575,36 +708,75 @@ onUnmounted(() => {
     </div>
 
     <!-- Users Tab -->
-    <div v-if="activeTab === 'users'" role="tabpanel" aria-label="Gestión de usuarios">
+    <div
+      v-if="activeTab === 'users'"
+      role="tabpanel"
+      aria-label="Gestión de usuarios"
+    >
       <div class="admin-toolbar">
         <span class="admin-count">{{ users.length }} usuario(s)</span>
-        <button type="button" class="btn btn-primary" @click="openUserCreateForm">
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="openUserCreateForm"
+        >
           + Nuevo usuario
         </button>
       </div>
 
-      <div v-if="loading" class="loading" role="status" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
+      <div
+        v-if="loading"
+        class="loading"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="spinner"
+          aria-hidden="true"
+        />
         <p>Cargando usuarios...</p>
       </div>
 
-      <div v-else-if="users.length === 0" class="empty-message" role="status">
+      <div
+        v-else-if="users.length === 0"
+        class="empty-message"
+        role="status"
+      >
         No hay usuarios registrados o el servicio no está disponible aún.
       </div>
 
-      <div v-else class="admin-table-wrap">
-        <table class="admin-table" aria-label="Lista de usuarios">
+      <div
+        v-else
+        class="admin-table-wrap"
+      >
+        <table
+          class="admin-table"
+          aria-label="Lista de usuarios"
+        >
           <thead>
             <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Username</th>
-              <th scope="col">Email</th>
-              <th scope="col">Rol</th>
-              <th scope="col">Acciones</th>
+              <th scope="col">
+                ID
+              </th>
+              <th scope="col">
+                Username
+              </th>
+              <th scope="col">
+                Email
+              </th>
+              <th scope="col">
+                Rol
+              </th>
+              <th scope="col">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="u in users" :key="u.id">
+            <tr
+              v-for="u in users"
+              :key="u.id"
+            >
               <td>{{ u.id }}</td>
               <td>{{ u.username }}</td>
               <td>{{ u.email }}</td>
@@ -617,23 +789,39 @@ onUnmounted(() => {
                 <button
                   type="button"
                   class="btn-action btn-action--edit"
-                  @click="openUserEditForm(u)"
                   :aria-label="`Editar usuario ${u.username}`"
+                  @click="openUserEditForm(u)"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
                 <button
                   type="button"
                   class="btn-action btn-action--delete"
-                  @click="confirmDelete(u.id, u.username, 'user')"
                   :aria-label="`Eliminar usuario ${u.username}`"
+                  @click="confirmDelete(u.id, u.username, 'user')"
                 >
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                 </button>
               </td>
@@ -644,9 +832,17 @@ onUnmounted(() => {
     </div>
 
     <!-- Reports Tab -->
-    <div v-if="activeTab === 'reports'" role="tabpanel" aria-label="Reportes de ventas">
+    <div
+      v-if="activeTab === 'reports'"
+      role="tabpanel"
+      aria-label="Reportes de ventas"
+    >
       <div class="report-filters">
-        <div class="range-presets" role="group" aria-label="Rango de fechas">
+        <div
+          class="range-presets"
+          role="group"
+          aria-label="Rango de fechas"
+        >
           <button
             v-for="preset in rangePresets"
             :key="preset.key"
@@ -660,16 +856,35 @@ onUnmounted(() => {
           </button>
         </div>
 
-        <div v-if="selectedRange === 'personalizado'" class="custom-range">
+        <div
+          v-if="selectedRange === 'personalizado'"
+          class="custom-range"
+        >
           <div class="form-group">
             <label for="rep-from">Desde</label>
-            <input id="rep-from" v-model="customFrom" type="date" :max="customTo || undefined" />
+            <input
+              id="rep-from"
+              v-model="customFrom"
+              type="date"
+              :max="customTo || undefined"
+            >
           </div>
           <div class="form-group">
             <label for="rep-to">Hasta</label>
-            <input id="rep-to" v-model="customTo" type="date" :min="customFrom || undefined" />
+            <input
+              id="rep-to"
+              v-model="customTo"
+              type="date"
+              :min="customFrom || undefined"
+            >
           </div>
-          <button type="button" class="btn btn-primary" @click="loadReport">Aplicar</button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="loadReport"
+          >
+            Aplicar
+          </button>
         </div>
       </div>
 
@@ -682,8 +897,16 @@ onUnmounted(() => {
         {{ reportError }}
       </div>
 
-      <div v-if="reportLoading" class="loading" role="status" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
+      <div
+        v-if="reportLoading"
+        class="loading"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="spinner"
+          aria-hidden="true"
+        />
         <p>Cargando reporte...</p>
       </div>
 
@@ -710,9 +933,21 @@ onUnmounted(() => {
 
         <!-- Gráfico de ventas en el tiempo -->
         <div class="report-block">
-          <h3 class="report-block__title">Ventas en el periodo</h3>
-          <div v-if="reportSeries.length === 0" class="empty-message">Sin datos en el rango seleccionado.</div>
-          <div v-else class="bar-chart" role="img" aria-label="Gráfico de ventas por periodo">
+          <h3 class="report-block__title">
+            Ventas en el periodo
+          </h3>
+          <div
+            v-if="reportSeries.length === 0"
+            class="empty-message"
+          >
+            Sin datos en el rango seleccionado.
+          </div>
+          <div
+            v-else
+            class="bar-chart"
+            role="img"
+            aria-label="Gráfico de ventas por periodo"
+          >
             <div
               v-for="s in reportSeries"
               :key="s.label"
@@ -723,7 +958,7 @@ onUnmounted(() => {
               <div
                 class="bar-chart__bar"
                 :style="{ height: Math.round((s.total / maxSerieTotal) * 100) + '%' }"
-              ></div>
+              />
               <span class="bar-chart__label">{{ formatSerieLabel(s.label) }}</span>
             </div>
           </div>
@@ -731,21 +966,47 @@ onUnmounted(() => {
 
         <!-- Productos más comprados -->
         <div class="report-block">
-          <h3 class="report-block__title">Productos más comprados</h3>
-          <div v-if="reportTop.length === 0" class="empty-message">Sin productos vendidos en el rango.</div>
-          <div v-else class="admin-table-wrap">
-            <table class="admin-table" aria-label="Productos más comprados">
+          <h3 class="report-block__title">
+            Productos más comprados
+          </h3>
+          <div
+            v-if="reportTop.length === 0"
+            class="empty-message"
+          >
+            Sin productos vendidos en el rango.
+          </div>
+          <div
+            v-else
+            class="admin-table-wrap"
+          >
+            <table
+              class="admin-table"
+              aria-label="Productos más comprados"
+            >
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Producto</th>
-                  <th scope="col">Unidades</th>
-                  <th scope="col">Popularidad</th>
-                  <th scope="col">Ingresos</th>
+                  <th scope="col">
+                    #
+                  </th>
+                  <th scope="col">
+                    Producto
+                  </th>
+                  <th scope="col">
+                    Unidades
+                  </th>
+                  <th scope="col">
+                    Popularidad
+                  </th>
+                  <th scope="col">
+                    Ingresos
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(p, index) in reportTop" :key="p.id">
+                <tr
+                  v-for="(p, index) in reportTop"
+                  :key="p.id"
+                >
                   <td>{{ index + 1 }}</td>
                   <td>{{ p.nombre }}</td>
                   <td>{{ p.cantidad }}</td>
@@ -754,7 +1015,7 @@ onUnmounted(() => {
                       <div
                         class="rank-bar__fill"
                         :style="{ width: Math.round((p.cantidad / maxTopCantidad) * 100) + '%' }"
-                      ></div>
+                      />
                     </div>
                   </td>
                   <td>{{ formatMoney(p.ingresos) }}</td>
@@ -772,8 +1033,13 @@ onUnmounted(() => {
       class="admin-dialog"
       aria-labelledby="form-dialog-title"
     >
-      <form @submit.prevent="saveProduct" novalidate>
-        <h2 id="form-dialog-title">{{ editingId ? 'Editar producto' : 'Nuevo producto' }}</h2>
+      <form
+        novalidate
+        @submit.prevent="saveProduct"
+      >
+        <h2 id="form-dialog-title">
+          {{ editingId ? 'Editar producto' : 'Nuevo producto' }}
+        </h2>
 
         <div
           v-if="formError"
@@ -786,43 +1052,102 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="af-nombre">Nombre</label>
-          <input id="af-nombre" v-model.trim="productForm.nombre" @input="productForm.nombre = productForm.nombre.replace(/[0-9]/g, '')" type="text" maxlength="100" required />
+          <input
+            id="af-nombre"
+            v-model.trim="productForm.nombre"
+            type="text"
+            maxlength="100"
+            required
+            @input="productForm.nombre = productForm.nombre.replace(/[0-9]/g, '')"
+          >
         </div>
 
         <div class="form-group">
           <label for="af-categoria">Categoría</label>
-          <select id="af-categoria" v-model="productForm.categoria" required>
-            <option value="" disabled>Seleccionar</option>
-            <option v-for="c in categorias" :key="c" :value="c">{{ c }}</option>
+          <select
+            id="af-categoria"
+            v-model="productForm.categoria"
+            required
+          >
+            <option
+              value=""
+              disabled
+            >
+              Seleccionar
+            </option>
+            <option
+              v-for="c in categorias"
+              :key="c"
+              :value="c"
+            >
+              {{ c }}
+            </option>
           </select>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label for="af-precio">Precio ($)</label>
-            <input id="af-precio" v-model="productForm.precio" type="number" step="0.01" min="0.01" max="9999.99" required @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()" />
+            <input
+              id="af-precio"
+              v-model="productForm.precio"
+              type="number"
+              step="0.01"
+              min="0.01"
+              max="9999.99"
+              required
+              @keydown="['-', 'e', 'E', '+'].includes($event.key) && $event.preventDefault()"
+            >
           </div>
           <div class="form-group">
             <label for="af-stock">Stock</label>
-            <input id="af-stock" v-model="productForm.stock" type="number" min="0" max="2147483647" required @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()" />
+            <input
+              id="af-stock"
+              v-model="productForm.stock"
+              type="number"
+              min="0"
+              max="2147483647"
+              required
+              @keydown="['-', 'e', 'E', '+', '.'].includes($event.key) && $event.preventDefault()"
+            >
           </div>
         </div>
 
         <div class="form-group">
           <label for="af-imagen">Ruta de imagen (opcional)</label>
-          <input id="af-imagen" v-model.trim="productForm.imagen" type="text" placeholder="../view/assets/images/producto.jpg" />
+          <input
+            id="af-imagen"
+            v-model.trim="productForm.imagen"
+            type="text"
+            placeholder="../view/assets/images/producto.jpg"
+          >
         </div>
 
         <div class="form-group">
           <label for="af-talla">Tallas (opcional, separadas por " - ")</label>
-          <input id="af-talla" v-model.trim="productForm.talla" @input="productForm.talla = productForm.talla.replace(/[^a-zA-Z\s-]/g, '').toUpperCase()" type="text" placeholder="S - M - L - XL" />
+          <input
+            id="af-talla"
+            v-model.trim="productForm.talla"
+            type="text"
+            placeholder="S - M - L - XL"
+            @input="productForm.talla = productForm.talla.replace(/[^a-zA-Z\s-]/g, '').toUpperCase()"
+          >
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="btn btn-secondary" @click="closeForm" :disabled="saving">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            :disabled="saving"
+            @click="closeForm"
+          >
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" :disabled="saving">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            :disabled="saving"
+          >
             {{ saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear' }}
           </button>
         </div>
@@ -835,8 +1160,13 @@ onUnmounted(() => {
       class="admin-dialog"
       aria-labelledby="order-form-title"
     >
-      <form @submit.prevent="saveOrder" novalidate>
-        <h2 id="order-form-title">Modificar Estado del Pedido</h2>
+      <form
+        novalidate
+        @submit.prevent="saveOrder"
+      >
+        <h2 id="order-form-title">
+          Modificar Estado del Pedido
+        </h2>
 
         <div
           v-if="orderFormError"
@@ -849,21 +1179,52 @@ onUnmounted(() => {
 
         <div class="form-group">
           <label for="of-status">Estado</label>
-          <select id="of-status" v-model="orderForm.status" required>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Procesando">Procesando</option>
-            <option v-if="editingOrder?.descripcion?.metodo === 'pickup'" value="Listo para retirar">Listo para retirar</option>
-            <option v-else value="Enviado">Enviado</option>
-            <option value="Entregado">Entregado</option>
-            <option value="Cancelado">Cancelado</option>
+          <select
+            id="of-status"
+            v-model="orderForm.status"
+            required
+          >
+            <option value="Pendiente">
+              Pendiente
+            </option>
+            <option value="Procesando">
+              Procesando
+            </option>
+            <option
+              v-if="editingOrder?.descripcion?.metodo === 'pickup'"
+              value="Listo para retirar"
+            >
+              Listo para retirar
+            </option>
+            <option
+              v-else
+              value="Enviado"
+            >
+              Enviado
+            </option>
+            <option value="Entregado">
+              Entregado
+            </option>
+            <option value="Cancelado">
+              Cancelado
+            </option>
           </select>
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="btn btn-secondary" @click="closeOrderForm" :disabled="savingOrder">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            :disabled="savingOrder"
+            @click="closeOrderForm"
+          >
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" :disabled="savingOrder">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            :disabled="savingOrder"
+          >
             {{ savingOrder ? 'Guardando...' : 'Actualizar Estado' }}
           </button>
         </div>
@@ -876,8 +1237,13 @@ onUnmounted(() => {
       class="admin-dialog"
       aria-labelledby="user-form-title"
     >
-      <form @submit.prevent="saveUser" novalidate>
-        <h2 id="user-form-title">{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+      <form
+        novalidate
+        @submit.prevent="saveUser"
+      >
+        <h2 id="user-form-title">
+          {{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}
+        </h2>
 
         <div
           v-if="userFormError"
@@ -893,11 +1259,11 @@ onUnmounted(() => {
           <input 
             id="uf-username" 
             v-model.trim="userForm.username" 
-            @input="userForm.username = userForm.username.replace(/[^a-zA-Z0-9_ \-]/g, '')"
-            type="text" 
-            maxlength="50"
-            required 
-          />
+            type="text"
+            maxlength="50" 
+            required
+            @input="userForm.username = userForm.username.replace(/[^a-zA-Z0-9_ \-]/g, '')" 
+          >
         </div>
 
         <div class="form-group">
@@ -905,11 +1271,11 @@ onUnmounted(() => {
           <input 
             id="uf-email" 
             v-model.trim="userForm.email" 
-            @input="userForm.email = userForm.email.replace(/\s/g, '')"
-            type="email" 
-            maxlength="100"
-            required 
-          />
+            type="email"
+            maxlength="100" 
+            required
+            @input="userForm.email = userForm.email.replace(/\s/g, '')" 
+          >
         </div>
 
         <div class="form-group">
@@ -920,22 +1286,39 @@ onUnmounted(() => {
             type="password" 
             maxlength="100"
             :required="!editingUserId" 
-          />
+          >
         </div>
 
         <div class="form-group">
           <label for="uf-role">Rol</label>
-          <select id="uf-role" v-model="userForm.role" required>
-            <option value="user">Usuario normal</option>
-            <option value="admin">Administrador</option>
+          <select
+            id="uf-role"
+            v-model="userForm.role"
+            required
+          >
+            <option value="user">
+              Usuario normal
+            </option>
+            <option value="admin">
+              Administrador
+            </option>
           </select>
         </div>
 
         <div class="dialog-actions">
-          <button type="button" class="btn btn-secondary" @click="closeUserForm" :disabled="savingUser">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            :disabled="savingUser"
+            @click="closeUserForm"
+          >
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" :disabled="savingUser">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            :disabled="savingUser"
+          >
             {{ savingUser ? 'Guardando...' : editingUserId ? 'Actualizar' : 'Crear' }}
           </button>
         </div>
@@ -949,16 +1332,27 @@ onUnmounted(() => {
       aria-labelledby="delete-dialog-title"
       aria-describedby="delete-dialog-desc"
     >
-      <h2 id="delete-dialog-title">Confirmar eliminación</h2>
+      <h2 id="delete-dialog-title">
+        Confirmar eliminación
+      </h2>
       <p id="delete-dialog-desc">
         ¿Estás seguro de eliminar <strong>{{ deleteName }}</strong>?
         Esta acción no se puede deshacer.
       </p>
       <div class="dialog-actions">
-        <button type="button" class="btn btn-secondary" @click="closeDelete">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="closeDelete"
+        >
           Cancelar
         </button>
-        <button type="button" class="btn btn-primary" style="background:#b91c1c" @click="executeDelete">
+        <button
+          type="button"
+          class="btn btn-primary"
+          style="background:#b91c1c"
+          @click="executeDelete"
+        >
           Eliminar
         </button>
       </div>

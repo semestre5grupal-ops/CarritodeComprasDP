@@ -139,129 +139,318 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main id="contenido" aria-label="Contenido principal">
-
+  <main
+    id="contenido"
+    aria-label="Contenido principal"
+  >
     <!-- Encabezado de página -->
-    <section class="wrap-wide catalog-page-header" aria-labelledby="page-title">
-        <h2 id="page-title">Catálogo Completo</h2>
-        <p>Explora toda nuestra colección de ropa deportiva con filtros personalizados</p>
+    <section
+      class="wrap-wide catalog-page-header"
+      aria-labelledby="page-title"
+    >
+      <h2 id="page-title">
+        Catálogo Completo
+      </h2>
+      <p>Explora toda nuestra colección de ropa deportiva con filtros personalizados</p>
     </section>
 
-    <button type="button" id="mobile-filter-open" class="mobile-filter-open-btn" :aria-expanded="mobileFiltersOpen" aria-controls="filter-panel" aria-label="Abrir menú de filtros" @click="mobileFiltersOpen = true">
-        Filtros
-        <span aria-hidden="true">☰</span>
+    <button
+      id="mobile-filter-open"
+      type="button"
+      class="mobile-filter-open-btn"
+      :aria-expanded="mobileFiltersOpen"
+      aria-controls="filter-panel"
+      aria-label="Abrir menú de filtros"
+      @click="mobileFiltersOpen = true"
+    >
+      Filtros
+      <span aria-hidden="true">☰</span>
     </button>
 
     <!-- Catálogo con filtros -->
-    <section class="wrap-wide" aria-labelledby="catalog-label">
-        <h2 id="catalog-label" class="sr-only">Catálogo de productos con filtros</h2>
-        <div class="catalog-container">
-
-            <!-- Sidebar de Filtros -->
-            <aside class="filters-sidebar" :class="{ 'expanded': mobileFiltersOpen }" aria-label="Panel de filtros de búsqueda" aria-describedby="filter-hint">
-                <p id="filter-hint" class="sr-only">Usa los filtros para refinar los productos. Los cambios se aplican automáticamente.</p>
-                <div class="filter-header">
-                    <h3>Filtrar Por</h3>
-                    <button type="button" class="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel" @click="mobileFiltersOpen = false">
-                        Cerrar
-                        <span class="toggle-icon" aria-hidden="true">×</span>
-                    </button>
+    <section
+      class="wrap-wide"
+      aria-labelledby="catalog-label"
+    >
+      <h2
+        id="catalog-label"
+        class="sr-only"
+      >
+        Catálogo de productos con filtros
+      </h2>
+      <div class="catalog-container">
+        <!-- Sidebar de Filtros -->
+        <aside
+          class="filters-sidebar"
+          :class="{ 'expanded': mobileFiltersOpen }"
+          aria-label="Panel de filtros de búsqueda"
+          aria-describedby="filter-hint"
+        >
+          <p
+            id="filter-hint"
+            class="sr-only"
+          >
+            Usa los filtros para refinar los productos. Los cambios se aplican automáticamente.
+          </p>
+          <div class="filter-header">
+            <h3>Filtrar Por</h3>
+            <button
+              type="button"
+              class="filter-toggle-btn"
+              aria-expanded="false"
+              aria-controls="filter-panel"
+              @click="mobileFiltersOpen = false"
+            >
+              Cerrar
+              <span
+                class="toggle-icon"
+                aria-hidden="true"
+              >×</span>
+            </button>
+          </div>
+          <div
+            id="filter-panel"
+            class="filter-panel"
+            :class="{ 'collapsed': !mobileFiltersOpen }"
+          >
+            <!-- Categoría -->
+            <fieldset class="filter-group">
+              <legend class="filter-legend">
+                Categoría
+              </legend>
+              <div class="filter-options">
+                <div
+                  v-for="c in categorias"
+                  :key="c"
+                  class="filter-option"
+                >
+                  <input
+                    :id="`filter-cat-${c}`"
+                    v-model="filters.categorias"
+                    type="checkbox"
+                    class="gender-filter"
+                    :value="c"
+                  >
+                  <label :for="`filter-cat-${c}`">{{ c }}</label>
                 </div>
-                <div class="filter-panel" id="filter-panel" :class="{ 'collapsed': !mobileFiltersOpen }">
-                
-                <!-- Categoría -->
-                <fieldset class="filter-group">
-                    <legend class="filter-legend">Categoría</legend>
-                    <div class="filter-options">
-                        <div class="filter-option" v-for="c in categorias" :key="c">
-                            <input type="checkbox" :id="`filter-cat-${c}`" class="gender-filter" :value="c" v-model="filters.categorias">
-                            <label :for="`filter-cat-${c}`">{{ c }}</label>
-                        </div>
-                    </div>
-                </fieldset>
+              </div>
+            </fieldset>
 
-                <!-- Talla -->
-                <fieldset class="filter-group">
-                    <legend class="filter-legend">Talla</legend>
-                    <div class="filter-options">
-                        <div class="filter-option" v-for="s in sizes" :key="s">
-                            <input type="checkbox" :id="`filter-talla-${s}`" class="size-filter" :value="s" v-model="filters.tallas">
-                            <label :for="`filter-talla-${s}`">{{ s }}</label>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Color -->
-                <fieldset class="filter-group">
-                    <legend class="filter-legend">Color</legend>
-                    <div class="filter-options color-list">
-                        <div class="filter-option" v-for="c in colors" :key="c">
-                            <input type="checkbox" :id="`filter-color-${c}`" class="color-filter" :value="c" v-model="filters.colores">
-                            <label :for="`filter-color-${c}`">
-                                <span class="color-swatch" :style="getColorSwatchStyle(c)" aria-hidden="true"></span> {{ c }}
-                            </label>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Precio -->
-                <fieldset class="filter-group">
-                    <legend class="filter-legend">Precio</legend>
-                    <div class="filter-options">
-                        <div class="filter-option" v-for="p in priceRanges" :key="p.label">
-                            <input type="checkbox" :id="`filter-precio-${p.value}`" class="price-filter" :value="p" v-model="filters.precios">
-                            <label :for="`filter-precio-${p.value}`">{{ p.label }}</label>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <button type="button" class="btn-clear-filters" aria-label="Limpiar todos los filtros seleccionados" @click="resetFilters">Limpiar filtros</button>
+            <!-- Talla -->
+            <fieldset class="filter-group">
+              <legend class="filter-legend">
+                Talla
+              </legend>
+              <div class="filter-options">
+                <div
+                  v-for="s in sizes"
+                  :key="s"
+                  class="filter-option"
+                >
+                  <input
+                    :id="`filter-talla-${s}`"
+                    v-model="filters.tallas"
+                    type="checkbox"
+                    class="size-filter"
+                    :value="s"
+                  >
+                  <label :for="`filter-talla-${s}`">{{ s }}</label>
                 </div>
-            </aside>
+              </div>
+            </fieldset>
 
-            <div class="mobile-filter-backdrop" id="mobile-filter-backdrop" :aria-hidden="!mobileFiltersOpen" :class="{'visible': mobileFiltersOpen}" @click="mobileFiltersOpen = false"></div>
-
-            <!-- Contenedor de Productos -->
-            <div class="product-grid-container">
-                <div class="filter-info" role="status" aria-live="polite" aria-atomic="true">
-                    <p id="filter-count">Mostrando {{ filtered.length }} productos</p>
+            <!-- Color -->
+            <fieldset class="filter-group">
+              <legend class="filter-legend">
+                Color
+              </legend>
+              <div class="filter-options color-list">
+                <div
+                  v-for="c in colors"
+                  :key="c"
+                  class="filter-option"
+                >
+                  <input
+                    :id="`filter-color-${c}`"
+                    v-model="filters.colores"
+                    type="checkbox"
+                    class="color-filter"
+                    :value="c"
+                  >
+                  <label :for="`filter-color-${c}`">
+                    <span
+                      class="color-swatch"
+                      :style="getColorSwatchStyle(c)"
+                      aria-hidden="true"
+                    /> {{ c }}
+                  </label>
                 </div>
+              </div>
+            </fieldset>
 
-                <!-- Desktop Grid (hidden on mobile) -->
-                <ul id="product-grid" class="product-grid desktop-only" aria-label="Catálogo de productos" :aria-busy="loading" aria-live="polite">
-                    <li v-if="loading" class="loading">
-                      <div class="spinner" aria-hidden="true"></div>
-                      <p>Cargando productos...</p>
-                    </li>
-                    <li v-else-if="error" class="error-message">Error: {{ error }}</li>
-                    <li v-else-if="filtered.length === 0" style="grid-column: 1/-1; text-align: center; padding: 2rem;">No se encontraron productos con estos filtros.</li>
-                    <ProductCard v-else v-for="p in filtered" :key="p.id" :product="p" @add-to-cart="handleAddToCart" />
-                </ul>
-
-                <!-- Mobile Carousels (hidden on desktop) -->
-                <div class="mobile-only categories-container" aria-label="Catálogo agrupado por categoría">
-                    <div v-if="loading" class="loading">
-                      <div class="spinner" aria-hidden="true"></div>
-                      <p>Cargando productos...</p>
-                    </div>
-                    <div v-else-if="error" class="error-message">Error: {{ error }}</div>
-                    <div v-else-if="filtered.length === 0" style="text-align: center; padding: 2rem;">No se encontraron productos con estos filtros.</div>
-                    
-                    <div v-else v-for="(prods, cat) in groupedProducts" :key="cat" class="mobile-category-row">
-                        <div class="mobile-category-header">
-                            <h3 class="mobile-category-title">{{ cat }}</h3>
-                            <div class="mobile-carousel-controls">
-                                <button type="button" class="mobile-carousel-arrow" @click="scrollCarousel($event, -1)" aria-label="Desplazar a la izquierda">&#10094;</button>
-                                <button type="button" class="mobile-carousel-arrow" @click="scrollCarousel($event, 1)" aria-label="Desplazar a la derecha">&#10095;</button>
-                            </div>
-                        </div>
-                        <ul class="mobile-carousel">
-                            <ProductCard v-for="p in prods" :key="p.id" :product="p" @add-to-cart="handleAddToCart" />
-                        </ul>
-                    </div>
+            <!-- Precio -->
+            <fieldset class="filter-group">
+              <legend class="filter-legend">
+                Precio
+              </legend>
+              <div class="filter-options">
+                <div
+                  v-for="p in priceRanges"
+                  :key="p.label"
+                  class="filter-option"
+                >
+                  <input
+                    :id="`filter-precio-${p.value}`"
+                    v-model="filters.precios"
+                    type="checkbox"
+                    class="price-filter"
+                    :value="p"
+                  >
+                  <label :for="`filter-precio-${p.value}`">{{ p.label }}</label>
                 </div>
+              </div>
+            </fieldset>
+
+            <button
+              type="button"
+              class="btn-clear-filters"
+              aria-label="Limpiar todos los filtros seleccionados"
+              @click="resetFilters"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        </aside>
+
+        <div
+          id="mobile-filter-backdrop"
+          class="mobile-filter-backdrop"
+          :aria-hidden="!mobileFiltersOpen"
+          :class="{'visible': mobileFiltersOpen}"
+          @click="mobileFiltersOpen = false"
+        />
+
+        <!-- Contenedor de Productos -->
+        <div class="product-grid-container">
+          <div
+            class="filter-info"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p id="filter-count">
+              Mostrando {{ filtered.length }} productos
+            </p>
+          </div>
+
+          <!-- Desktop Grid (hidden on mobile) -->
+          <ul
+            id="product-grid"
+            class="product-grid desktop-only"
+            aria-label="Catálogo de productos"
+            :aria-busy="loading"
+            aria-live="polite"
+          >
+            <li
+              v-if="loading"
+              class="loading"
+            >
+              <div
+                class="spinner"
+                aria-hidden="true"
+              />
+              <p>Cargando productos...</p>
+            </li>
+            <li
+              v-else-if="error"
+              class="error-message"
+            >
+              Error: {{ error }}
+            </li>
+            <li
+              v-else-if="filtered.length === 0"
+              style="grid-column: 1/-1; text-align: center; padding: 2rem;"
+            >
+              No se encontraron productos con estos filtros.
+            </li>
+            <ProductCard
+              v-for="p in filtered"
+              v-else
+              :key="p.id"
+              :product="p"
+              @add-to-cart="handleAddToCart"
+            />
+          </ul>
+
+          <!-- Mobile Carousels (hidden on desktop) -->
+          <div
+            class="mobile-only categories-container"
+            aria-label="Catálogo agrupado por categoría"
+          >
+            <div
+              v-if="loading"
+              class="loading"
+            >
+              <div
+                class="spinner"
+                aria-hidden="true"
+              />
+              <p>Cargando productos...</p>
             </div>
+            <div
+              v-else-if="error"
+              class="error-message"
+            >
+              Error: {{ error }}
+            </div>
+            <div
+              v-else-if="filtered.length === 0"
+              style="text-align: center; padding: 2rem;"
+            >
+              No se encontraron productos con estos filtros.
+            </div>
+                    
+            <div
+              v-for="(prods, cat) in groupedProducts"
+              v-else
+              :key="cat"
+              class="mobile-category-row"
+            >
+              <div class="mobile-category-header">
+                <h3 class="mobile-category-title">
+                  {{ cat }}
+                </h3>
+                <div class="mobile-carousel-controls">
+                  <button
+                    type="button"
+                    class="mobile-carousel-arrow"
+                    aria-label="Desplazar a la izquierda"
+                    @click="scrollCarousel($event, -1)"
+                  >
+                    &#10094;
+                  </button>
+                  <button
+                    type="button"
+                    class="mobile-carousel-arrow"
+                    aria-label="Desplazar a la derecha"
+                    @click="scrollCarousel($event, 1)"
+                  >
+                    &#10095;
+                  </button>
+                </div>
+              </div>
+              <ul class="mobile-carousel">
+                <ProductCard
+                  v-for="p in prods"
+                  :key="p.id"
+                  :product="p"
+                  @add-to-cart="handleAddToCart"
+                />
+              </ul>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Asistente de IA -->

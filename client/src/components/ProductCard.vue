@@ -27,7 +27,10 @@ const imageSrc = computed(() => {
       class="product-visual"
       :style="{ '--tone': product.tone || '#f3efe8', '--accent-color': product.accent || '#0c4d63' }"
     >
-      <div v-if="product.categoria" class="product-tags">
+      <div
+        v-if="product.categoria"
+        class="product-tags"
+      >
         <span class="product-badge">{{ product.categoria }}</span>
       </div>
       <img
@@ -37,35 +40,53 @@ const imageSrc = computed(() => {
         class="product-image"
         loading="lazy"
         aria-hidden="true"
-      />
-      <div v-else class="product-art" aria-hidden="true">
+      >
+      <div
+        v-else
+        class="product-art"
+        aria-hidden="true"
+      >
         {{ product.nombre.charAt(0) }}
       </div>
     </div>
 
     <div class="product-info">
       <h3>{{ product.nombre }}</h3>
-      <p v-if="product.descripcion">{{ product.descripcion }}</p>
+      <p v-if="product.descripcion">
+        {{ product.descripcion }}
+      </p>
 
       <div class="product-meta">
         <div class="product-badges-meta">
-          <span class="product-tag" v-if="product.categoria">{{ product.categoria }}</span>
           <span
+            v-if="product.categoria"
+            class="product-tag"
+          >{{ product.categoria }}</span>
+          <span
+            v-if="product.stock !== undefined"
             class="product-tag"
             :class="{ 'product-tag--low': product.stock <= 5 }"
-            v-if="product.stock !== undefined"
             :aria-label="`Stock: ${product.stock} unidades disponibles`"
           >
             {{ product.stock > 0 ? `${product.stock} uds` : 'Agotado' }}
           </span>
         </div>
-        <span class="product-price" aria-label="Precio: ${{ Number(product.precio || 0).toFixed(2) }}">
+        <span
+          class="product-price"
+          aria-label="Precio: ${{ Number(product.precio || 0).toFixed(2) }}"
+        >
           ${{ Number(product.precio || 0).toFixed(2) }}
         </span>
       </div>
 
-      <div class="product-size-row" v-if="product.talla">
-        <label :for="`size-${product.id}`" class="size-label">Talla:</label>
+      <div
+        v-if="product.talla"
+        class="product-size-row"
+      >
+        <label
+          :for="`size-${product.id}`"
+          class="size-label"
+        >Talla:</label>
         <select
           :id="`size-${product.id}`"
           class="size-select"
@@ -76,7 +97,9 @@ const imageSrc = computed(() => {
             v-for="t in product.talla.split(/\s*-\s*/)"
             :key="t"
             :value="t"
-          >{{ t }}</option>
+          >
+            {{ t }}
+          </option>
         </select>
       </div>
 

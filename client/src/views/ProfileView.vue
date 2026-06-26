@@ -199,18 +199,37 @@ async function save() {
 </script>
 
 <template>
-  <section class="profile-wrap wrap-wide" aria-labelledby="profile-title">
-
+  <section
+    class="profile-wrap wrap-wide"
+    aria-labelledby="profile-title"
+  >
     <!-- ── Encabezado ─────────────────────────────────────────── -->
     <div class="profile-hero">
       <div class="avatar-ring">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle
+            cx="12"
+            cy="7"
+            r="4"
+          />
         </svg>
       </div>
       <div>
-        <h1 id="profile-title" class="profile-title">Mi Perfil</h1>
+        <h1
+          id="profile-title"
+          class="profile-title"
+        >
+          Mi Perfil
+        </h1>
         <p class="profile-subtitle">
           Gestiona tu información personal. Los cambios se reflejan en toda la tienda,
           incluidos los correos de confirmación de compra.
@@ -219,26 +238,45 @@ async function save() {
     </div>
 
     <!-- ── Loading ────────────────────────────────────────────── -->
-    <div v-if="loadingProfile" class="loading-state" role="status" aria-live="polite">
-      <div class="spinner"></div>
+    <div
+      v-if="loadingProfile"
+      class="loading-state"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="spinner" />
       <p>Cargando tu perfil...</p>
     </div>
 
     <!-- ── Formulario ─────────────────────────────────────────── -->
-    <div v-else class="profile-card">
-
+    <div
+      v-else
+      class="profile-card"
+    >
       <!-- Alertas globales -->
-      <div v-if="successMsg" class="alert alert--success" role="alert" aria-live="assertive">
+      <div
+        v-if="successMsg"
+        class="alert alert--success"
+        role="alert"
+        aria-live="assertive"
+      >
         <span class="alert-icon">✅</span>
         {{ successMsg }}
       </div>
-      <div v-if="errorMsg" class="alert alert--error" role="alert" aria-live="assertive">
+      <div
+        v-if="errorMsg"
+        class="alert alert--error"
+        role="alert"
+        aria-live="assertive"
+      >
         <span class="alert-icon">⚠️</span>
         {{ errorMsg }}
       </div>
 
-      <form @submit.prevent="save" novalidate>
-
+      <form
+        novalidate
+        @submit.prevent="save"
+      >
         <!-- Sección: Cuenta -->
         <div class="form-section">
           <h2 class="form-section__title">
@@ -251,12 +289,14 @@ async function save() {
 
           <div class="form-row">
             <!-- Username -->
-            <div class="form-group" :class="{ 'form-group--error': fieldErrors.username || invalidChar.username, 'shake': shakeAnim.username }">
+            <div
+              class="form-group"
+              :class="{ 'form-group--error': fieldErrors.username || invalidChar.username, 'shake': shakeAnim.username }"
+            >
               <label for="pf-username">Nombre de usuario</label>
               <input
                 id="pf-username"
                 :value="form.username"
-                @input="onUsernameInput"
                 type="text"
                 maxlength="60"
                 autocomplete="username"
@@ -264,18 +304,34 @@ async function save() {
                 required
                 :aria-invalid="!!fieldErrors.username || !!invalidChar.username"
                 aria-describedby="err-username"
-              />
-              <span v-if="invalidChar.username" class="field-error" role="alert">
+                @input="onUsernameInput"
+              >
+              <span
+                v-if="invalidChar.username"
+                class="field-error"
+                role="alert"
+              >
                 Caracter inválido
               </span>
-              <span v-else-if="fieldErrors.username" id="err-username" class="field-error" role="alert">
+              <span
+                v-else-if="fieldErrors.username"
+                id="err-username"
+                class="field-error"
+                role="alert"
+              >
                 {{ fieldErrors.username }}
               </span>
-              <span v-else class="field-hint">Solo letras, guiones y guión bajo. Sin números.</span>
+              <span
+                v-else
+                class="field-hint"
+              >Solo letras, guiones y guión bajo. Sin números.</span>
             </div>
 
             <!-- Email -->
-            <div class="form-group" :class="{ 'form-group--error': fieldErrors.email }">
+            <div
+              class="form-group"
+              :class="{ 'form-group--error': fieldErrors.email }"
+            >
               <label for="pf-email">
                 Correo electrónico
                 <span class="label-hint">📧 Las facturas llegan aquí</span>
@@ -290,15 +346,20 @@ async function save() {
                 required
                 :aria-invalid="!!fieldErrors.email"
                 aria-describedby="err-email"
-              />
-              <span v-if="fieldErrors.email" id="err-email" class="field-error" role="alert">
+              >
+              <span
+                v-if="fieldErrors.email"
+                id="err-email"
+                class="field-error"
+                role="alert"
+              >
                 {{ fieldErrors.email }}
               </span>
             </div>
           </div>
         </div>
 
-        <div class="form-divider"></div>
+        <div class="form-divider" />
 
         <!-- Sección: Datos personales -->
         <div class="form-section">
@@ -311,73 +372,118 @@ async function save() {
 
           <div class="form-row">
             <!-- Nombre completo -->
-            <div class="form-group" :class="{ 'form-group--error': fieldErrors.nombre || invalidChar.nombre, 'shake': shakeAnim.nombre }">
+            <div
+              class="form-group"
+              :class="{ 'form-group--error': fieldErrors.nombre || invalidChar.nombre, 'shake': shakeAnim.nombre }"
+            >
               <label for="pf-nombre">Nombre completo</label>
               <input
                 id="pf-nombre"
                 :value="form.nombre"
-                @input="onNombreInput"
                 type="text"
                 maxlength="100"
                 autocomplete="name"
                 placeholder="Juan Pérez"
                 :aria-invalid="!!fieldErrors.nombre || !!invalidChar.nombre"
                 aria-describedby="err-nombre"
-              />
-              <span v-if="invalidChar.nombre" class="field-error" role="alert">
+                @input="onNombreInput"
+              >
+              <span
+                v-if="invalidChar.nombre"
+                class="field-error"
+                role="alert"
+              >
                 Caracter inválido
               </span>
-              <span v-else-if="fieldErrors.nombre" id="err-nombre" class="field-error" role="alert">
+              <span
+                v-else-if="fieldErrors.nombre"
+                id="err-nombre"
+                class="field-error"
+                role="alert"
+              >
                 {{ fieldErrors.nombre }}
               </span>
-              <span v-else class="field-hint">Solo letras y espacios. Sin números ni símbolos.</span>
+              <span
+                v-else
+                class="field-hint"
+              >Solo letras y espacios. Sin números ni símbolos.</span>
             </div>
 
             <!-- Celular -->
-            <div class="form-group" :class="{ 'form-group--error': fieldErrors.celular || invalidChar.celular, 'shake': shakeAnim.celular }">
+            <div
+              class="form-group"
+              :class="{ 'form-group--error': fieldErrors.celular || invalidChar.celular, 'shake': shakeAnim.celular }"
+            >
               <label for="pf-celular">Celular</label>
               <input
                 id="pf-celular"
                 :value="form.celular"
-                @input="onCelularInput"
                 type="tel"
                 maxlength="10"
                 autocomplete="tel"
                 placeholder="0987654321"
                 :aria-invalid="!!fieldErrors.celular || !!invalidChar.celular"
                 aria-describedby="err-celular"
-              />
-              <span v-if="invalidChar.celular" class="field-error" role="alert">
+                @input="onCelularInput"
+              >
+              <span
+                v-if="invalidChar.celular"
+                class="field-error"
+                role="alert"
+              >
                 Caracter inválido
               </span>
-              <span v-else-if="fieldErrors.celular" id="err-celular" class="field-error" role="alert">
+              <span
+                v-else-if="fieldErrors.celular"
+                id="err-celular"
+                class="field-error"
+                role="alert"
+              >
                 {{ fieldErrors.celular }}
               </span>
-              <span v-else class="field-hint">10 dígitos · Ej: 0987654321</span>
+              <span
+                v-else
+                class="field-hint"
+              >10 dígitos · Ej: 0987654321</span>
             </div>
           </div>
 
           <div class="form-row">
             <!-- Teléfono fijo -->
-            <div class="form-group" :class="{ 'form-group--error': fieldErrors.telefono || invalidChar.telefono, 'shake': shakeAnim.telefono }">
+            <div
+              class="form-group"
+              :class="{ 'form-group--error': fieldErrors.telefono || invalidChar.telefono, 'shake': shakeAnim.telefono }"
+            >
               <label for="pf-telefono">Teléfono fijo <span class="label-optional">(opcional)</span></label>
               <input
                 id="pf-telefono"
                 :value="form.telefono"
-                @input="onTelefonoInput"
                 type="tel"
                 maxlength="9"
                 placeholder="022345678"
                 :aria-invalid="!!fieldErrors.telefono || !!invalidChar.telefono"
                 aria-describedby="err-telefono"
-              />
-              <span v-if="invalidChar.telefono" class="field-error" role="alert">
+                @input="onTelefonoInput"
+              >
+              <span
+                v-if="invalidChar.telefono"
+                class="field-error"
+                role="alert"
+              >
                 Caracter inválido
               </span>
-              <span v-else-if="fieldErrors.telefono" id="err-telefono" class="field-error" role="alert">
+              <span
+                v-else-if="fieldErrors.telefono"
+                id="err-telefono"
+                class="field-error"
+                role="alert"
+              >
                 {{ fieldErrors.telefono }}
               </span>
-              <span v-else class="field-hint">7–9 dígitos · Ej: 022345678</span>
+              <span
+                v-else
+                class="field-hint"
+              >7–9 dígitos · Ej: 022345678</span>
             </div>
           </div>
         </div>
@@ -390,14 +496,15 @@ async function save() {
             :disabled="saving"
             :aria-busy="saving"
           >
-            <span v-if="saving" class="btn-spinner"></span>
+            <span
+              v-if="saving"
+              class="btn-spinner"
+            />
             {{ saving ? 'Guardando...' : 'Guardar cambios' }}
           </button>
         </div>
-
       </form>
     </div>
-
   </section>
 </template>
 

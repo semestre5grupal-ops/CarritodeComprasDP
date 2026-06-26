@@ -18,7 +18,7 @@ onMounted(async () => {
     if (data && data.length > 0) {
       stores.value = data.map(b => b.bod_nombre_)
     } else {
-      throw new Error("Sin locales en DB")
+      throw new Error('Sin locales en DB')
     }
   } catch (err) {
     console.error('Error al cargar locales, usando fallback:', err)
@@ -112,25 +112,50 @@ function goToOrders() {
 </script>
 
 <template>
-  <main class="checkout-page wrap-wide" aria-labelledby="checkout-title">
-    <h1 id="checkout-title" class="page-title">Finalizar Compra</h1>
+  <main
+    class="checkout-page wrap-wide"
+    aria-labelledby="checkout-title"
+  >
+    <h1
+      id="checkout-title"
+      class="page-title"
+    >
+      Finalizar Compra
+    </h1>
 
-    <div v-if="items.length === 0" class="empty-cart-message">
+    <div
+      v-if="items.length === 0"
+      class="empty-cart-message"
+    >
       <p>Tu carrito está vacío.</p>
-      <button class="btn btn-secondary" @click="router.push('/catalog')">Ir al Catálogo</button>
+      <button
+        class="btn btn-secondary"
+        @click="router.push('/catalog')"
+      >
+        Ir al Catálogo
+      </button>
     </div>
 
-    <div v-else class="checkout-layout">
-      
+    <div
+      v-else
+      class="checkout-layout"
+    >
       <!-- Columna Izquierda: Formularios -->
       <div class="checkout-steps">
-        
         <!-- Paso 1: Método de Entrega -->
         <section class="checkout-card">
           <h2>1. Método de Entrega</h2>
           <div class="delivery-options">
-            <label class="delivery-option" :class="{ selected: deliveryMethod === 'delivery' }">
-              <input type="radio" v-model="deliveryMethod" value="delivery" name="delivery" />
+            <label
+              class="delivery-option"
+              :class="{ selected: deliveryMethod === 'delivery' }"
+            >
+              <input
+                v-model="deliveryMethod"
+                type="radio"
+                value="delivery"
+                name="delivery"
+              >
               <span class="option-icon">🚚</span>
               <div class="option-text">
                 <strong>Envío a Domicilio</strong>
@@ -138,8 +163,16 @@ function goToOrders() {
               </div>
             </label>
 
-            <label class="delivery-option" :class="{ selected: deliveryMethod === 'pickup' }">
-              <input type="radio" v-model="deliveryMethod" value="pickup" name="delivery" />
+            <label
+              class="delivery-option"
+              :class="{ selected: deliveryMethod === 'pickup' }"
+            >
+              <input
+                v-model="deliveryMethod"
+                type="radio"
+                value="pickup"
+                name="delivery"
+              >
               <span class="option-icon">🏪</span>
               <div class="option-text">
                 <strong>Retiro en Local</strong>
@@ -148,11 +181,29 @@ function goToOrders() {
             </label>
           </div>
 
-          <div v-if="deliveryMethod === 'pickup'" class="store-selection fade-in">
+          <div
+            v-if="deliveryMethod === 'pickup'"
+            class="store-selection fade-in"
+          >
             <label for="store-select">Selecciona el local de retiro:</label>
-            <select id="store-select" v-model="storeLocation" class="input-base">
-              <option value="" disabled>Seleccione un local...</option>
-              <option v-for="store in stores" :key="store" :value="store">{{ store }}</option>
+            <select
+              id="store-select"
+              v-model="storeLocation"
+              class="input-base"
+            >
+              <option
+                value=""
+                disabled
+              >
+                Seleccione un local...
+              </option>
+              <option
+                v-for="store in stores"
+                :key="store"
+                :value="store"
+              >
+                {{ store }}
+              </option>
             </select>
           </div>
         </section>
@@ -161,15 +212,32 @@ function goToOrders() {
         <section class="checkout-card">
           <h2>2. Datos de {{ deliveryMethod === 'delivery' ? 'Envío y Facturación' : 'Facturación' }}</h2>
 
-          <div class="form-group consumidor-final-check" v-if="total <= 50">
+          <div
+            v-if="total <= 50"
+            class="form-group consumidor-final-check"
+          >
             <label class="cf-label">
-              <input type="checkbox" v-model="consumidorFinal" @change="handleConsumidorFinal" />
+              <input
+                v-model="consumidorFinal"
+                type="checkbox"
+                @change="handleConsumidorFinal"
+              >
               Facturar como Consumidor Final
             </label>
           </div>
-          <div class="form-group consumidor-final-check text-muted" v-else>
-            <label class="cf-label" style="opacity: 0.6;" title="Solo disponible para compras hasta $50">
-              <input type="checkbox" disabled />
+          <div
+            v-else
+            class="form-group consumidor-final-check text-muted"
+          >
+            <label
+              class="cf-label"
+              style="opacity: 0.6;"
+              title="Solo disponible para compras hasta $50"
+            >
+              <input
+                type="checkbox"
+                disabled
+              >
               Facturar como Consumidor Final (Solo <= $50)
             </label>
           </div>
@@ -177,23 +245,68 @@ function goToOrders() {
           <div class="form-grid">
             <div class="form-group">
               <label for="cf-nombre">Nombre y Apellido *</label>
-              <input id="cf-nombre" v-model="checkoutForm.nombre" type="text" class="input-base" required @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')" :disabled="consumidorFinal" />
+              <input
+                id="cf-nombre"
+                v-model="checkoutForm.nombre"
+                type="text"
+                class="input-base"
+                required
+                :disabled="consumidorFinal"
+                @input="checkoutForm.nombre = checkoutForm.nombre.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]/g, '')"
+              >
             </div>
             <div class="form-group">
               <label for="cf-cedula">Cédula / RUC *</label>
-              <input id="cf-cedula" v-model="checkoutForm.cedula" type="text" class="input-base" required maxlength="13" @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
+              <input
+                id="cf-cedula"
+                v-model="checkoutForm.cedula"
+                type="text"
+                class="input-base"
+                required
+                maxlength="13"
+                :disabled="consumidorFinal"
+                @input="checkoutForm.cedula = checkoutForm.cedula.replace(/[^0-9]/g, '')"
+              >
             </div>
             <div class="form-group">
               <label for="cf-celular">Celular *</label>
-              <input id="cf-celular" v-model="checkoutForm.celular" type="text" class="input-base" required maxlength="10" @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
+              <input
+                id="cf-celular"
+                v-model="checkoutForm.celular"
+                type="text"
+                class="input-base"
+                required
+                maxlength="10"
+                :disabled="consumidorFinal"
+                @input="checkoutForm.celular = checkoutForm.celular.replace(/[^0-9]/g, '')"
+              >
             </div>
             <div class="form-group">
               <label for="cf-telefono">Teléfono Fijo (Opcional)</label>
-              <input id="cf-telefono" v-model="checkoutForm.telefono" type="text" class="input-base" maxlength="10" @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')" :disabled="consumidorFinal" />
+              <input
+                id="cf-telefono"
+                v-model="checkoutForm.telefono"
+                type="text"
+                class="input-base"
+                maxlength="10"
+                :disabled="consumidorFinal"
+                @input="checkoutForm.telefono = checkoutForm.telefono.replace(/[^0-9]/g, '')"
+              >
             </div>
-            <div class="form-group" v-if="deliveryMethod === 'delivery'" style="grid-column: 1 / -1;">
+            <div
+              v-if="deliveryMethod === 'delivery'"
+              class="form-group"
+              style="grid-column: 1 / -1;"
+            >
               <label for="cf-direccion">Dirección de Entrega *</label>
-              <textarea id="cf-direccion" v-model="checkoutForm.direccion" class="input-base" required rows="2" placeholder="Ej: Av. Francisco de Orellana, Guayaquil. Edificio World Trade Center, Piso 3"></textarea>
+              <textarea
+                id="cf-direccion"
+                v-model="checkoutForm.direccion"
+                class="input-base"
+                required
+                rows="2"
+                placeholder="Ej: Av. Francisco de Orellana, Guayaquil. Edificio World Trade Center, Piso 3"
+              />
             </div>
           </div>
         </section>
@@ -204,13 +317,16 @@ function goToOrders() {
         <h2>Resumen del Pedido</h2>
         
         <ul class="summary-items">
-          <li v-for="item in items" :key="item.id">
+          <li
+            v-for="item in items"
+            :key="item.id"
+          >
             <span class="item-name">{{ item.nombre }} x{{ item.cantidad }}</span>
             <span class="item-price">${{ (item.precio * item.cantidad).toFixed(2) }}</span>
           </li>
         </ul>
 
-        <hr class="summary-divider" />
+        <hr class="summary-divider">
 
         <div class="summary-totals">
           <div class="total-row">
@@ -235,19 +351,38 @@ function goToOrders() {
           {{ submitting ? 'Procesando...' : 'Pagar y Confirmar' }}
         </button>
 
-        <p v-if="submitError" class="error-msg">{{ submitError }}</p>
+        <p
+          v-if="submitError"
+          class="error-msg"
+        >
+          {{ submitError }}
+        </p>
       </aside>
-
     </div>
 
     <!-- Success Modal -->
-    <div class="modal-overlay fade-in" v-if="showSuccessModal">
+    <div
+      v-if="showSuccessModal"
+      class="modal-overlay fade-in"
+    >
       <div class="success-modal">
         <div class="success-content">
-          <div class="icon-success">✅</div>
-          <h2 style="margin-bottom: 0.5rem;">¡Pedido Confirmado!</h2>
-          <p style="color: var(--muted); margin-bottom: 1.5rem;">Tu pedido #{{ orderCreatedId }} se ha generado exitosamente.</p>
-          <button class="btn btn-primary" @click="goToOrders" style="width: 100%;">Ver mis Pedidos</button>
+          <div class="icon-success">
+            ✅
+          </div>
+          <h2 style="margin-bottom: 0.5rem;">
+            ¡Pedido Confirmado!
+          </h2>
+          <p style="color: var(--muted); margin-bottom: 1.5rem;">
+            Tu pedido #{{ orderCreatedId }} se ha generado exitosamente.
+          </p>
+          <button
+            class="btn btn-primary"
+            style="width: 100%;"
+            @click="goToOrders"
+          >
+            Ver mis Pedidos
+          </button>
         </div>
       </div>
     </div>

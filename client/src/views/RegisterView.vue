@@ -59,14 +59,19 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <section class="auth-section wrap-wide" aria-labelledby="register-title">
+  <section
+    class="auth-section wrap-wide"
+    aria-labelledby="register-title"
+  >
     <form
       class="auth-form"
       novalidate
-      @submit.prevent="handleSubmit"
       aria-label="Formulario de registro"
+      @submit.prevent="handleSubmit"
     >
-      <h2 id="register-title">Crear cuenta</h2>
+      <h2 id="register-title">
+        Crear cuenta
+      </h2>
 
       <div
         v-if="serverError"
@@ -77,7 +82,10 @@ async function handleSubmit() {
         {{ serverError }}
       </div>
 
-      <div class="form-group" :class="{ 'has-error': errors.username }">
+      <div
+        class="form-group"
+        :class="{ 'has-error': errors.username }"
+      >
         <label for="reg-username">Usuario</label>
         <input
           id="reg-username"
@@ -91,7 +99,7 @@ async function handleSubmit() {
           placeholder="Ej: juanperez"
           @blur="validateField('username')"
           @input="errors.username && validateField('username')"
-        />
+        >
         <p
           v-if="errors.username"
           :id="`reg-username-err`"
@@ -102,7 +110,10 @@ async function handleSubmit() {
         </p>
       </div>
 
-      <div class="form-group" :class="{ 'has-error': errors.email }">
+      <div
+        class="form-group"
+        :class="{ 'has-error': errors.email }"
+      >
         <label for="reg-email">Correo electrónico</label>
         <input
           id="reg-email"
@@ -116,7 +127,7 @@ async function handleSubmit() {
           placeholder="ejemplo@correo.com"
           @blur="validateField('email')"
           @input="errors.email && validateField('email')"
-        />
+        >
         <p
           v-if="errors.email"
           :id="`reg-email-err`"
@@ -127,7 +138,10 @@ async function handleSubmit() {
         </p>
       </div>
 
-      <div class="form-group" :class="{ 'has-error': errors.password }">
+      <div
+        class="form-group"
+        :class="{ 'has-error': errors.password }"
+      >
         <label for="reg-password">Contraseña</label>
         <input
           id="reg-password"
@@ -141,7 +155,7 @@ async function handleSubmit() {
           placeholder="Mín. 6, mayúscula, minúscula, número"
           @blur="validateField('password')"
           @input="errors.password && validateField('password')"
-        />
+        >
         <p
           v-if="errors.password"
           :id="`reg-password-err`"
@@ -162,7 +176,9 @@ async function handleSubmit() {
 
       <p class="auth-link">
         ¿Ya tienes cuenta?
-        <router-link to="/login">Inicia sesión aquí</router-link>
+        <router-link to="/login">
+          Inicia sesión aquí
+        </router-link>
       </p>
     </form>
   </section>

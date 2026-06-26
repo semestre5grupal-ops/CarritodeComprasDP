@@ -57,7 +57,7 @@ async function create(req, res, next) {
           cli_correo: req.user.email || 'correo@correo.com',
           cli_categoria: 1,
           cli_estado: true
-        }).catch(_e => ({ id_cliente: req.user.id }))
+        }).catch(() => ({ id_cliente: req.user.id }))
       }
     } else if (!cliente) {
       const ciudad = await PedidoModel.getFirstCiudad() || { id_ciudad: 1 }
@@ -70,7 +70,7 @@ async function create(req, res, next) {
         cli_correo: req.user.email || 'correo@correo.com',
         cli_categoria: 1,
         cli_estado: true
-      }).catch(_e => ({ id_cliente: req.user.id }))
+      }).catch(() => ({ id_cliente: req.user.id }))
     }
 
     let descuento = 0
@@ -127,10 +127,10 @@ async function getMyOrders(req, res, next) {
 
     const documentos = await PedidoModel.findAllMyOrders(cliente.id_cliente)
     const pedidos = documentos.map(doc => {
-      let descripcion = { metodo: 'delivery' }
+      let descripcion
       try {
         descripcion = doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
-      } catch(e) {
+      } catch {
         descripcion = { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
       }
       return {
@@ -178,18 +178,18 @@ async function getAll(req, res, next) {
       descripcion: (() => {
         try {
           return doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
-        } catch (e) {
+        } catch {
           return { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
         }
       })(),
       status: (() => {
         try {
           if (doc.doc_descripcion) {
-            const d = JSON.parse(doc.doc_descripcion);
-            return d.status || 'Pendiente';
+            const d = JSON.parse(doc.doc_descripcion)
+            return d.status || 'Pendiente'
           }
-          return 'Pendiente';
-        } catch (e) { return 'Pendiente'; }
+          return 'Pendiente'
+        } catch { return 'Pendiente' }
       })(),
       detalles: doc.productosxdocumento.map(pxd => ({
         productoId: pxd.variantes_producto.productos.id_producto,

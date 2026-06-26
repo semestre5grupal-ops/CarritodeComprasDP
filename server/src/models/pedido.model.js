@@ -116,41 +116,41 @@ class PedidoModel {
   }
 
   async updateStatus(id, status) {
-    const doc = await prisma.documentos.findUnique({ where: { id_documento: parseInt(id) } });
-    if (!doc) throw new Error('Pedido no encontrado');
+    const doc = await prisma.documentos.findUnique({ where: { id_documento: parseInt(id) } })
+    if (!doc) throw new Error('Pedido no encontrado')
 
-    let descObj = { metodo: 'delivery' };
+    let descObj = { metodo: 'delivery' }
     try {
-      if (doc.doc_descripcion) descObj = JSON.parse(doc.doc_descripcion);
-    } catch (e) {
-      descObj.text = doc.doc_descripcion;
+      if (doc.doc_descripcion) descObj = JSON.parse(doc.doc_descripcion)
+    } catch {
+      descObj.text = doc.doc_descripcion
     }
     
-    descObj.status = status;
+    descObj.status = status
     
     return prisma.documentos.update({
       where: { id_documento: parseInt(id) },
       data: { doc_descripcion: JSON.stringify(descObj) }
-    });
+    })
   }
   async deleteTransaction(id) {
     return prisma.$transaction(async (tx) => {
       const doc = await tx.documentos.findUnique({
         where: { id_documento: parseInt(id) },
         include: { productosxdocumento: true }
-      });
+      })
 
-      if (!doc) { throw new Error('Pedido no encontrado'); }
+      if (!doc) { throw new Error('Pedido no encontrado') }
 
       await tx.productosxdocumento.deleteMany({
         where: { id_documento: parseInt(id) }
-      });
+      })
 
       await tx.documentos.delete({
         where: { id_documento: parseInt(id) }
-      });
+      })
 
-      return true;
+      return true
     })
   }
 
@@ -164,10 +164,10 @@ class PedidoModel {
     })
     if (!doc) throw new Error('Pedido no encontrado')
 
-    let descripcion = {}
+    let descripcion
     try {
       descripcion = doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : {}
-    } catch (_) {
+    } catch {
       descripcion = { raw: doc.doc_descripcion }
     }
 

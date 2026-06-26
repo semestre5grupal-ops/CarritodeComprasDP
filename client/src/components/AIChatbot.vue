@@ -28,11 +28,11 @@ async function sendMessage() {
 
   try {
     // Preparar el historial (tomando solo los últimos 6 mensajes para no consumir excesivos tokens ni sobrepasar límites)
-    const recentConversation = conversation.value.slice(-6);
+    const recentConversation = conversation.value.slice(-6)
     const history = recentConversation.map(msg => ({
       role: msg.sender === 'user' ? 'user' : 'assistant',
       content: msg.text
-    }));
+    }))
 
     const response = await api.post('/ia/chat', { history })
     conversation.value.push({ sender: 'bot', text: response.reply || 'No pude entender tu solicitud.' })
@@ -57,26 +57,58 @@ function scrollToBottom() {
   <div class="ai-chatbot-container">
     <button 
       class="chat-toggle-btn" 
-      @click="toggleChat"
       :aria-expanded="isOpen"
       aria-label="Abrir Asistente Virtual"
+      @click="toggleChat"
     >
-      <svg v-if="!isOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <svg
+        v-if="!isOpen"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
-      <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
+      <svg
+        v-else
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line
+          x1="18"
+          y1="6"
+          x2="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          y1="6"
+          x2="18"
+          y2="18"
+        />
       </svg>
     </button>
 
-    <div v-show="isOpen" class="chat-window">
+    <div
+      v-show="isOpen"
+      class="chat-window"
+    >
       <div class="chat-header">
         <h3>Asistente Virtual</h3>
         <span class="bot-status">En línea</span>
       </div>
       
-      <div class="chat-messages" ref="chatContainer">
+      <div
+        ref="chatContainer"
+        class="chat-messages"
+      >
         <div 
           v-for="(msg, index) in conversation" 
           :key="index"
@@ -84,20 +116,29 @@ function scrollToBottom() {
         >
           <p>{{ msg.text }}</p>
         </div>
-        <div v-if="isLoading" class="chat-bubble bot-bubble loading-bubble">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div
+          v-if="isLoading"
+          class="chat-bubble bot-bubble loading-bubble"
+        >
+          <span class="dot" /><span class="dot" /><span class="dot" />
         </div>
       </div>
 
-      <form @submit.prevent="sendMessage" class="chat-input-area">
+      <form
+        class="chat-input-area"
+        @submit.prevent="sendMessage"
+      >
         <input 
-          type="text" 
           v-model="message" 
+          type="text" 
           placeholder="Escribe tu duda aquí..." 
           :disabled="isLoading"
           required
-        />
-        <button type="submit" :disabled="isLoading || !message.trim()">
+        >
+        <button
+          type="submit"
+          :disabled="isLoading || !message.trim()"
+        >
           Enviar
         </button>
       </form>

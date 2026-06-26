@@ -19,7 +19,7 @@ export function generateInvoiceDoc(order) {
   doc.setTextColor(50, 50, 50)
   doc.text(`ID Pedido: #${order.id}`, 14, 45)
   doc.text(`Fecha: ${new Date(order.createdAt).toLocaleDateString('es-EC')}`, 14, 50)
-  doc.text(`Estado: Pagado`, 14, 55)
+  doc.text('Estado: Pagado', 14, 55)
 
   // Datos del Cliente
   const cli = order.clienteDatos || { nombre: order.usuario?.username }
@@ -31,10 +31,10 @@ export function generateInvoiceDoc(order) {
   }
 
   // Tabla
-  const tableColumn = ["Producto", "Cantidad", "Precio Unit.", "Subtotal"]
+  const tableColumn = ['Producto', 'Cantidad', 'Precio Unit.', 'Subtotal']
   const tableRows = []
 
-  let subtotalFactura = 0;
+  let subtotalFactura = 0
 
   order.detalles?.forEach(d => {
     const nombre = d.producto?.nombre || `Producto #${d.productoId}`
@@ -59,7 +59,7 @@ export function generateInvoiceDoc(order) {
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
   doc.text(`Subtotal: $${subtotalFactura.toFixed(2)}`, 140, finalY + 10)
-  doc.text(`IVA (0%): $0.00`, 140, finalY + 18)
+  doc.text('IVA (0%): $0.00', 140, finalY + 18)
   doc.setFontSize(14)
   doc.text(`Total: $${Number(order.total || 0).toFixed(2)}`, 140, finalY + 28)
 

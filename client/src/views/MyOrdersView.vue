@@ -182,29 +182,48 @@ function getStatusEmoji(status) {
 </script>
 
 <template>
-  <section class="wrap-wide" aria-labelledby="orders-title" style="margin-top: 2rem;">
+  <section
+    class="wrap-wide"
+    aria-labelledby="orders-title"
+    style="margin-top: 2rem;"
+  >
     <div class="section-heading">
       <div class="heading-row">
         <div>
-          <h2 id="orders-title">Mis Pedidos</h2>
-          <p class="section-subtitle">Haz clic en un pedido para ver su estado detallado</p>
+          <h2 id="orders-title">
+            Mis Pedidos
+          </h2>
+          <p class="section-subtitle">
+            Haz clic en un pedido para ver su estado detallado
+          </p>
         </div>
         <div class="heading-actions">
-          <span v-if="lastUpdated" class="last-updated">
+          <span
+            v-if="lastUpdated"
+            class="last-updated"
+          >
             🕐 Actualizado: {{ formatLastUpdated(lastUpdated) }}
           </span>
           <button
             class="btn-refresh"
             :class="{ 'btn-refresh--spinning': silentRefreshing }"
-            @click="silentRefresh"
             :disabled="silentRefreshing"
             title="Actualizar pedidos"
             aria-label="Actualizar mis pedidos"
+            @click="silentRefresh"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <polyline points="23 4 23 10 17 10"/>
-              <polyline points="1 20 1 14 7 14"/>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
             </svg>
             {{ silentRefreshing ? 'Actualizando...' : 'Actualizar' }}
           </button>
@@ -212,35 +231,59 @@ function getStatusEmoji(status) {
       </div>
     </div>
 
-    <div v-if="error" class="form-alert form-alert--error" role="alert" aria-live="assertive">
+    <div
+      v-if="error"
+      class="form-alert form-alert--error"
+      role="alert"
+      aria-live="assertive"
+    >
       {{ error }}
     </div>
 
-    <div v-if="loading" class="loading" role="status" aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
+    <div
+      v-if="loading"
+      class="loading"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        class="spinner"
+        aria-hidden="true"
+      />
       <p>Cargando tus pedidos...</p>
     </div>
 
-    <div v-else-if="orders.length === 0" class="empty-message" role="status">
-      <div class="empty-icon">🛍️</div>
+    <div
+      v-else-if="orders.length === 0"
+      class="empty-message"
+      role="status"
+    >
+      <div class="empty-icon">
+        🛍️
+      </div>
       No has realizado ningún pedido aún. ¡Explora nuestro catálogo!
     </div>
 
     <!-- Grid de tarjetas -->
-    <div v-else class="orders-grid">
+    <div
+      v-else
+      class="orders-grid"
+    >
       <article
         v-for="o in orders"
         :key="o.id"
         class="order-card"
-        @click="openDetail(o)"
         :aria-label="`Pedido #${o.id}, estado ${o.status || 'Pendiente'}`"
         tabindex="0"
+        @click="openDetail(o)"
         @keydown.enter="openDetail(o)"
         @keydown.space.prevent="openDetail(o)"
       >
         <!-- Header de la tarjeta -->
         <div class="card-header">
-          <div class="card-id">#{{ o.id }}</div>
+          <div class="card-id">
+            #{{ o.id }}
+          </div>
           <span
             class="status-pill"
             :style="{ background: getStatusColor(o.status || 'Pendiente') + '22', color: getStatusColor(o.status || 'Pendiente'), borderColor: getStatusColor(o.status || 'Pendiente') + '55' }"
@@ -250,79 +293,177 @@ function getStatusEmoji(status) {
         </div>
 
         <!-- Mini stepper visual en la tarjeta -->
-        <div class="card-mini-stepper" v-if="(o.status || 'Pendiente') !== 'Cancelado'">
+        <div
+          v-if="(o.status || 'Pendiente') !== 'Cancelado'"
+          class="card-mini-stepper"
+        >
           <div
             v-for="step in 4"
             :key="step"
             class="mini-step"
             :class="{ 'mini-step--done': statusToStep(o.status || 'Pendiente') >= step }"
-          ></div>
+          />
         </div>
-        <div class="card-mini-stepper" v-else>
-          <div class="mini-step mini-step--cancelled" v-for="s in 4" :key="s"></div>
+        <div
+          v-else
+          class="card-mini-stepper"
+        >
+          <div
+            v-for="s in 4"
+            :key="s"
+            class="mini-step mini-step--cancelled"
+          />
         </div>
 
         <!-- Productos del pedido -->
-        <ul class="card-products" v-if="o.detalles?.length">
-          <li v-for="(d, i) in o.detalles.slice(0, 2)" :key="i">
+        <ul
+          v-if="o.detalles?.length"
+          class="card-products"
+        >
+          <li
+            v-for="(d, i) in o.detalles.slice(0, 2)"
+            :key="i"
+          >
             {{ d.producto?.nombre || `Producto #${d.productoId}` }}
             <span class="qty">x{{ d.cantidad }}</span>
           </li>
-          <li v-if="o.detalles.length > 2" class="more-items">
+          <li
+            v-if="o.detalles.length > 2"
+            class="more-items"
+          >
             +{{ o.detalles.length - 2 }} producto(s) más
           </li>
         </ul>
 
         <!-- Footer de la tarjeta -->
         <div class="card-footer">
-          <div class="card-date">📅 {{ new Date(o.createdAt).toLocaleDateString('es-EC') }}</div>
-          <div class="card-total">${{ Number(o.total || 0).toFixed(2) }}</div>
+          <div class="card-date">
+            📅 {{ new Date(o.createdAt).toLocaleDateString('es-EC') }}
+          </div>
+          <div class="card-total">
+            ${{ Number(o.total || 0).toFixed(2) }}
+          </div>
         </div>
 
-        <div class="card-click-hint">Ver detalle →</div>
+        <div class="card-click-hint">
+          Ver detalle →
+        </div>
       </article>
     </div>
   </section>
 
   <!-- ====== MODAL DETALLE DE PEDIDO ====== -->
-  <dialog ref="detailDialog" class="detail-modal" aria-labelledby="detail-title" @click.self="closeDetail">
-    <div class="detail-content" v-if="selectedOrder">
-
+  <dialog
+    ref="detailDialog"
+    class="detail-modal"
+    aria-labelledby="detail-title"
+    @click.self="closeDetail"
+  >
+    <div
+      v-if="selectedOrder"
+      class="detail-content"
+    >
       <!-- Header del modal -->
       <div class="detail-header">
         <div>
-          <h2 id="detail-title">Pedido #{{ selectedOrder.id }}</h2>
-          <p class="detail-date">{{ new Date(selectedOrder.createdAt).toLocaleDateString('es-EC', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+          <h2 id="detail-title">
+            Pedido #{{ selectedOrder.id }}
+          </h2>
+          <p class="detail-date">
+            {{ new Date(selectedOrder.createdAt).toLocaleDateString('es-EC', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}
+          </p>
         </div>
-        <button class="close-btn" @click="closeDetail" aria-label="Cerrar detalle">✕</button>
+        <button
+          class="close-btn"
+          aria-label="Cerrar detalle"
+          @click="closeDetail"
+        >
+          ✕
+        </button>
       </div>
 
       <!-- ====== FLUJO DE ESTADO ====== -->
       <div class="flow-section">
-        <h3 class="flow-title">Estado del Pedido</h3>
+        <h3 class="flow-title">
+          Estado del Pedido
+        </h3>
 
         <!-- Estado CANCELADO: X grande sobre los pasos -->
-        <div v-if="selectedOrder.status === 'Cancelado'" class="cancelled-overlay-wrap">
+        <div
+          v-if="selectedOrder.status === 'Cancelado'"
+          class="cancelled-overlay-wrap"
+        >
           <div class="flow-steps flow-steps--faded">
-            <div class="flow-step" v-for="(step, idx) in getFlowSteps(selectedOrder)" :key="idx">
-              <div class="flow-step__icon">{{ step.icon }}</div>
-              <div class="flow-step__label">{{ step.label }}</div>
-              <div class="flow-connector" v-if="idx < getFlowSteps(selectedOrder).length - 1"></div>
+            <div
+              v-for="(step, idx) in getFlowSteps(selectedOrder)"
+              :key="idx"
+              class="flow-step"
+            >
+              <div class="flow-step__icon">
+                {{ step.icon }}
+              </div>
+              <div class="flow-step__label">
+                {{ step.label }}
+              </div>
+              <div
+                v-if="idx < getFlowSteps(selectedOrder).length - 1"
+                class="flow-connector"
+              />
             </div>
           </div>
-          <div class="cancelled-x" aria-label="Pedido cancelado">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="60" cy="60" r="55" fill="#ef444420" stroke="#ef4444" stroke-width="4"/>
-              <line x1="30" y1="30" x2="90" y2="90" stroke="#ef4444" stroke-width="10" stroke-linecap="round" class="cancel-line cancel-line--1"/>
-              <line x1="90" y1="30" x2="30" y2="90" stroke="#ef4444" stroke-width="10" stroke-linecap="round" class="cancel-line cancel-line--2"/>
+          <div
+            class="cancelled-x"
+            aria-label="Pedido cancelado"
+          >
+            <svg
+              viewBox="0 0 120 120"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="55"
+                fill="#ef444420"
+                stroke="#ef4444"
+                stroke-width="4"
+              />
+              <line
+                x1="30"
+                y1="30"
+                x2="90"
+                y2="90"
+                stroke="#ef4444"
+                stroke-width="10"
+                stroke-linecap="round"
+                class="cancel-line cancel-line--1"
+              />
+              <line
+                x1="90"
+                y1="30"
+                x2="30"
+                y2="90"
+                stroke="#ef4444"
+                stroke-width="10"
+                stroke-linecap="round"
+                class="cancel-line cancel-line--2"
+              />
             </svg>
-            <p class="cancelled-text">Pedido Cancelado</p>
+            <p class="cancelled-text">
+              Pedido Cancelado
+            </p>
           </div>
         </div>
 
         <!-- Estado NORMAL: flujo de pasos animado -->
-        <div v-else class="flow-steps">
-          <template v-for="(step, idx) in getFlowSteps(selectedOrder)" :key="idx">
+        <div
+          v-else
+          class="flow-steps"
+        >
+          <template
+            v-for="(step, idx) in getFlowSteps(selectedOrder)"
+            :key="idx"
+          >
             <div
               class="flow-step"
               :class="{
@@ -331,29 +472,47 @@ function getStatusEmoji(status) {
               }"
             >
               <div class="flow-step__circle">
-                <div class="flow-step__icon">{{ step.icon }}</div>
-                <div v-if="statusToStep(selectedOrder.status || 'Pendiente') === step.step" class="pulse-ring"></div>
+                <div class="flow-step__icon">
+                  {{ step.icon }}
+                </div>
+                <div
+                  v-if="statusToStep(selectedOrder.status || 'Pendiente') === step.step"
+                  class="pulse-ring"
+                />
               </div>
-              <div class="flow-step__label">{{ step.label }}</div>
-              <div class="flow-step__sublabel">Paso {{ step.step }}</div>
+              <div class="flow-step__label">
+                {{ step.label }}
+              </div>
+              <div class="flow-step__sublabel">
+                Paso {{ step.step }}
+              </div>
             </div>
             <div
               v-if="idx < getFlowSteps(selectedOrder).length - 1"
               class="flow-connector"
               :class="{ 'flow-connector--done': statusToStep(selectedOrder.status || 'Pendiente') > step.step }"
-            ></div>
+            />
           </template>
         </div>
 
         <!-- Mensaje del estado actual -->
-        <div class="status-message" v-if="selectedOrder.status !== 'Cancelado'">
-          <span class="status-dot" :style="{ background: getStatusColor(selectedOrder.status || 'Pendiente') }"></span>
+        <div
+          v-if="selectedOrder.status !== 'Cancelado'"
+          class="status-message"
+        >
+          <span
+            class="status-dot"
+            :style="{ background: getStatusColor(selectedOrder.status || 'Pendiente') }"
+          />
           <span>{{ statusMessages[selectedOrder.status || 'Pendiente'] }}</span>
         </div>
       </div>
 
       <!-- Dirección / Retiro -->
-      <div class="detail-section" v-if="selectedOrder.descripcion">
+      <div
+        v-if="selectedOrder.descripcion"
+        class="detail-section"
+      >
         <h3 class="detail-section__title">
           {{ selectedOrder.descripcion.metodo === 'pickup' ? '🏪 Retiro en Local' : '📍 Dirección de Entrega' }}
         </h3>
@@ -366,9 +525,15 @@ function getStatusEmoji(status) {
 
       <!-- Lista de productos -->
       <div class="detail-section">
-        <h3 class="detail-section__title">🛍️ Productos</h3>
+        <h3 class="detail-section__title">
+          🛍️ Productos
+        </h3>
         <ul class="detail-products-list">
-          <li v-for="(d, i) in selectedOrder.detalles" :key="i" class="detail-product-item">
+          <li
+            v-for="(d, i) in selectedOrder.detalles"
+            :key="i"
+            class="detail-product-item"
+          >
             <span class="dp-name">{{ d.producto?.nombre || `Producto #${d.productoId}` }}</span>
             <span class="dp-qty">x{{ d.cantidad }}</span>
             <span class="dp-price">${{ Number(d.precioUnitario || 0).toFixed(2) }}</span>
@@ -382,7 +547,10 @@ function getStatusEmoji(status) {
 
       <!-- Acciones -->
       <div class="detail-actions">
-        <button class="action-btn action-btn--pdf" @click="downloadInvoice(selectedOrder)">
+        <button
+          class="action-btn action-btn--pdf"
+          @click="downloadInvoice(selectedOrder)"
+        >
           ⬇️ Descargar Factura
         </button>
         <button
@@ -392,7 +560,10 @@ function getStatusEmoji(status) {
         >
           🏪 Código QR
         </button>
-        <button class="action-btn action-btn--reorder" @click="reorder(selectedOrder); closeDetail()">
+        <button
+          class="action-btn action-btn--reorder"
+          @click="reorder(selectedOrder); closeDetail()"
+        >
           🔄 Reordenar
         </button>
       </div>
@@ -400,9 +571,18 @@ function getStatusEmoji(status) {
   </dialog>
 
   <!-- ====== MODAL QR (sin cambios) ====== -->
-  <dialog ref="qrDialog" class="qr-modal" aria-labelledby="qr-dialog-title">
-    <div class="qr-modal-content" v-if="selectedOrderForQr">
-      <h2 id="qr-dialog-title">Retiro en Tienda</h2>
+  <dialog
+    ref="qrDialog"
+    class="qr-modal"
+    aria-labelledby="qr-dialog-title"
+  >
+    <div
+      v-if="selectedOrderForQr"
+      class="qr-modal-content"
+    >
+      <h2 id="qr-dialog-title">
+        Retiro en Tienda
+      </h2>
       <p class="qr-instruction">
         Muestra este código al cajero en la sucursal para verificar y entregar tu paquete.
       </p>
@@ -414,11 +594,22 @@ function getStatusEmoji(status) {
           render-as="svg"
         />
       </div>
-      <p class="qr-order-id">Pedido #{{ selectedOrderForQr.id }}</p>
-      <p v-if="selectedOrderForQr.descripcion?.local" style="margin-top: -10px; margin-bottom: 15px; color: var(--muted); font-size: 0.9rem;">
+      <p class="qr-order-id">
+        Pedido #{{ selectedOrderForQr.id }}
+      </p>
+      <p
+        v-if="selectedOrderForQr.descripcion?.local"
+        style="margin-top: -10px; margin-bottom: 15px; color: var(--muted); font-size: 0.9rem;"
+      >
         Local: {{ selectedOrderForQr.descripcion.local }}
       </p>
-      <button type="button" class="btn btn-primary btn--full" @click="closeQrModal">Cerrar</button>
+      <button
+        type="button"
+        class="btn btn-primary btn--full"
+        @click="closeQrModal"
+      >
+        Cerrar
+      </button>
     </div>
   </dialog>
 </template>

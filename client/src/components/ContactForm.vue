@@ -1,38 +1,109 @@
 <template>
-  <section id="contacto-section" class="contact-section" aria-labelledby="sec-formulario">
-      <div class="section-heading">
-          <h2 id="sec-formulario">Escríbenos</h2>
-          <p>Déjanos tus datos y te contactaremos por WhatsApp.</p>
+  <section
+    id="contacto-section"
+    class="contact-section"
+    aria-labelledby="sec-formulario"
+  >
+    <div class="section-heading">
+      <h2 id="sec-formulario">
+        Escríbenos
+      </h2>
+      <p>Déjanos tus datos y te contactaremos por WhatsApp.</p>
+    </div>
+
+    <form
+      id="form-contacto"
+      class="form-accesible"
+      novalidate
+      aria-label="Formulario de contacto"
+      @submit.prevent="handleSubmit"
+    >
+      <div class="form-group">
+        <label for="nombre">Nombre completo:</label>
+        <input
+          id="nombre"
+          type="text"
+          v-model="form.nombre"
+          name="nombre"
+          required
+          minlength="3"
+          maxlength="50"
+          aria-describedby="err-nombre"
+          autocomplete="name"
+          aria-required="true"
+          @input="sanitizeNombre"
+          @blur="validateNombre"
+        >
+        <span
+          id="err-nombre"
+          class="error-msg"
+          role="alert"
+          :hidden="!errors.nombre"
+        >{{ errors.nombre || 'El nombre es obligatorio y debe tener al menos 3 caracteres (solo letras).' }}</span>
       </div>
 
-      <form id="form-contacto" class="form-accesible" novalidate aria-label="Formulario de contacto" @submit.prevent="handleSubmit">
-          <div class="form-group">
-              <label for="nombre">Nombre completo:</label>
-              <input type="text" id="nombre" name="nombre" required minlength="3" maxlength="50"
-                  aria-describedby="err-nombre" autocomplete="name"
-                  aria-required="true" v-model="form.nombre" @input="sanitizeNombre" @blur="validateNombre">
-              <span id="err-nombre" class="error-msg" role="alert" :hidden="!errors.nombre">{{ errors.nombre || 'El nombre es obligatorio y debe tener al menos 3 caracteres (solo letras).' }}</span>
-          </div>
+      <div class="form-group">
+        <label for="correo">Correo electrónico:</label>
+        <input
+          id="correo"
+          v-model="form.correo"
+          type="email"
+          name="correo"
+          required
+          autocomplete="email"
+          aria-describedby="err-correo"
+          aria-required="true"
+          @blur="validateCorreo"
+        >
+        <span
+          id="err-correo"
+          class="error-msg"
+          role="alert"
+          :hidden="!errors.correo"
+        >{{ errors.correo || 'Revisa el formato (p. ej., usuario@dominio.com).' }}</span>
+      </div>
 
-          <div class="form-group">
-              <label for="correo">Correo electrónico:</label>
-              <input type="email" id="correo" name="correo" required autocomplete="email"
-                  aria-describedby="err-correo" aria-required="true" v-model="form.correo" @blur="validateCorreo">
-              <span id="err-correo" class="error-msg" role="alert" :hidden="!errors.correo">{{ errors.correo || 'Revisa el formato (p. ej., usuario@dominio.com).' }}</span>
-          </div>
+      <div class="form-group">
+        <label for="telefono">Teléfono (10 dígitos, empieza con 09):</label>
+        <input
+          id="telefono"
+          v-model="form.telefono"
+          type="tel"
+          name="telefono"
+          required
+          pattern="^09\d{8}$"
+          inputmode="numeric"
+          aria-describedby="err-telefono"
+          aria-required="true"
+          @input="sanitizeTelefono"
+          @blur="validateTelefono"
+        >
+        <span
+          id="err-telefono"
+          class="error-msg"
+          role="alert"
+          :hidden="!errors.telefono"
+        >{{ errors.telefono || 'El teléfono debe empezar con 09 y contener exactamente 10 dígitos.' }}</span>
+      </div>
 
-          <div class="form-group">
-              <label for="telefono">Teléfono (10 dígitos, empieza con 09):</label>
-              <input type="tel" id="telefono" name="telefono" required pattern="^09\d{8}$"
-                  inputmode="numeric" aria-describedby="err-telefono" aria-required="true" v-model="form.telefono" @input="sanitizeTelefono" @blur="validateTelefono">
-              <span id="err-telefono" class="error-msg" role="alert" :hidden="!errors.telefono">{{ errors.telefono || 'El teléfono debe empezar con 09 y contener exactamente 10 dígitos.' }}</span>
-          </div>
-
-          <button type="submit" id="btn-submit-contacto" class="btn btn-primary"
-              style="width: 100%; margin-top: 1rem;" :disabled="hasErrors || isSubmitting" :aria-disabled="hasErrors || isSubmitting">Enviar mensaje</button>
+      <button
+        id="btn-submit-contacto"
+        type="submit"
+        class="btn btn-primary"
+        style="width: 100%; margin-top: 1rem;"
+        :disabled="hasErrors || isSubmitting"
+        :aria-disabled="hasErrors || isSubmitting"
+      >
+        Enviar mensaje
+      </button>
               
-          <p v-if="success" style="margin-top: 1rem; color: #166534; font-weight: 600; text-align: center;">✅ Mensaje enviado. ¡Gracias por contactarnos!</p>
-      </form>
+      <p
+        v-if="success"
+        style="margin-top: 1rem; color: #166534; font-weight: 600; text-align: center;"
+      >
+        ✅ Mensaje enviado. ¡Gracias por contactarnos!
+      </p>
+    </form>
   </section>
 </template>
 

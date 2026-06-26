@@ -47,14 +47,19 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <section class="auth-section wrap-wide" aria-labelledby="login-title">
+  <section
+    class="auth-section wrap-wide"
+    aria-labelledby="login-title"
+  >
     <form
       class="auth-form"
       novalidate
-      @submit.prevent="handleSubmit"
       aria-label="Formulario de inicio de sesión"
+      @submit.prevent="handleSubmit"
     >
-      <h2 id="login-title">Iniciar sesión</h2>
+      <h2 id="login-title">
+        Iniciar sesión
+      </h2>
 
       <div
         v-if="serverError"
@@ -65,7 +70,10 @@ async function handleSubmit() {
         {{ serverError }}
       </div>
 
-      <div class="form-group" :class="{ 'has-error': errors.username }">
+      <div
+        class="form-group"
+        :class="{ 'has-error': errors.username }"
+      >
         <label for="login-username">Usuario</label>
         <input
           id="login-username"
@@ -79,7 +87,7 @@ async function handleSubmit() {
           placeholder="Tu nombre de usuario"
           @blur="validateField('username')"
           @input="errors.username && validateField('username')"
-        />
+        >
         <p
           v-if="errors.username"
           :id="`login-username-err`"
@@ -90,7 +98,10 @@ async function handleSubmit() {
         </p>
       </div>
 
-      <div class="form-group" :class="{ 'has-error': errors.password }">
+      <div
+        class="form-group"
+        :class="{ 'has-error': errors.password }"
+      >
         <label for="login-password">Contraseña</label>
         <input
           id="login-password"
@@ -104,7 +115,7 @@ async function handleSubmit() {
           placeholder="Tu contraseña"
           @blur="validateField('password')"
           @input="errors.password && validateField('password')"
-        />
+        >
         <p
           v-if="errors.password"
           :id="`login-password-err`"
@@ -125,7 +136,9 @@ async function handleSubmit() {
 
       <p class="auth-link">
         ¿No tienes cuenta?
-        <router-link to="/register">Regístrate aquí</router-link>
+        <router-link to="/register">
+          Regístrate aquí
+        </router-link>
       </p>
     </form>
   </section>

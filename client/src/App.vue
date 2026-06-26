@@ -75,22 +75,55 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+  <a
+    class="skip-link"
+    href="#main-content"
+  >Saltar al contenido principal</a>
 
-  <div v-if="showPromoBanner" class="promo-banner" role="alert" aria-live="polite">
+  <div
+    v-if="showPromoBanner"
+    class="promo-banner"
+    role="alert"
+    aria-live="polite"
+  >
     <p>¡Usa el código <strong>DEPORTE20</strong> para un 20% de descuento en tu primera compra!</p>
-    <button type="button" @click="closePromoBanner" aria-label="Cerrar banner promocional">×</button>
+    <button
+      type="button"
+      aria-label="Cerrar banner promocional"
+      @click="closePromoBanner"
+    >
+      ×
+    </button>
   </div>
 
   <CartDrawer />
 
-  <div v-if="showLogoutModal" class="modal-overlay" @click="cancelLogout">
-    <div class="modal-content" @click.stop>
+  <div
+    v-if="showLogoutModal"
+    class="modal-overlay"
+    @click="cancelLogout"
+  >
+    <div
+      class="modal-content"
+      @click.stop
+    >
       <h3>Cerrar sesión</h3>
       <p>¿Está seguro que desea cerrar su sesión?</p>
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" @click="cancelLogout">Cancelar</button>
-        <button type="button" class="btn btn-dark" @click="handleLogout">Sí, salir</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="cancelLogout"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-dark"
+          @click="handleLogout"
+        >
+          Sí, salir
+        </button>
       </div>
     </div>
   </div>
@@ -98,47 +131,169 @@ onUnmounted(() => {
   <header class="site-header">
     <div class="nav-bar wrap-wide">
       <h1 class="brand">
-        <router-link to="/" aria-label="Volver al inicio">
+        <router-link
+          to="/"
+          aria-label="Volver al inicio"
+        >
           Shop<span>sport</span>
         </router-link>
       </h1>
 
-      <nav class="primary-nav" aria-label="Navegación principal">
+      <nav
+        class="primary-nav"
+        aria-label="Navegación principal"
+      >
         <ul>
-          <li><router-link to="/">Inicio</router-link></li>
-          <li><router-link to="/catalog">Catálogo</router-link></li>
+          <li>
+            <router-link to="/">
+              Inicio
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/catalog">
+              Catálogo
+            </router-link>
+          </li>
         </ul>
       </nav>
 
-      <div class="nav-actions" aria-label="Acciones rápidas">
+      <div
+        class="nav-actions"
+        aria-label="Acciones rápidas"
+      >
         <template v-if="isAuthenticated">
           <div class="user-dropdown-container">
-            <span class="nav-pill btn-user" style="cursor: pointer;">
-              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+            <span
+              class="nav-pill btn-user"
+              style="cursor: pointer;"
+            >
+              <svg
+                aria-hidden="true"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle
+                  cx="12"
+                  cy="7"
+                  r="4"
+                />
               </svg>
               <span class="user-text">{{ user?.username }}</span>
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
-                <path d="M6 9l6 6 6-6"></path>
+              <svg
+                aria-hidden="true"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="chevron"
+              >
+                <path d="M6 9l6 6 6-6" />
               </svg>
             </span>
             <div class="user-dropdown-menu">
-              <router-link to="/mis-pedidos" class="dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+              <router-link
+                to="/mis-pedidos"
+                class="dropdown-item"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                ><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect
+                  x="9"
+                  y="3"
+                  width="6"
+                  height="4"
+                  rx="1"
+                /></svg>
                 Mis Pedidos
               </router-link>
-              <router-link to="/perfil" class="dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <router-link
+                to="/perfil"
+                class="dropdown-item"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle
+                  cx="12"
+                  cy="7"
+                  r="4"
+                /></svg>
                 Mi Perfil
               </router-link>
-              <router-link v-if="isAdmin" to="/admin" class="dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <router-link
+                v-if="isAdmin"
+                to="/admin"
+                class="dropdown-item"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                ><rect
+                  x="3"
+                  y="3"
+                  width="7"
+                  height="7"
+                /><rect
+                  x="14"
+                  y="3"
+                  width="7"
+                  height="7"
+                /><rect
+                  x="14"
+                  y="14"
+                  width="7"
+                  height="7"
+                /><rect
+                  x="3"
+                  y="14"
+                  width="7"
+                  height="7"
+                /></svg>
                 Admin
               </router-link>
-              <div class="dropdown-divider"></div>
-              <button type="button" class="dropdown-item dropdown-item--danger" @click="confirmLogout">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <div class="dropdown-divider" />
+              <button
+                type="button"
+                class="dropdown-item dropdown-item--danger"
+                @click="confirmLogout"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line
+                  x1="21"
+                  y1="12"
+                  x2="9"
+                  y2="12"
+                /></svg>
                 Salir
               </button>
             </div>
@@ -150,9 +305,21 @@ onUnmounted(() => {
             class="nav-pill btn-user"
             aria-label="Iniciar sesión"
           >
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
+            <svg
+              aria-hidden="true"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle
+                cx="12"
+                cy="7"
+                r="4"
+              />
             </svg>
             <span class="user-text">Login</span>
           </router-link>
@@ -164,33 +331,71 @@ onUnmounted(() => {
           :aria-label="`Abrir carrito, ${itemCount} artículos`"
           @click="openDrawer"
         >
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z" />
+            <line
+              x1="3"
+              y1="6"
+              x2="21"
+              y2="6"
+            />
+            <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
-          <span class="cart-badge" aria-hidden="true">{{ itemCount }}</span>
+          <span
+            class="cart-badge"
+            aria-hidden="true"
+          >{{ itemCount }}</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main id="main-content" aria-label="Contenido principal">
+  <main
+    id="main-content"
+    aria-label="Contenido principal"
+  >
     <router-view />
   </main>
 
-  <footer class="site-footer wrap-wide" aria-label="Pie de página">
+  <footer
+    class="site-footer wrap-wide"
+    aria-label="Pie de página"
+  >
     <div>
-      <h2 class="brand" style="margin-bottom: 0.5rem;">
-        <router-link to="/" aria-label="Volver al inicio">Shop<span>sport</span></router-link>
+      <h2
+        class="brand"
+        style="margin-bottom: 0.5rem;"
+      >
+        <router-link
+          to="/"
+          aria-label="Volver al inicio"
+        >
+          Shop<span>sport</span>
+        </router-link>
       </h2>
       <p>Ropa deportiva minimalista para una tienda clara, ordenada y fácil de navegar.</p>
     </div>
     <nav aria-label="Vínculos internos">
       <h3>Nosotros</h3>
       <ul>
-        <li><router-link to="/">Inicio</router-link></li>
-        <li><router-link to="/catalog">Catálogo</router-link></li>
+        <li>
+          <router-link to="/">
+            Inicio
+          </router-link>
+        </li>
+        <li>
+          <router-link to="/catalog">
+            Catálogo
+          </router-link>
+        </li>
       </ul>
     </nav>
     <div aria-label="Medios de contacto">
