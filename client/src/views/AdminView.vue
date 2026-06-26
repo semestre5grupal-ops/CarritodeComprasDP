@@ -32,6 +32,7 @@ const savingUser = ref(false)
 
 const orderFormDialog = ref(null)
 const editingOrderId = ref(null)
+const editingOrder = ref(null)
 const orderForm = ref({ status: 'Pendiente' })
 const orderFormError = ref('')
 const savingOrder = ref(false)
@@ -263,11 +264,15 @@ async function executeDelete() {
 // --- Orders Functions ---
 function openOrderEditForm(order) {
   editingOrderId.value = order.id
+  editingOrder.value = order
   orderForm.value.status = order.status || 'Pendiente'
   orderFormError.value = ''
   orderFormDialog.value?.showModal()
 }
-function closeOrderForm() { orderFormDialog.value?.close() }
+function closeOrderForm() {
+  orderFormDialog.value?.close()
+  editingOrder.value = null
+}
 async function saveOrder() {
   savingOrder.value = true; orderFormError.value = ''
   try {
@@ -534,7 +539,7 @@ onUnmounted(() => {
               </td>
               <td>${{ Number(o.total || 0).toFixed(2) }}</td>
               <td>
-                <span class="status-badge" :class="'status-' + (o.status?.toLowerCase() || 'pendiente')">
+                <span class="status-badge" :class="'status-' + (o.status?.replace(/ /g, '-').toLowerCase() || 'pendiente')">
                   {{ o.status || 'Pendiente' }}
                 </span>
               </td>
@@ -847,7 +852,8 @@ onUnmounted(() => {
           <select id="of-status" v-model="orderForm.status" required>
             <option value="Pendiente">Pendiente</option>
             <option value="Procesando">Procesando</option>
-            <option value="Enviado">Enviado</option>
+            <option v-if="editingOrder?.descripcion?.metodo === 'pickup'" value="Listo para retirar">Listo para retirar</option>
+            <option v-else value="Enviado">Enviado</option>
             <option value="Entregado">Entregado</option>
             <option value="Cancelado">Cancelado</option>
           </select>

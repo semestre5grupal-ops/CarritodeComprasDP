@@ -16,10 +16,21 @@ const flowSteps = [
   { step: 4, icon: '✅', label: 'Entregado' },
 ]
 
+function getFlowSteps(order) {
+  const isPickup = order?.descripcion?.metodo === 'pickup'
+  return [
+    { step: 1, icon: '🕐', label: 'Pendiente' },
+    { step: 2, icon: '⚙️', label: 'Procesando' },
+    { step: 3, icon: isPickup ? '🏪' : '🚚', label: isPickup ? 'Listo para retirar' : 'Enviado' },
+    { step: 4, icon: '✅', label: 'Entregado' },
+  ]
+}
+
 const statusMessages = {
   'Pendiente':  'Tu pedido fue recibido y está en espera de ser procesado.',
   'Procesando': 'Estamos preparando tu pedido con cuidado.',
   'Enviado':    '¡Tu paquete ya está en camino! Pronto lo recibirás.',
+  'Listo para retirar': '¡Tu pedido está listo! Puedes pasar a retirarlo en el local.',
   'Entregado':  '¡Pedido entregado exitosamente! Gracias por tu compra.',
 }
 
@@ -138,6 +149,7 @@ function statusToStep(status) {
     'Pendiente':   1,
     'Procesando':  2,
     'Enviado':     3,
+    'Listo para retirar': 3,
     'Entregado':   4,
     'Cancelado':  -1,
   }
@@ -149,6 +161,7 @@ function getStatusColor(status) {
     'Pendiente':  '#f59e0b',
     'Procesando': '#3b82f6',
     'Enviado':    '#8b5cf6',
+    'Listo para retirar': '#8b5cf6',
     'Entregado':  '#10b981',
     'Cancelado':  '#ef4444',
   }
@@ -160,6 +173,7 @@ function getStatusEmoji(status) {
     'Pendiente':  '🕐',
     'Procesando': '⚙️',
     'Enviado':    '🚚',
+    'Listo para retirar': '🏪',
     'Entregado':  '✅',
     'Cancelado':  '❌',
   }
@@ -290,10 +304,10 @@ function getStatusEmoji(status) {
         <!-- Estado CANCELADO: X grande sobre los pasos -->
         <div v-if="selectedOrder.status === 'Cancelado'" class="cancelled-overlay-wrap">
           <div class="flow-steps flow-steps--faded">
-            <div class="flow-step" v-for="(step, idx) in flowSteps" :key="idx">
+            <div class="flow-step" v-for="(step, idx) in getFlowSteps(selectedOrder)" :key="idx">
               <div class="flow-step__icon">{{ step.icon }}</div>
               <div class="flow-step__label">{{ step.label }}</div>
-              <div class="flow-connector" v-if="idx < flowSteps.length - 1"></div>
+              <div class="flow-connector" v-if="idx < getFlowSteps(selectedOrder).length - 1"></div>
             </div>
           </div>
           <div class="cancelled-x" aria-label="Pedido cancelado">
@@ -308,7 +322,7 @@ function getStatusEmoji(status) {
 
         <!-- Estado NORMAL: flujo de pasos animado -->
         <div v-else class="flow-steps">
-          <template v-for="(step, idx) in flowSteps" :key="idx">
+          <template v-for="(step, idx) in getFlowSteps(selectedOrder)" :key="idx">
             <div
               class="flow-step"
               :class="{
@@ -324,7 +338,7 @@ function getStatusEmoji(status) {
               <div class="flow-step__sublabel">Paso {{ step.step }}</div>
             </div>
             <div
-              v-if="idx < flowSteps.length - 1"
+              v-if="idx < getFlowSteps(selectedOrder).length - 1"
               class="flow-connector"
               :class="{ 'flow-connector--done': statusToStep(selectedOrder.status || 'Pendiente') > step.step }"
             ></div>
