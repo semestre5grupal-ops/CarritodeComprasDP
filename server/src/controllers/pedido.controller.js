@@ -1,5 +1,7 @@
 const PedidoModel = require('../models/pedido.model')
 const nodemailer = require('nodemailer')
+const dns = require('dns')
+dns.setDefaultResultOrder('ipv4first')
 const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env
 
 async function create(req, res, next) {
@@ -246,10 +248,14 @@ async function enviarFacturaCorreo(req, res, next) {
 
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST || 'smtp.mailtrap.io',
-      port: SMTP_PORT || 2525,
+      port: Number(SMTP_PORT) || 2525,
+      secure: Number(SMTP_PORT) === 465, // true para 465, false para otros
       auth: {
         user: SMTP_USER,
         pass: SMTP_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     })
 
