@@ -4,6 +4,7 @@ import ProductController from '../controllers/ProductController'
 import OrderController from '../controllers/OrderController'
 import ReportController from '../controllers/ReportController'
 import api from '../services/api'
+import { getInvoiceBase64 } from '../utils/pdfGenerator'
 
 const activeTab = ref('products')
 const products = ref([])
@@ -276,6 +277,14 @@ async function saveOrder() {
     const orderIndex = orders.value.findIndex(o => o.id === editingOrderId.value)
     if (orderIndex !== -1) {
       orders.value[orderIndex].status = orderForm.value.status
+      
+      // Auto-send invoice if status becomes 'Entregado'
+      if (orderForm.value.status === 'Entregado') {
+        const order = orders.value[orderIndex]
+        const pdfBase64 = getInvoiceBase64(order)
+        // Fire and forget, or await. We can await it to show error if it fails, but let's just do it in background
+        api.post(`/pedidos/${order.id}/enviar-factura`, { pdfBase64 }).catch(console.error)
+      }
     }
     
     closeOrderForm()

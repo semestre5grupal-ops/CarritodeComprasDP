@@ -1,4 +1,6 @@
 const PedidoModel = require('../models/pedido.model')
+const nodemailer = require('nodemailer')
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env
 
 async function create(req, res, next) {
   try {
@@ -223,4 +225,58 @@ async function getLocales(req, res, next) {
   }
 }
 
-module.exports = { create, getMyOrders, getAll, updateStatus, remove, getLocales }
+async function enviarFacturaCorreo(req, res, next) {
+  try {
+    const { id } = req.params
+    const { pdfBase64 } = req.body
+
+    if (!pdfBase64) {
+      return res.status(400).json({ error: 'MISSING_PDF', message: 'No se envió el PDF adjunto' })
+    }
+
+    const documento = (await PedidoModel.findAllOrders()).find(o => String(o.id_documento) === String(id))
+    if (!documento) {
+      return res.status(404).json({ error: 'ORDER_NOT_FOUND', message: 'Pedido no encontrado' })
+    }
+
+    const emailDestino = documento.clientes?.cli_correo
+    if (!emailDestino) {
+      return res.status(400).json({ error: 'NO_EMAIL', message: 'El cliente no tiene un correo registrado' })
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST || 'smtp.mailtrap.io',
+      port: SMTP_PORT || 2525,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS
+      }
+    })
+
+    const base64Data = pdfBase64.replace(/^data:application\/pdf;filename=generated\.pdf;base64,/, '')
+                                .replace(/^data:application\/pdf;base64,/, '')
+    const buffer = Buffer.from(base64Data, 'base64')
+
+    const mailOptions = {
+      from: '"ShopSport" <no-reply@shopsport.com>',
+      to: emailDestino,
+      subject: `Tu Factura de ShopSport - Pedido #${id}`,
+      text: `Hola ${documento.clientes?.cli_nombre || 'Cliente'},\n\nAdjuntamos la factura de tu pedido #${id}.\n\nGracias por tu compra en ShopSport.`,
+      attachments: [
+        {
+          filename: `Factura_ShopSport_Pedido_${id}.pdf`,
+          content: buffer,
+          contentType: 'application/pdf'
+        }
+      ]
+    }
+
+    await transporter.sendMail(mailOptions)
+
+    res.json({ message: 'Factura enviada por correo exitosamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getMyOrders, getAll, updateStatus, remove, getLocales, enviarFacturaCorreo }
