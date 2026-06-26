@@ -49,6 +49,15 @@ async function fetchProfile() {
   }
 }
 
+async function updateProfile(profileData) {
+  const data = await api.put('/auth/profile', profileData)
+  // El backend devuelve un nuevo token con los datos actualizados
+  setToken(data.token)
+  setUser(data.user)
+  user.value = data.user
+  return data
+}
+
 export function useAuth() {
   return {
     user,
@@ -59,5 +68,6 @@ export function useAuth() {
     register,
     logout,
     fetchProfile,
+    updateProfile,
   }
 }

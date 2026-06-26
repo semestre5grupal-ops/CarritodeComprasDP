@@ -104,4 +104,38 @@ async function profile(req, res, next) {
   }
 }
 
-module.exports = { register, login, profile }
+async function updateProfile(req, res, next) {
+  try {
+    const userId = req.user.id
+    const { username, email, nombre, celular, telefono } = req.body
+
+    if (!username && !email && !nombre && !celular && !telefono) {
+      return res.status(400).json({ error: 'NO_DATA', message: 'Debes enviar al menos un campo para actualizar.' })
+    }
+
+    await AuthModel.updateProfile(userId, { username, email, nombre, celular, telefono })
+
+    // Re-obtener el usuario actualizado para devolver un token fresco
+    const updatedUser = await AuthModel.findById(userId)
+    const tokenUser = {
+      id: updatedUser.id_usuario,
+      username: updatedUser.usu_nombre,
+      email: updatedUser.usu_nombrereal,
+      role: updatedUser.usu_rol
+    }
+    const token = generateToken(tokenUser)
+
+    res.json({
+      message: 'Perfil actualizado correctamente',
+      token,
+      user: tokenUser
+    })
+  } catch (err) {
+    if (err.message === 'Usuario no encontrado') {
+      return res.status(404).json({ error: 'NOT_FOUND', message: 'Usuario no encontrado' })
+    }
+    next(err)
+  }
+}
+
+module.exports = { register, login, profile, updateProfile }

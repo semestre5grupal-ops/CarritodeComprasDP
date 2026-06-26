@@ -67,6 +67,45 @@ class AuthModel {
 
     return newUser
   }
+
+  async updateProfile(id, data) {
+    const { username, email, nombre, celular, telefono } = data
+
+    // 1. Obtener datos actuales del usuario
+    const currentUser = await prisma.usuarios.findFirst({
+      where: { id_usuario: id }
+    })
+    if (!currentUser) throw new Error('Usuario no encontrado')
+
+    const oldEmail = currentUser.usu_nombrereal
+
+    // 2. Actualizar tabla usuarios (username y email)
+    const updatedUser = await prisma.usuarios.update({
+      where: { id_usuario: id },
+      data: {
+        usu_nombre: username || currentUser.usu_nombre,
+        usu_nombrereal: email || oldEmail,
+      }
+    })
+
+    // 3. Actualizar tabla clientes vinculada por email (para que las facturas lleguen al correo nuevo)
+    const cliente = await prisma.clientes.findFirst({
+      where: { cli_correo: oldEmail }
+    })
+    if (cliente) {
+      await prisma.clientes.update({
+        where: { id_cliente: cliente.id_cliente },
+        data: {
+          cli_nombre: nombre || username || cliente.cli_nombre,
+          cli_correo: email || oldEmail,
+          cli_celular: celular || cliente.cli_celular,
+          cli_telefono: telefono || cliente.cli_telefono,
+        }
+      })
+    }
+
+    return updatedUser
+  }
 }
 
 module.exports = new AuthModel()

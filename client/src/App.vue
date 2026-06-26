@@ -124,9 +124,23 @@ onUnmounted(() => {
               </svg>
             </span>
             <div class="user-dropdown-menu">
-              <router-link to="/mis-pedidos" class="dropdown-item">Mis Pedidos</router-link>
-              <router-link v-if="isAdmin" to="/admin" class="dropdown-item">Admin</router-link>
-              <button type="button" class="dropdown-item" @click="confirmLogout">Salir</button>
+              <router-link to="/mis-pedidos" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                Mis Pedidos
+              </router-link>
+              <router-link to="/perfil" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Mi Perfil
+              </router-link>
+              <router-link v-if="isAdmin" to="/admin" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Admin
+              </router-link>
+              <div class="dropdown-divider"></div>
+              <button type="button" class="dropdown-item dropdown-item--danger" @click="confirmLogout">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Salir
+              </button>
             </div>
           </div>
         </template>
@@ -263,7 +277,9 @@ onUnmounted(() => {
 }
 
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.6rem 1rem;
   color: var(--ink);
   text-decoration: none;
@@ -280,6 +296,20 @@ onUnmounted(() => {
 .dropdown-item:hover {
   background-color: rgba(97, 168, 184, 0.1);
   color: var(--accent);
+}
+
+.dropdown-item--danger {
+  color: #dc2626;
+}
+.dropdown-item--danger:hover {
+  background-color: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--line, #e2e8f0);
+  margin: 0.25rem 0.5rem;
 }
 
 /* Modal */
