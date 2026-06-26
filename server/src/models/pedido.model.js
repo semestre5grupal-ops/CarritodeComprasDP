@@ -153,6 +153,33 @@ class PedidoModel {
       return true;
     })
   }
+
+  /**
+   * Actualiza el estado del pedido guardándolo dentro del JSON
+   * que se almacena en doc_descripcion.
+   */
+  async updateOrderStatus(id, status) {
+    const doc = await prisma.documentos.findUnique({
+      where: { id_documento: parseInt(id) }
+    })
+    if (!doc) throw new Error('Pedido no encontrado')
+
+    let descripcion = {}
+    try {
+      descripcion = doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : {}
+    } catch (_) {
+      descripcion = { raw: doc.doc_descripcion }
+    }
+
+    descripcion.status = status
+
+    const newDesc = JSON.stringify(descripcion)
+
+    return prisma.documentos.update({
+      where: { id_documento: parseInt(id) },
+      data: { doc_descripcion: newDesc }
+    })
+  }
 }
 
 module.exports = new PedidoModel()

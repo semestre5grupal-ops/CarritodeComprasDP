@@ -325,7 +325,7 @@ model documentos {
   doc_tipo            String                @db.VarChar(150)
   doc_emision         DateTime              @db.Date
   doc_pago            DateTime?             @db.Date
-  doc_descripcion     String                @db.VarChar(150)
+  doc_descripcion     String                @db.VarChar(500)
   doc_subtotal        Decimal               @db.Decimal(12, 4)
   doc_iva             Decimal               @db.Decimal(12, 4)
   doc_descuento       Decimal               @db.Decimal(12, 4)

@@ -128,6 +128,7 @@ async function getMyOrders(req, res, next) {
 
     const documentos = await PedidoModel.findAllMyOrders(cliente.id_cliente)
 
+<<<<<<< Updated upstream
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
       userId: req.user.id, // Fake userId para que el front no rompa
@@ -166,6 +167,40 @@ async function getMyOrders(req, res, next) {
         }
       }))
     }))
+=======
+    const pedidos = documentos.map(doc => {
+      let descripcion = { metodo: 'delivery' }
+      try {
+        descripcion = doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
+      } catch(e) {
+        descripcion = { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
+      }
+      return {
+        id: doc.id_documento,
+        userId: req.user.id,
+        status: descripcion.status || 'Pendiente',
+        clienteDatos: {
+          nombre: cliente.cli_nombre,
+          cedula: cliente.cli_ciruc,
+          celular: cliente.cli_celular,
+          telefono: cliente.cli_telefono
+        },
+        total: Number(doc.doc_total),
+        createdAt: doc.doc_emision,
+        descripcion,
+        detalles: doc.productosxdocumento.map(pxd => ({
+          productoId: pxd.variantes_producto.productos.id_producto,
+          cantidad: pxd.pxd_cantidad,
+          precioUnitario: Number(pxd.pxd_valor_unitario),
+          producto: {
+            id: pxd.variantes_producto.productos.id_producto,
+            nombre: pxd.variantes_producto.productos.pro_descripcion,
+            imagen: null
+          }
+        }))
+      }
+    })
+>>>>>>> Stashed changes
 
     res.json({ data: pedidos })
   } catch (err) {
@@ -177,6 +212,7 @@ async function getAll(req, res, next) {
   try {
     const documentos = await PedidoModel.findAllOrders()
 
+<<<<<<< Updated upstream
     const pedidos = documentos.map(doc => ({
       id: doc.id_documento,
       userId: req.user.id,
@@ -210,6 +246,35 @@ async function getAll(req, res, next) {
         }
       }))
     }))
+=======
+    const pedidos = documentos.map(doc => {
+      let descripcion = { metodo: 'delivery' }
+      try {
+        descripcion = doc.doc_descripcion ? JSON.parse(doc.doc_descripcion) : { metodo: 'delivery' }
+      } catch(e) {
+        descripcion = { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
+      }
+      return {
+        id: doc.id_documento,
+        userId: req.user.id,
+        status: descripcion.status || 'Pendiente',
+        usuario: { id: req.user.id, username: doc.clientes.cli_nombre, email: doc.clientes.cli_correo },
+        total: Number(doc.doc_total),
+        createdAt: doc.doc_emision,
+        descripcion,
+        detalles: doc.productosxdocumento.map(pxd => ({
+          productoId: pxd.variantes_producto.productos.id_producto,
+          cantidad: pxd.pxd_cantidad,
+          precioUnitario: Number(pxd.pxd_valor_unitario),
+          producto: {
+            id: pxd.variantes_producto.productos.id_producto,
+            nombre: pxd.variantes_producto.productos.pro_descripcion,
+            imagen: null
+          }
+        }))
+      }
+    })
+>>>>>>> Stashed changes
 
     res.json({ data: pedidos })
   } catch (err) {
@@ -219,13 +284,33 @@ async function getAll(req, res, next) {
 
 async function updateStatus(req, res, next) {
   try {
+<<<<<<< Updated upstream
     const { id } = req.params;
     const { status } = req.body;
     
     await PedidoModel.updateStatus(id, status);
     
     res.json({ message: 'Estado del pedido actualizado correctamente' })
+=======
+    const { id } = req.params
+    const { status } = req.body
+
+    const validStatuses = ['Pendiente', 'Procesando', 'Enviado', 'Entregado', 'Cancelado']
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: 'INVALID_STATUS',
+        message: `Estado inválido. Los valores permitidos son: ${validStatuses.join(', ')}`
+      })
+    }
+
+    await PedidoModel.updateOrderStatus(id, status)
+
+    res.json({ message: 'Estado del pedido actualizado correctamente', status })
+>>>>>>> Stashed changes
   } catch (err) {
+    if (err.message === 'Pedido no encontrado') {
+      return res.status(404).json({ error: 'NOT_FOUND', message: 'Pedido no encontrado' })
+    }
     next(err)
   }
 }
