@@ -114,6 +114,25 @@ class PedidoModel {
       orderBy: { doc_emision: 'desc' },
     })
   }
+
+  async updateStatus(id, status) {
+    const doc = await prisma.documentos.findUnique({ where: { id_documento: parseInt(id) } });
+    if (!doc) throw new Error('Pedido no encontrado');
+
+    let descObj = { metodo: 'delivery' };
+    try {
+      if (doc.doc_descripcion) descObj = JSON.parse(doc.doc_descripcion);
+    } catch (e) {
+      descObj.text = doc.doc_descripcion;
+    }
+    
+    descObj.status = status;
+    
+    return prisma.documentos.update({
+      where: { id_documento: parseInt(id) },
+      data: { doc_descripcion: JSON.stringify(descObj) }
+    });
+  }
   async deleteTransaction(id) {
     return prisma.$transaction(async (tx) => {
       const doc = await tx.documentos.findUnique({

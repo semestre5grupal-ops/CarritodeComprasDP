@@ -146,6 +146,15 @@ async function getMyOrders(req, res, next) {
           return { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
         }
       })(),
+      status: (() => {
+        try {
+          if (doc.doc_descripcion) {
+            const d = JSON.parse(doc.doc_descripcion);
+            return d.status || 'Pendiente';
+          }
+          return 'Pendiente';
+        } catch(e) { return 'Pendiente'; }
+      })(),
       detalles: doc.productosxdocumento.map(pxd => ({
         productoId: pxd.variantes_producto.productos.id_producto,
         cantidad: pxd.pxd_cantidad,
@@ -181,6 +190,15 @@ async function getAll(req, res, next) {
           return { metodo: 'delivery', doc_descripcion: doc.doc_descripcion }
         }
       })(),
+      status: (() => {
+        try {
+          if (doc.doc_descripcion) {
+            const d = JSON.parse(doc.doc_descripcion);
+            return d.status || 'Pendiente';
+          }
+          return 'Pendiente';
+        } catch(e) { return 'Pendiente'; }
+      })(),
       detalles: doc.productosxdocumento.map(pxd => ({
         productoId: pxd.variantes_producto.productos.id_producto,
         cantidad: pxd.pxd_cantidad,
@@ -201,7 +219,11 @@ async function getAll(req, res, next) {
 
 async function updateStatus(req, res, next) {
   try {
-    // Simular guardado de estado devolviendo un 200 OK
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    await PedidoModel.updateStatus(id, status);
+    
     res.json({ message: 'Estado del pedido actualizado correctamente' })
   } catch (err) {
     next(err)
