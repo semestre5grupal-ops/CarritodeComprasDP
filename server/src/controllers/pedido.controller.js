@@ -280,7 +280,10 @@ async function enviarFacturaCorreo(req, res, next) {
         rejectUnauthorized: false
       },
       // Forzar IPv4 directamente a nivel de socket para evadir el ENETUNREACH de IPv6 en Render
-      family: 4
+      family: 4,
+      connectionTimeout: 10000, // 10 segundos para fallar rápido en vez de colgarse 2 minutos
+      greetingTimeout: 10000,
+      socketTimeout: 10000
     }
 
     const transporter = nodemailer.createTransport(transportConfig)
