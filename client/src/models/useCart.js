@@ -33,6 +33,8 @@ const discount = computed(() => {
 const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.cantidad, 0))
 const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.precio * i.cantidad, 0))
 const total = computed(() => Math.round((subtotal.value - discount.value) * 100) / 100)
+const iva = computed(() => Math.round(total.value * 0.15 * 100) / 100)
+const totalConIva = computed(() => Math.round((total.value + iva.value) * 100) / 100)
 
 function addProduct(product, cantidad = 1) {
   const existing = items.value.find((i) => i.id === product.id)
@@ -132,6 +134,8 @@ export function useCart() {
     subtotal,
     discount,
     total,
+    iva,
+    totalConIva,
     couponCode,
     drawerOpen,
     selectedIds,

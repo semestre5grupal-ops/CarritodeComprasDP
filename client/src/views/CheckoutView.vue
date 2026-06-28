@@ -5,7 +5,7 @@ import { useCart } from '../models/useCart'
 import OrderController from '../controllers/OrderController'
 
 const router = useRouter()
-const { items, total, clearCart } = useCart()
+const { items, subtotal, discount, total, iva, totalConIva, clearCart } = useCart()
 
 const deliveryMethod = ref('delivery') // 'delivery' | 'pickup'
 const storeLocation = ref('')
@@ -47,17 +47,17 @@ const orderCreatedId = ref(null)
 const isFormValid = computed(() => {
   if (items.value.length === 0) return false
   if (deliveryMethod.value === 'pickup' && !storeLocation.value) return false
-  
+
   if (consumidorFinal.value) return true
-  
+
   if (!checkoutForm.value.nombre || !checkoutForm.value.cedula || !checkoutForm.value.celular) {
     return false
   }
-  
+
   if (deliveryMethod.value === 'delivery' && !checkoutForm.value.direccion) {
     return false
   }
-  
+
   return true
 })
 
@@ -94,7 +94,7 @@ async function handleCheckout() {
       direccionEntrega: checkoutForm.value.direccion
     }
     const res = await OrderController.create(data)
-    
+
     orderCreatedId.value = res.data?.id
     clearCart()
     showSuccessModal.value = true
@@ -238,7 +238,7 @@ function goToOrders() {
                 type="checkbox"
                 disabled
               >
-              Facturar como Consumidor Final (Solo <= $50)
+              Facturar como Consumidor Final (Solo &lt;= $50)
             </label>
           </div>
 
@@ -315,7 +315,7 @@ function goToOrders() {
       <!-- Columna Derecha: Resumen de Orden -->
       <aside class="checkout-summary">
         <h2>Resumen del Pedido</h2>
-        
+
         <ul class="summary-items">
           <li
             v-for="item in items"
@@ -331,20 +331,31 @@ function goToOrders() {
         <div class="summary-totals">
           <div class="total-row">
             <span>Subtotal</span>
-            <span>${{ total.toFixed(2) }}</span>
+            <span>${{ subtotal.toFixed(2) }}</span>
+          </div>
+          <div
+            v-if="discount > 0"
+            class="total-row discount-row"
+          >
+            <span>Descuento (20%)</span>
+            <span>-${{ discount.toFixed(2) }}</span>
           </div>
           <div class="total-row">
             <span>Envío</span>
             <span>{{ deliveryMethod === 'pickup' ? 'Gratis' : 'Calculando...' }}</span>
           </div>
+          <div class="total-row iva-row">
+            <span>IVA (15%)</span>
+            <span>+${{ iva.toFixed(2) }}</span>
+          </div>
           <div class="total-row final-total">
             <span>Total a Pagar</span>
-            <span>${{ total.toFixed(2) }}</span>
+            <span>${{ totalConIva.toFixed(2) }}</span>
           </div>
         </div>
 
-        <button 
-          class="btn btn-primary btn--full pay-button" 
+        <button
+          class="btn btn-primary btn--full pay-button"
           :disabled="!isFormValid || submitting"
           @click="handleCheckout"
         >
@@ -582,11 +593,23 @@ function goToOrders() {
   color: var(--muted);
 }
 
+.discount-row {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.iva-row {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .final-total {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--ink);
   margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
 }
 
 .pay-button {

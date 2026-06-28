@@ -5,13 +5,24 @@ import { useCart } from '../models/useCart'
 import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
-const { items, itemCount, subtotal, discount, total, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, submitOrder } = useCart()
+const { items, itemCount, subtotal, discount, total, iva, totalConIva, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, submitOrder } = useCart()
 const { isAuthenticated, user, fetchProfile } = useAuth()
 
 const overlay = ref(null)
 const drawer = ref(null)
 const dialog = ref(null)
 const alertState = ref(null) // 'offline' or 'success'
+
+const allSelected = computed({
+  get: () => items.value.length > 0 && selectedIds.value.size === items.value.length,
+  set: (val) => {
+    if (val) {
+      selectedIds.value = new Set(items.value.map(i => i.id))
+    } else {
+      selectedIds.value = new Set()
+    }
+  }
+})
 
 let previousFocus = null
 
@@ -159,18 +170,8 @@ function closeAlert() {
               stroke="currentColor"
               stroke-width="2"
             >
-              <line
-                x1="18"
-                y1="6"
-                x2="6"
-                y2="18"
-              />
-              <line
-                x1="6"
-                y1="6"
-                x2="18"
-                y2="18"
-              />
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </header>
@@ -284,12 +285,7 @@ function closeAlert() {
                     stroke="currentColor"
                     stroke-width="2"
                   >
-                    <line
-                      x1="5"
-                      y1="12"
-                      x2="19"
-                      y2="12"
-                    />
+                    <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                 </button>
                 <span
@@ -313,18 +309,8 @@ function closeAlert() {
                     stroke="currentColor"
                     stroke-width="2"
                   >
-                    <line
-                      x1="12"
-                      y1="5"
-                      x2="12"
-                      y2="19"
-                    />
-                    <line
-                      x1="5"
-                      y1="12"
-                      x2="19"
-                      y2="12"
-                    />
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                 </button>
               </div>
@@ -344,28 +330,20 @@ function closeAlert() {
                   stroke="currentColor"
                   stroke-width="2"
                 >
-                  <line
-                    x1="18"
-                    y1="6"
-                    x2="6"
-                    y2="18"
-                  />
-                  <line
-                    x1="6"
-                    y1="6"
-                    x2="18"
-                    y2="18"
-                  />
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </li>
           </ul>
 
+          <!-- Resumen de totales -->
           <div class="drawer-summary">
             <div class="summary-row">
               <span>Subtotal</span>
               <span>${{ subtotal.toFixed(2) }}</span>
             </div>
+
             <div class="coupon-section">
               <input
                 id="cart-coupon"
@@ -375,7 +353,6 @@ function closeAlert() {
                 placeholder="Ingresa cupón (ej: DEPORTE20)"
                 class="coupon-input"
                 aria-label="Cupón de descuento"
-                @input="sanitizeCoupon"
               >
               <div
                 v-if="couponCode.trim() !== '' && couponCode.trim().toUpperCase() !== 'DEPORTE20'"
@@ -384,6 +361,7 @@ function closeAlert() {
                 Cupón inválido
               </div>
             </div>
+
             <div
               v-if="discount > 0"
               class="summary-row discount-row"
@@ -391,9 +369,15 @@ function closeAlert() {
               <span>Descuento (20%)</span>
               <span>-${{ discount.toFixed(2) }}</span>
             </div>
+
+            <div class="summary-row iva-row">
+              <span>IVA (15%)</span>
+              <span>+${{ iva.toFixed(2) }}</span>
+            </div>
+
             <div class="summary-row summary-total">
               <span>Total</span>
-              <span>${{ total.toFixed(2) }}</span>
+              <span>${{ totalConIva.toFixed(2) }}</span>
             </div>
           </div>
 
@@ -704,6 +688,11 @@ function closeAlert() {
   margin-top: 0.25rem;
   padding-left: 0.25rem;
   font-weight: 500;
+}
+
+.iva-row {
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .summary-total {
