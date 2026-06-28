@@ -300,14 +300,14 @@ async function enviarFacturaCorreo(req, res, next) {
     }
 
     try {
-      await transporter.sendMail(mailOptions)
-      console.log(`Factura enviada a ${emailDestino} para pedido #${id}`)
+      const info = await transporter.sendMail(mailOptions)
+      console.log(`Factura enviada a ${emailDestino} para pedido #${id}. ID del mensaje: ${info.messageId}`)
+      res.json({ message: 'Factura enviada por correo exitosamente a ' + emailDestino })
     } catch (err) {
-      console.error('Error al enviar correo (credenciales SMTP faltantes o inválidas):', err.message)
-      // No lanzamos el error para no romper la experiencia del frontend con un 500
+      console.error('Error al enviar correo SMTP:', err.message)
+      // Lanzamos el error con status 500 para que el frontend lo sepa
+      return res.status(500).json({ error: 'EMAIL_SEND_FAILED', message: 'Fallo el envío del correo. Verifica las credenciales SMTP.' })
     }
-
-    res.json({ message: 'Factura procesada exitosamente (correo intentado)' })
   } catch (err) {
     next(err)
   }
