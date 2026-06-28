@@ -268,8 +268,22 @@ async function enviarFacturaCorreo(req, res, next) {
       return res.status(400).json({ error: 'NO_EMAIL', message: 'El cliente no tiene un correo registrado' })
     }
 
+    let hostAddress = SMTP_HOST || 'smtp.mailtrap.io'
+    if (SMTP_HOST && SMTP_HOST.includes('gmail.com')) {
+      try {
+        const dns = require('dns')
+        const util = require('util')
+        const lookup = util.promisify(dns.lookup)
+        const { address } = await lookup(SMTP_HOST, { family: 4 })
+        hostAddress = address
+        console.log(`DNS IPv4 resuelto para ${SMTP_HOST}: ${hostAddress}`)
+      } catch (err) {
+        console.error('Error resolviendo DNS de Gmail a IPv4:', err)
+      }
+    }
+
     const transportConfig = {
-      host: SMTP_HOST || 'smtp.mailtrap.io',
+      host: hostAddress,
       port: Number(SMTP_PORT) || 2525,
       secure: Number(SMTP_PORT) === 465, // true para 465, false para otros
       auth: {
@@ -279,9 +293,9 @@ async function enviarFacturaCorreo(req, res, next) {
       tls: {
         rejectUnauthorized: false
       },
-      // Forzar IPv4 directamente a nivel de socket para evadir el ENETUNREACH de IPv6 en Render
+      // Forzar IPv4
       family: 4,
-      connectionTimeout: 10000, // 10 segundos para fallar rápido en vez de colgarse 2 minutos
+      connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 10000
     }
