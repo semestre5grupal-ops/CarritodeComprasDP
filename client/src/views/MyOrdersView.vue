@@ -140,6 +140,27 @@ function closeQrModal() {
   selectedOrderForQr.value = null
 }
 
+function getOrderTotals(order) {
+  if (!order) return { subtotal: 0, descuento: 0, iva: 0, envio: 0, total: 0 }
+  const subtotal = Number(order.subtotal != null ? order.subtotal : (order.total || 0))
+  const descuento = Number(order.descuento || 0)
+  const base = subtotal - descuento
+  
+  let iva = Number(order.iva || 0)
+  if (iva === 0) {
+    iva = Math.round(base * 0.15 * 100) / 100
+  }
+  
+  let envio = Number(order.envio || 0)
+  if (envio === 0 && order.descripcion?.metodo === 'delivery') {
+    envio = 2.50
+  }
+  
+  const total = Math.round((base + iva + envio) * 100) / 100
+  
+  return { subtotal, descuento, base, iva, envio, total }
+}
+
 /**
  * Convierte el status a un número de paso:
  * 1 = Pendiente, 2 = Procesando, 3 = Enviado, 4 = Entregado, -1 = Cancelado
@@ -337,11 +358,17 @@ function getStatusEmoji(status) {
 
         <!-- Footer de la tarjeta -->
         <div class="card-footer">
-          <div class="card-date">
-            📅 {{ new Date(o.createdAt).toLocaleDateString('es-EC') }}
+          <div class="card-date-col">
+            <div class="card-date">
+              📅 {{ new Date(o.createdAt).toLocaleDateString('es-EC') }}
+            </div>
+            <div class="card-sub-details">
+              <span>IVA: +${{ getOrderTotals(o).iva.toFixed(2) }}</span>
+              <span>Envío: {{ getOrderTotals(o).envio > 0 ? '+$' + getOrderTotals(o).envio.toFixed(2) : 'Gratis' }}</span>
+            </div>
           </div>
           <div class="card-total">
-            ${{ Number(o.total || 0).toFixed(2) }}
+            ${{ getOrderTotals(o).total.toFixed(2) }}
           </div>
         </div>
 
@@ -539,9 +566,30 @@ function getStatusEmoji(status) {
             <span class="dp-price">${{ Number(d.precioUnitario || 0).toFixed(2) }}</span>
           </li>
         </ul>
-        <div class="detail-total">
-          <span>Total</span>
-          <strong>${{ Number(selectedOrder.total || 0).toFixed(2) }}</strong>
+        <div class="detail-totals">
+          <div class="detail-total-row">
+            <span>Subtotal</span>
+            <span>${{ getOrderTotals(selectedOrder).subtotal.toFixed(2) }}</span>
+          </div>
+          <div
+            v-if="getOrderTotals(selectedOrder).descuento > 0"
+            class="detail-total-row detail-discount"
+          >
+            <span>Descuento (20%)</span>
+            <span>-${{ getOrderTotals(selectedOrder).descuento.toFixed(2) }}</span>
+          </div>
+          <div class="detail-total-row detail-iva">
+            <span>IVA (15%)</span>
+            <span>+${{ getOrderTotals(selectedOrder).iva.toFixed(2) }}</span>
+          </div>
+          <div class="detail-total-row detail-envio">
+            <span>Envío</span>
+            <span>{{ getOrderTotals(selectedOrder).envio > 0 ? '+$' + getOrderTotals(selectedOrder).envio.toFixed(2) : 'Gratis' }}</span>
+          </div>
+          <div class="detail-total-row detail-total-final">
+            <span>Total</span>
+            <strong>${{ getOrderTotals(selectedOrder).total.toFixed(2) }}</strong>
+          </div>
         </div>
       </div>
 
@@ -1097,16 +1145,50 @@ function getStatusEmoji(status) {
 }
 .dp-price { font-weight: 600; color: var(--ink, #1e293b); }
 
-.detail-total {
+.detail-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line, #e2e8f0);
+}
+.detail-total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted, #64748b);
+}
+.detail-discount {
+  color: #10b981;
+  font-weight: 600;
+}
+.detail-iva, .detail-envio {
+  color: var(--muted, #64748b);
+  font-size: 0.85rem;
+}
+.detail-total-final {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--ink, #1e293b);
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line, #e2e8f0);
+  margin-top: 0.25rem;
 }
-.detail-total strong { font-size: 1.25rem; color: var(--accent, #6366f1); }
+.detail-total-final strong { font-size: 1.25rem; color: var(--accent, #6366f1); }
+
+/* Sub detalles en la tarjeta */
+.card-date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.card-sub-details {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  color: var(--muted, #94a3b8);
+}
 
 /* ─── Botones de acciones ────────────────────────────────── */
 .detail-actions {
@@ -1115,9 +1197,6 @@ function getStatusEmoji(status) {
   flex-wrap: wrap;
 }
 .action-btn {
-  flex: 1;
-  min-width: 130px;
-  padding: 0.65rem 1rem;
   border-radius: 0.6rem;
   border: 1px solid;
   cursor: pointer;

@@ -5,7 +5,7 @@ import { useCart } from '../models/useCart'
 import { useAuth } from '../models/useAuth'
 
 const router = useRouter()
-const { items, itemCount, subtotal, discount, total, iva, totalConIva, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, submitOrder } = useCart()
+const { items, itemCount, subtotal, discount, total, iva, envio, totalConIva, couponCode, drawerOpen, selectedIds, addProduct, updateQuantity, removeProduct, removeSelected, toggleSelected, closeDrawer, submitOrder } = useCart()
 const { isAuthenticated, user, fetchProfile } = useAuth()
 
 const overlay = ref(null)
@@ -375,6 +375,11 @@ function closeAlert() {
               <span>+${{ iva.toFixed(2) }}</span>
             </div>
 
+            <div class="summary-row envio-row">
+              <span>Envío</span>
+              <span>{{ envio > 0 ? '+$' + envio.toFixed(2) : 'Gratis' }}</span>
+            </div>
+
             <div class="summary-row summary-total">
               <span>Total</span>
               <span>${{ totalConIva.toFixed(2) }}</span>
@@ -691,6 +696,11 @@ function closeAlert() {
 }
 
 .iva-row {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.envio-row {
   color: var(--muted);
   font-size: 0.85rem;
 }

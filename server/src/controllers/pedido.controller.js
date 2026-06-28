@@ -96,6 +96,9 @@ async function create(req, res, next) {
       id: pedido.id_documento,
       userId: userId,
       descripcion: pedido.doc_descripcion ? JSON.parse(pedido.doc_descripcion) : { metodo: 'delivery' },
+      subtotal: Number(pedido.doc_subtotal),
+      descuento: Number(pedido.doc_descuento),
+      iva: Number(pedido.doc_iva),
       total: Number(pedido.doc_total),
       createdAt: pedido.doc_emision,
       detalles: pedido.productosxdocumento.map(pxd => ({
@@ -143,6 +146,9 @@ async function getMyOrders(req, res, next) {
           celular: cliente.cli_celular,
           telefono: cliente.cli_telefono
         },
+        subtotal: Number(doc.doc_subtotal),
+        descuento: Number(doc.doc_descuento),
+        iva: Number(doc.doc_iva),
         total: Number(doc.doc_total),
         createdAt: doc.doc_emision,
         descripcion,

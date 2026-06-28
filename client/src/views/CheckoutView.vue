@@ -5,9 +5,8 @@ import { useCart } from '../models/useCart'
 import OrderController from '../controllers/OrderController'
 
 const router = useRouter()
-const { items, subtotal, discount, total, iva, totalConIva, clearCart } = useCart()
+const { items, subtotal, discount, total, iva, envio, totalConIva, deliveryMethod, clearCart } = useCart()
 
-const deliveryMethod = ref('delivery') // 'delivery' | 'pickup'
 const storeLocation = ref('')
 
 const stores = ref([])
@@ -342,7 +341,7 @@ function goToOrders() {
           </div>
           <div class="total-row">
             <span>Envío</span>
-            <span>{{ deliveryMethod === 'pickup' ? 'Gratis' : 'Calculando...' }}</span>
+            <span>{{ envio > 0 ? '$' + envio.toFixed(2) : 'Gratis' }}</span>
           </div>
           <div class="total-row iva-row">
             <span>IVA (15%)</span>

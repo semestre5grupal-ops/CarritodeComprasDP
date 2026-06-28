@@ -8,7 +8,7 @@ export function generateInvoiceDoc(order) {
   doc.setFontSize(22)
   doc.setTextColor(33, 33, 33)
   doc.text('Factura de Compra', 14, 22)
-  
+
   // Subtítulo / Empresa
   doc.setFontSize(14)
   doc.setTextColor(100, 100, 100)
@@ -30,7 +30,7 @@ export function generateInvoiceDoc(order) {
     doc.text(`Celular: ${cli.celular}`, 120, 55)
   }
 
-  // Tabla
+  // Tabla de productos
   const tableColumn = ['Producto', 'Cantidad', 'Precio Unit.', 'Subtotal']
   const tableRows = []
 
@@ -39,7 +39,7 @@ export function generateInvoiceDoc(order) {
   order.detalles?.forEach(d => {
     const nombre = d.producto?.nombre || `Producto #${d.productoId}`
     const cant = d.cantidad
-    const precioUnit = Number(d.precio_unitario || d.precio_historico || d.precioUnitario || (order.total / cant) || 0)
+    const precioUnit = Number(d.precio_unitario || d.precio_historico || d.precioUnitario || 0)
     const sub = cant * precioUnit
     subtotalFactura += sub
     tableRows.push([nombre, cant, `$${precioUnit.toFixed(2)}`, `$${sub.toFixed(2)}`])
@@ -55,13 +55,61 @@ export function generateInvoiceDoc(order) {
 
   const finalY = doc.lastAutoTable?.finalY || 65
 
-  // Totales
-  doc.setFontSize(12)
+  // ── Cálculo de IVA y Envío ──────────────────────────────────────────────────
+  // Usamos los valores almacenados en el pedido si existen,
+  // o los calculamos a partir del subtotal (para pedidos históricos sin IVA).
+  const storedSubtotal = order.subtotal != null ? Number(order.subtotal) : subtotalFactura
+  const storedDescuento = order.descuento != null ? Number(order.descuento) : 0
+  const base = storedSubtotal - storedDescuento
+
+  let storedIva, storedEnvio, totalFinal
+  if (order.iva != null && Number(order.iva) > 0) {
+    // Pedido nuevo con IVA guardado correctamente
+    storedIva = Number(order.iva)
+    storedEnvio = order.envio != null ? Number(order.envio) : (order.descripcion?.metodo === 'delivery' ? 2.50 : 0)
+    totalFinal = Number(order.total)
+  } else {
+    // Pedido histórico: calculamos el IVA del 15% sobre la base
+    storedIva = Math.round(base * 0.15 * 100) / 100
+    storedEnvio = order.descripcion?.metodo === 'pickup' ? 0 : 2.50
+    totalFinal = Math.round((base + storedIva + storedEnvio) * 100) / 100
+  }
+
+  // ── Totales en el PDF ───────────────────────────────────────────────────────
+  doc.setFontSize(11)
+  doc.setTextColor(80, 80, 80)
+  doc.text(`Subtotal:`, 130, finalY + 12)
+  doc.text(`$${storedSubtotal.toFixed(2)}`, 195, finalY + 12, { align: 'right' })
+
+  let nextY = finalY + 20
+
+  if (storedDescuento > 0) {
+    doc.setTextColor(16, 185, 129) // verde para descuento
+    doc.text(`Descuento (20%):`, 130, nextY)
+    doc.text(`-$${storedDescuento.toFixed(2)}`, 195, nextY, { align: 'right' })
+    doc.setTextColor(80, 80, 80)
+    nextY += 8
+  }
+
+  doc.setTextColor(80, 80, 80)
+  doc.text(`IVA (15%):`, 130, nextY)
+  doc.text(`+$${storedIva.toFixed(2)}`, 195, nextY, { align: 'right' })
+  nextY += 8
+
+  doc.text(`Envío:`, 130, nextY)
+  doc.text(storedEnvio > 0 ? `+$${storedEnvio.toFixed(2)}` : 'Gratis', 195, nextY, { align: 'right' })
+  nextY += 10
+
+  // Línea separadora
+  doc.setDrawColor(180, 180, 180)
+  doc.line(130, nextY - 3, 195, nextY - 3)
+
+  doc.setFontSize(13)
   doc.setTextColor(0, 0, 0)
-  doc.text(`Subtotal: $${subtotalFactura.toFixed(2)}`, 140, finalY + 10)
-  doc.text('IVA (0%): $0.00', 140, finalY + 18)
-  doc.setFontSize(14)
-  doc.text(`Total: $${Number(order.total || 0).toFixed(2)}`, 140, finalY + 28)
+  doc.setFont(undefined, 'bold')
+  doc.text(`TOTAL:`, 130, nextY + 4)
+  doc.text(`$${totalFinal.toFixed(2)}`, 195, nextY + 4, { align: 'right' })
+  doc.setFont(undefined, 'normal')
 
   return doc
 }

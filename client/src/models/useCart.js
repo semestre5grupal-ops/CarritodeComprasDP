@@ -30,11 +30,15 @@ const discount = computed(() => {
   }
   return 0
 })
+const deliveryMethod = ref('delivery') // 'delivery' | 'pickup'
+const ENVIO_COSTO = 2.50
+
 const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.cantidad, 0))
 const subtotal = computed(() => items.value.reduce((sum, i) => sum + i.precio * i.cantidad, 0))
 const total = computed(() => Math.round((subtotal.value - discount.value) * 100) / 100)
 const iva = computed(() => Math.round(total.value * 0.15 * 100) / 100)
-const totalConIva = computed(() => Math.round((total.value + iva.value) * 100) / 100)
+const envio = computed(() => deliveryMethod.value === 'pickup' ? 0 : ENVIO_COSTO)
+const totalConIva = computed(() => Math.round((total.value + iva.value + envio.value) * 100) / 100)
 
 function addProduct(product, cantidad = 1) {
   const existing = items.value.find((i) => i.id === product.id)
@@ -135,7 +139,9 @@ export function useCart() {
     discount,
     total,
     iva,
+    envio,
     totalConIva,
+    deliveryMethod,
     couponCode,
     drawerOpen,
     selectedIds,

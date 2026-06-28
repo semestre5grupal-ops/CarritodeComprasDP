@@ -54,7 +54,9 @@ class PedidoModel {
       // 2. Crear documento
       const subtotal = Math.round(total * 100) / 100
       const descVal = Math.round(descuento * 100) / 100
-      const totalVal = Math.round((subtotal - descVal) * 100) / 100
+      const baseVal = Math.round((subtotal - descVal) * 100) / 100
+      const ivaVal = Math.round(baseVal * 0.15 * 100) / 100
+      const totalVal = Math.round((baseVal + ivaVal) * 100) / 100
       const doc = await tx.documentos.create({
         data: {
           id_cliente: clienteId,
@@ -63,7 +65,7 @@ class PedidoModel {
           doc_emision: new Date(),
           doc_descripcion: descripcion,
           doc_subtotal: subtotal,
-          doc_iva: 0,
+          doc_iva: ivaVal,
           doc_descuento: descVal,
           doc_total: totalVal,
           doc_estado: 'ACT',
