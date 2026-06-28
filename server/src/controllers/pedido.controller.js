@@ -278,15 +278,9 @@ async function enviarFacturaCorreo(req, res, next) {
       },
       tls: {
         rejectUnauthorized: false
-      }
-    }
-
-    // Solución para evitar el error IPv6 ENETUNREACH de Gmail en Render
-    if (SMTP_HOST && SMTP_HOST.includes('gmail.com')) {
-      transportConfig.service = 'gmail'
-      delete transportConfig.host
-      delete transportConfig.port
-      delete transportConfig.secure
+      },
+      // Forzar IPv4 directamente a nivel de socket para evadir el ENETUNREACH de IPv6 en Render
+      family: 4
     }
 
     const transporter = nodemailer.createTransport(transportConfig)
