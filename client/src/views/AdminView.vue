@@ -262,6 +262,22 @@ async function executeDelete() {
 }
 
 // --- Orders Functions ---
+const validTransitions = {
+  'Pendiente': ['Pendiente', 'Procesando', 'Cancelado'],
+  'Procesando': ['Procesando', 'Enviado', 'Listo para retirar', 'Entregado', 'Cancelado'],
+  'Enviado': ['Enviado', 'Entregado'],
+  'Listo para retirar': ['Listo para retirar', 'Entregado'],
+  'Entregado': ['Entregado'],
+  'Cancelado': ['Cancelado']
+}
+
+function isTransitionAllowed(targetStatus) {
+  if (!editingOrder.value) return false
+  const currentStatus = editingOrder.value.status || 'Pendiente'
+  const allowed = validTransitions[currentStatus] || ['Pendiente']
+  return allowed.includes(targetStatus)
+}
+
 function openOrderEditForm(order) {
   editingOrderId.value = order.id
   editingOrder.value = order
@@ -1182,30 +1198,33 @@ onUnmounted(() => {
           <select
             id="of-status"
             v-model="orderForm.status"
+            :disabled="['Entregado', 'Cancelado'].includes(editingOrder?.status)"
             required
           >
-            <option value="Pendiente">
+            <option value="Pendiente" :disabled="!isTransitionAllowed('Pendiente')">
               Pendiente
             </option>
-            <option value="Procesando">
+            <option value="Procesando" :disabled="!isTransitionAllowed('Procesando')">
               Procesando
             </option>
             <option
               v-if="editingOrder?.descripcion?.metodo === 'pickup'"
               value="Listo para retirar"
+              :disabled="!isTransitionAllowed('Listo para retirar')"
             >
               Listo para retirar
             </option>
             <option
               v-else
               value="Enviado"
+              :disabled="!isTransitionAllowed('Enviado')"
             >
               Enviado
             </option>
-            <option value="Entregado">
+            <option value="Entregado" :disabled="!isTransitionAllowed('Entregado')">
               Entregado
             </option>
-            <option value="Cancelado">
+            <option value="Cancelado" :disabled="!isTransitionAllowed('Cancelado')">
               Cancelado
             </option>
           </select>

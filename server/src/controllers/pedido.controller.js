@@ -220,11 +220,45 @@ async function updateStatus(req, res, next) {
     const { id } = req.params
     const { status } = req.body
 
-    const validStatuses = ['Pendiente', 'Procesando', 'Enviado', 'Entregado', 'Cancelado']
+    const validStatuses = ['Pendiente', 'Procesando', 'Enviado', 'Listo para retirar', 'Entregado', 'Cancelado']
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({
         error: 'INVALID_STATUS',
         message: `Estado inválido. Los valores permitidos son: ${validStatuses.join(', ')}`
+      })
+    }
+
+    // Obtener estado actual
+    const documento = (await PedidoModel.findAllOrders()).find(o => String(o.id_documento) === String(id))
+    if (!documento) {
+      return res.status(404).json({ error: 'ORDER_NOT_FOUND', message: 'Pedido no encontrado' })
+    }
+
+    let currentStatus = 'Pendiente'
+    try {
+      if (documento.doc_descripcion) {
+        const d = JSON.parse(documento.doc_descripcion)
+        currentStatus = d.status || 'Pendiente'
+      }
+    } catch {
+      // Ignorar si no hay JSON válido
+    }
+
+    // Máquina de estados (Transiciones permitidas)
+    const validTransitions = {
+      'Pendiente': ['Pendiente', 'Procesando', 'Cancelado'],
+      'Procesando': ['Procesando', 'Enviado', 'Listo para retirar', 'Entregado', 'Cancelado'],
+      'Enviado': ['Enviado', 'Entregado'],
+      'Listo para retirar': ['Listo para retirar', 'Entregado'],
+      'Entregado': ['Entregado'],
+      'Cancelado': ['Cancelado']
+    }
+
+    const allowedNextStates = validTransitions[currentStatus] || ['Pendiente']
+    if (!allowedNextStates.includes(status)) {
+      return res.status(400).json({
+        error: 'INVALID_TRANSITION',
+        message: `No se puede cambiar el estado de "${currentStatus}" a "${status}". Estados permitidos desde aquí: ${allowedNextStates.join(', ')}`
       })
     }
 
