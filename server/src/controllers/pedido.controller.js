@@ -268,7 +268,7 @@ async function enviarFacturaCorreo(req, res, next) {
       return res.status(400).json({ error: 'NO_EMAIL', message: 'El cliente no tiene un correo registrado' })
     }
 
-    const transporter = nodemailer.createTransport({
+    const transportConfig = {
       host: SMTP_HOST || 'smtp.mailtrap.io',
       port: Number(SMTP_PORT) || 2525,
       secure: Number(SMTP_PORT) === 465, // true para 465, false para otros
@@ -279,7 +279,17 @@ async function enviarFacturaCorreo(req, res, next) {
       tls: {
         rejectUnauthorized: false
       }
-    })
+    }
+
+    // Solución para evitar el error IPv6 ENETUNREACH de Gmail en Render
+    if (SMTP_HOST && SMTP_HOST.includes('gmail.com')) {
+      transportConfig.service = 'gmail'
+      delete transportConfig.host
+      delete transportConfig.port
+      delete transportConfig.secure
+    }
+
+    const transporter = nodemailer.createTransport(transportConfig)
 
     const base64Data = pdfBase64.replace(/^data:application\/pdf;filename=generated\.pdf;base64,/, '')
       .replace(/^data:application\/pdf;base64,/, '')
