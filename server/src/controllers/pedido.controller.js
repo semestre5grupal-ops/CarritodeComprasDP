@@ -274,6 +274,46 @@ async function enviarFacturaCorreo(req, res, next) {
       return res.status(400).json({ error: 'NO_EMAIL', message: 'El cliente no tiene un correo registrado' })
     }
 
+    // ======== NUEVA LÓGICA HTTP API (Brevo) ========
+    if (process.env.BREVO_API_KEY) {
+      console.log('Usando Brevo HTTP API para enviar correo a', emailDestino)
+      const base64Data = pdfBase64.replace(/^data:application\/pdf;filename=generated\.pdf;base64,/, '').replace(/^data:application\/pdf;base64,/, '')
+      
+      const payload = {
+        sender: { name: 'ShopSport', email: process.env.BREVO_SENDER_EMAIL || 'semestre5grupal@gmail.com' },
+        to: [{ email: emailDestino }],
+        subject: `Tu Factura de ShopSport - Pedido #${id}`,
+        textContent: `Hola ${documento.clientes?.cli_nombre || 'Cliente'},\n\nAdjuntamos la factura de tu pedido #${id}.\n\nGracias por tu compra en ShopSport.`,
+        attachment: [
+          {
+            name: `Factura_ShopSport_Pedido_${id}.pdf`,
+            content: base64Data
+          }
+        ]
+      }
+
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const errText = await response.text()
+        console.error('Error en Brevo API:', errText)
+        return res.status(500).json({ error: 'EMAIL_SEND_FAILED', message: 'Fallo el envío por Brevo API.' })
+      }
+
+      console.log(`Factura enviada a ${emailDestino} mediante Brevo API para pedido #${id}.`)
+      return res.json({ message: 'Factura enviada por correo exitosamente a ' + emailDestino })
+    }
+    // ===============================================
+
+    // LÓGICA ANTERIOR (Nodemailer SMTP Fallback)
     let hostAddress = SMTP_HOST || 'smtp.mailtrap.io'
     if (SMTP_HOST && SMTP_HOST.includes('gmail.com')) {
       try {
@@ -291,7 +331,7 @@ async function enviarFacturaCorreo(req, res, next) {
     const transportConfig = {
       host: hostAddress,
       port: Number(SMTP_PORT) || 2525,
-      secure: Number(SMTP_PORT) === 465, // true para 465, false para otros
+      secure: Number(SMTP_PORT) === 465, 
       auth: {
         user: SMTP_USER,
         pass: SMTP_PASS
@@ -299,7 +339,6 @@ async function enviarFacturaCorreo(req, res, next) {
       tls: {
         rejectUnauthorized: false
       },
-      // Forzar IPv4
       family: 4,
       connectionTimeout: 10000,
       greetingTimeout: 10000,
@@ -332,7 +371,6 @@ async function enviarFacturaCorreo(req, res, next) {
       res.json({ message: 'Factura enviada por correo exitosamente a ' + emailDestino })
     } catch (err) {
       console.error('Error al enviar correo SMTP:', err.message)
-      // Lanzamos el error con status 500 para que el frontend lo sepa
       return res.status(500).json({ error: 'EMAIL_SEND_FAILED', message: 'Fallo el envío del correo. Verifica las credenciales SMTP.' })
     }
   } catch (err) {
