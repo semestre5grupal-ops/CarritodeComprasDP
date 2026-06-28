@@ -292,7 +292,7 @@ async function enviarFacturaCorreo(req, res, next) {
         ]
       }
 
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const response = await globalThis.fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
           'accept': 'application/json',

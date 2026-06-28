@@ -78,25 +78,25 @@ export function generateInvoiceDoc(order) {
   // ── Totales en el PDF ───────────────────────────────────────────────────────
   doc.setFontSize(11)
   doc.setTextColor(80, 80, 80)
-  doc.text(`Subtotal:`, 130, finalY + 12)
+  doc.text('Subtotal:', 130, finalY + 12)
   doc.text(`$${storedSubtotal.toFixed(2)}`, 195, finalY + 12, { align: 'right' })
 
   let nextY = finalY + 20
 
   if (storedDescuento > 0) {
     doc.setTextColor(16, 185, 129) // verde para descuento
-    doc.text(`Descuento (20%):`, 130, nextY)
+    doc.text('Descuento (20%):', 130, nextY)
     doc.text(`-$${storedDescuento.toFixed(2)}`, 195, nextY, { align: 'right' })
     doc.setTextColor(80, 80, 80)
     nextY += 8
   }
 
   doc.setTextColor(80, 80, 80)
-  doc.text(`IVA (15%):`, 130, nextY)
+  doc.text('IVA (15%):', 130, nextY)
   doc.text(`+$${storedIva.toFixed(2)}`, 195, nextY, { align: 'right' })
   nextY += 8
 
-  doc.text(`Envío:`, 130, nextY)
+  doc.text('Envío:', 130, nextY)
   doc.text(storedEnvio > 0 ? `+$${storedEnvio.toFixed(2)}` : 'Gratis', 195, nextY, { align: 'right' })
   nextY += 10
 
@@ -107,7 +107,7 @@ export function generateInvoiceDoc(order) {
   doc.setFontSize(13)
   doc.setTextColor(0, 0, 0)
   doc.setFont(undefined, 'bold')
-  doc.text(`TOTAL:`, 130, nextY + 4)
+  doc.text('TOTAL:', 130, nextY + 4)
   doc.text(`$${totalFinal.toFixed(2)}`, 195, nextY + 4, { align: 'right' })
   doc.setFont(undefined, 'normal')
 
